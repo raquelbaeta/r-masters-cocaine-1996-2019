@@ -105,3 +105,96 @@ head(eu_retail_avg) # Check
 ## Clean up work environment before cleaning the data relating to cocaine whole-
 ## sale prices in West and Central Europe, 1996-2019.
 rm(re_unweighted_avg, re_weighted_avg, re_weighted_euro_avg, re_inflation_euro_avg)
+
+
+###################################################################################
+
+## Cocaine wholesale price in West and Central Europe, 1996-2019.
+## "price_dollar_western_europe.xlsx" includes the variables for price per gram (cocaine) for wholesale and retail in West and 
+## Central Europe (1996-2019).
+
+##
+## Load the data set from the United Nations Office on Drugs and Crime (1996-2019)
+eu_wholesale <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
+                           sheet = 2,
+                           range = "A34:AF55")
+
+colnames(eu_wholesale)[1] <- "Country" # Rename the first column 
+head(eu_wholesale) # Check 
+
+##
+## Removing the excess years not included in the study (1990 to 1995 and 2020). 
+eu_wholesale[2:7] <- NULL # Remove the years from 1990 to 1995.
+eu_wholesale[26] <- NULL # Remove the year 2020.
+head(eu_wholesale) # Check 
+
+##
+## Transform the data set so that "euro_wholesale" is the variable.
+eu_wholesale <- pivot_longer(eu_wholesale, 
+                             cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", 
+                                      "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", 
+                                      "2018", "2019"),
+                            names_to = "Year",
+                            values_to = "eu_wholesale")
+head(eu_wholesale)
+
+##
+## Annual averages adjusted, weighted and unweighted for prices of cocaine in Western and Central Europe.
+
+##
+## Create a variable for un-weighted average in US$ Dollar
+we_unweighted_avg <- eu_wholesale[409:432, 2:3]
+colnames(we_unweighted_avg)[2] <- "we_unweighted_avg"
+head(we_unweighted_avg)
+
+##
+## Create a variable for weighted average in US$ dollar 
+we_weighted_avg <- eu_wholesale[433:456, 2:3]
+colnames(we_weighted_avg)[2] <- "we_weighted_avg"
+head(we_weighted_avg)
+
+##
+## Create a variable for weighted average in euro 
+we_weighted_euro_avg <- eu_wholesale[457:480, 2:3]
+colnames(we_weighted_euro_avg)[2] <- "we_weighted_euro_avg"
+head(we_weighted_euro_avg)
+
+# Create a variable for inflation weighted average in euro 
+we_inflation_euro_avg <- eu_wholesale[481:504, 2:3]
+colnames(we_inflation_euro_avg)[2] <- "we_inflation_euro_avg"
+head(we_inflation_euro_avg)
+
+##
+## Merge all the annual average data sets together 
+eu_wholesale_avg <- data.frame(we_unweighted_avg, we_weighted_avg, we_weighted_euro_avg, we_inflation_euro_avg)
+head(eu_wholesale_avg) # Check
+
+##
+## Remove the additional columns that were created by the merge
+eu_wholesale_avg[3] <- NULL # Remove "Year.1"
+eu_wholesale_avg[4] <- NULL # Remove "Year.2"
+eu_wholesale_avg[5] <- NULL # Remove "Year.3"
+head(eu_wholesale_avg)
+
+##
+## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
+rm(we_unweighted_avg, we_weighted_avg, we_weighted_euro_avg, we_inflation_euro_avg)
+
+##
+## Merge the "eu_retail" and "eu_wholesale" data sets for West and Central and Central Europe into one by country name and and year.
+eu_cocaine <- merge(eu_retail, eu_wholesale, by = c("Country", "Year"))
+head(eu_cocaine)
+
+##
+## Merge the "eu_retail_avg" and "eu_wholesale_avg" by year.
+eu_cocaine_avg <- merge(eu_retail_avg, eu_wholesale_avg,  by = "Year")
+
+##
+## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
+rm(eu_retail, eu_wholesale, we_weighted_euro_avg, eu_retail_avg, 
+   eu_wholesale_avg)
+
+##
+## Export the data frames: "eu_cocaine" to a CSV file named "europe.csv" and "eu_cocaine_avg" to a CSV file named "eu_cocaine_avg.csv".
+fwrite(eu_cocaine, "eu_cocaine.csv")
+fwrite(eu_cocaine_avg, "eu_cocaine_avg.csv")
