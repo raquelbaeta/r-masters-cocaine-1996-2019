@@ -1,0 +1,104 @@
+## Thesis: The Role of International Commitments in Combating the Illicit
+## Distribution of Cocaine.
+## Author: Raquel Baeta
+## Date: Mon 29 May 2023
+
+
+##
+## Packages needed for analysis 
+install.packages("readxl")
+install.packages("tidyr")
+install.packages("dplyr")
+install.packages("data.table")
+
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(data.table)
+
+
+##
+## This is the set Working directory for the analysis.
+setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
+
+## This section the data utilized for this analysis is sourced from the United Nations Office on Drugs and Crime (UNODC), World Bank ## (WB), and United Nations (UN). The first data set is from the UNODC which includes the variables for prices retail and wholesale 
+## cocaine in West and Central Europe, as well as the US. 
+
+##
+## The data sets 
+## [1] "price_dollar_western_europe.xlsx" includes the variables for price per gram (cocaine) for wholesale and retail in West and 
+## Central Europe (1996-2019).
+## [2] "wb_gdp_export_import" includes variables for export of goods and services and import of goods and services, population, 
+## military government expenditure, Gross Net Income (GNI), and Gross Domestic Product (GDP).
+
+##
+## Cleaning the data 
+
+##
+## [1] Cocaine retail price in West and Central Europe, 1996-2019.
+## "price_dollar_western_europe.xlsx" includes the variables for price per gram (cocaine) for wholesale and retail in West and Central 
+## Europe (1996-2019).
+
+##
+## Load the data set from the United Nations Office on Drugs and Crime (1996-2019)
+euro_retail <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
+                          sheet = 2, range = "A5:AF26")
+
+colnames(euro_retail)[1] <- "Country" # Rename the first column.
+head(euro_retail) # Check
+
+##
+## Removing the excess years not included in the study (1990 to 1995 and 2020). 
+euro_retail[2:7] <- NULL # Remove the years from 1990 to 1995.
+euro_retail[26] <- NULL # Remove the year 2020.
+head(euro_retail) # Check
+
+##
+## Transform the data set so that "euro_retail" is the variable.
+euro_retail <- pivot_longer(euro_retail, 
+                            cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007",                                        "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"),
+                            names_to = "Year",
+                            values_to = "euro_retail")
+head(euro_retail)
+
+##
+## Make a data set for the annual averages, and annual weighted averages. 
+## Create a variable for un-weighted average retail price for cocaine (US$ Dollars) in West and Central Europe between 1996-2019.
+re_unweighted_avg <- euro_retail[409:432, 2:3]
+colnames(re_unweighted_avg)[2] <- "re_unweighted_avg"
+head(re_unweighted_avg)
+
+## Create a variable for weighted average in US$ dollar 
+re_weighted_avg <- euro_retail[433:456, 2:3]
+colnames(re_weighted_avg)[2] <- "re_weighted_avg"
+head(re_weighted_avg)
+
+## Create a variable for weighted average in euro 
+re_weighted_euro_avg <- euro_retail[457:480, 2:3]
+colnames(re_weighted_euro_avg)[2] <- "re_weighted_euro_avg"
+head(re_weighted_euro_avg)
+
+## Create a variable for inflation weighted average in euro.
+re_inflation_euro_avg <- euro_retail[481:504, 2:3]
+colnames(re_inflation_euro_avg)[2] <- "re_inflation_euro_avg"
+head(re_inflation_euro_avg)
+
+##
+## Merge all the data sets together 
+retail_inflation <- data.frame(re_unweighted_avg, re_weighted_avg, re_weighted_euro_avg, re_inflation_euro_avg)
+
+##
+## Remove the additional years that accumulated during the merge above.
+retail_inflation[3] <- NULL # Remove "Year.1"
+retail_inflation[4] <- NULL # Remove "Year.2"
+retail_inflation[5] <- NULL # Remove "Year.3"
+head(retail_inflation)
+
+## Merge the "euro_retail" and "euro_inflation" data sets to create the "europe_retail" data set that includes all the values relating 
+## to cocaine prices in West and Central Europe, 1996-2019.
+europe_retail <- merge(euro_retail, retail_inflation, by = "Year")
+head(europe_retail)
+
+## Clean up work environment before cleaning the data relating to cocaine whole-
+## sale prices in West and Central Europe, 1996-2019.
+rm(euro_retail, re_inflation_euro_avg, re_unweighted_avg, re_weighted_avg, re_weighted_euro_avg, retail_inflation)
