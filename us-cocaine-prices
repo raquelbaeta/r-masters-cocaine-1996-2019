@@ -1,0 +1,169 @@
+## Thesis: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+## Author: Raquel Baeta
+## Date: Mon 29 May 2023
+
+##
+## Packages needed for analysis 
+install.packages("readxl")
+install.packages("tidyr")
+install.packages("dplyr")
+install.packages("data.table")
+
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(data.table)
+
+##
+## This is the set Working directory for the analysis.
+setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
+
+##
+## This section the data utilized for this analysis is sourced from the United Nations Office on Drugs and Crime (UNODC), World Bank 
+## (WB), and United Nations (UN). The first data set is from the UNODC which includes the variables for prices retail and wholesale 
+## cocaine in West and Central Europe, as well as the US. 
+
+##
+## The data sets 
+## [1] "price_dollar_western_europe.xlsx" includes the variables for price per gram (cocaine) for wholesale and retail in West and 
+## Central Europe (1996-2019).
+## [2] "wb_gdp_export_import" includes variables for export of goods and services and import of goods and services, population, 
+## military government expenditure, Gross Net Income (GNI), and Gross Domestic Product (GDP).
+
+##
+## Cleaning the data sets
+
+##
+## [1]
+## Cocaine retail price in West and Central Europe, 1996-2019.
+## "price_dollar_western_europe.xlsx" includes the variables for price per gram (cocaine) for wholesale and retail in West and 
+## Central Europe (1996-2019).
+
+##
+## Cocaine retail price in United States of America, 1996-2019.
+us_retail <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
+                        sheet = 4,
+                        range = "A3:AF7")
+head(us_retail) # Check
+
+##
+## Removing the excess years not included in the study (1990 to 1995 and 2020). 
+us_retail[2:7] <- NULL # Remove the years from 1990 to 1995.
+us_retail[26] <- NULL # Remove the year 2020.
+head(us_retail) # Check
+
+## Transform the data set so that "euro_retail" is the variable for merging later.
+us_retail <- pivot_longer(us_retail, 
+                          cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", 
+                                   "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"),
+                          names_to = "Year",
+                          values_to = "ru_unweighted_avg")
+head(us_cocaine) # Check
+
+##
+## Make a data set for the annual averages, and annual weighted averages. Create a variable for un-weighted average retail price for 
+## cocaine (US$ Dollars) in the United States between 1996-2019.
+
+##
+## Create a variable for the United States
+us_cocaine$Country <- "United States" # Add the US as a country variable
+head(us_cocaine)
+
+##
+## Create a variable for adjusted average for inflation in US$ dollar 
+ru_inflation_avg <- us_cocaine[25:48, 2:3]
+colnames(ru_inflation_avg)[2] <- "ru_inflation_avg"
+head(ru_inflation_avg)
+
+##
+## Create a variable for adjusted average for purity in US$ dollar 
+ru_purity_avg <- us_cocaine[49:72, 2:3]
+colnames(ru_purity_avg)[2] <- "ru_purity_avg"
+head(ru_purity_avg)
+
+##
+## Create a variable for adjusted average for inflation and purity in US$ dollar
+ru_inflation_purity_avg <- us_cocaine[73:96, 2:3]
+colnames(ru_inflation_purity_avg)[2] <- "ru_inflation_purity_avg"
+head(ru_inflation_purity_avg)
+
+##
+## Merge all the data sets together 
+us_retail_avg <- data.frame(ru_inflation_avg, ru_purity_avg, ru_inflation_purity_avg)
+head(us_retail_avg)
+
+##
+## Remove the additional columns created by the merge.
+us_retail_avg[3] <- NULL # Remove "Year.1"
+us_retail_avg[4] <- NULL # Remove "Year.2"
+head(us_retail_avg)
+
+##
+## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
+rm(ru_inflation_avg, ru_inflation_purity_avg, ru_purity_avg)
+
+##
+## Cocaine wholesale price in West and Central Europe, 1996-2019.
+us_wholesale <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
+                           sheet = 4,
+                           range = "A12:AF14")
+head(us_wholesale) # Check
+
+##
+## Removing the excess years not included in the study (1990 to 1995 and 2020). 
+us_wholesale[2:7] <- NULL # Remove the years from 1990 to 1995.
+us_wholesale[26] <- NULL # Remove the year 2020.
+head(us_wholesale) # Check
+
+##
+## Transform the data set so that "euro_wholesale" is the variable.
+us_wholesale <- pivot_longer(us_wholesale, 
+                             cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", 
+                                      "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"),
+                             names_to = "Year",
+                             values_to = "us_wholesale")
+head(us_wholesale)
+
+##
+## Make a data set for the annual averages, and annual weighted averages. Create a variable for un-weighted average retail price for 
+## cocaine (US$ Dollars) in the United States between 1996-2019.
+
+##
+## Create a variable for the United States
+us_wholesale$Country <- "United States" # Add the US as a country variable
+head(us_wholesale)
+
+##
+## Create a variable for adjusted inflation average in US$ Dollar
+wu_inflation_avg <- us_wholesale[25:48, 2:3]
+colnames(wu_inflation_avg)[2] <- "wu_inflation_avg"
+head(wu_inflation_avg)
+
+## 
+## Add a column for the United States 
+wu_inflation_avg$Country <- "United States" # Add the US as a country variable
+head(wu_inflation_avg) # Check
+
+##
+## Merge all the data sets together 
+us_wholesale_avg <- data.frame(wu_inflation_avg, us_wholesale)
+head(us_wholesale_avg) # Check
+
+##
+## Remove additional rpos that was created by the merge.
+us_wholesale_avg[4:5] <- NULL #  Remove the additional columns.
+us_wholesale_avg[5] <- NULL # Remove additional "Country column".
+head(us_wholesale_avg) # Check
+
+##
+## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
+rm(wu_inflation_avg, us_wholesale)
+
+##
+## Merge the "us_retail_avg" and "us_wholesale_avg" data sets for United State's retail annual averages and wholesale annual averages.  
+us_cocaine_avg <- merge(us_retail_avg, us_wholesale_avg, by = "Year")
+head(us_cocaine_avg) # Check
+
+##
+## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
+rm(us_retail_avg, us_wholesale_avg)
