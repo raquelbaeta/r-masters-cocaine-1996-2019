@@ -3,7 +3,6 @@
 ## Author: Raquel Baeta
 ## Date: Mon 29 May 2023
 
-
 ##
 ## Packages needed for analysis 
 install.packages("readxl")
@@ -15,7 +14,6 @@ library(readxl)
 library(tidyr)
 library(dplyr)
 library(data.table)
-
 
 ##
 ## This is the set Working directory for the analysis.
