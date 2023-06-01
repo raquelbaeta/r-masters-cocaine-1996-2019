@@ -1,6 +1,10 @@
 ## Thesis: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
 ## Author: Raquel Baeta
-## Date: Mon 29 May 2023
+
+##
+## This section the data utilized for this analysis is sourced from the United Nations Office on Drugs and Crime (UNODC), World Bank 
+## (WB), and United Nations (UN). The first data set is from the UNODC which includes the variables for prices retail and wholesale 
+## cocaine in West and Central Europe, as well as the US. 
 
 ##
 ## Packages needed for analysis 
@@ -18,10 +22,6 @@ library(data.table)
 ## This is the set Working directory for the analysis.
 setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
 
-## This section the data utilized for this analysis is sourced from the United Nations Office on Drugs and Crime (UNODC), World Bank 
-## (WB), and United Nations (UN). The first data set is from the UNODC which includes the variables for prices retail and wholesale 
-## cocaine in West and Central Europe, as well as the US. 
-
 ##
 ## The data sets 
 ## [1] "price_dollar_western_europe.xlsx" includes the variables for price per gram (cocaine) for wholesale and retail in West and 
@@ -35,14 +35,8 @@ setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
 ##
 ## [1]
 ## Cocaine retail price in West and Central Europe, 1996-2019.
-## "price_dollar_western_europe.xlsx" includes the variables for price per gram (cocaine) for wholesale and retail in West and 
-## Central Europe (1996-2019).
-
-##
 ## Load the data set from the United Nations Office on Drugs and Crime (1996-2019)
-eu_retail <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
-                        sheet = 2,
-                        range = "A5:AF26")
+eu_retail <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", sheet = 2, range = "A5:AF26")
 
 colnames(eu_retail)[1] <- "Country" # Rename the first column.
 head(eu_retail) # Check
@@ -115,9 +109,7 @@ rm(re_unweighted_avg, re_weighted_avg, re_weighted_euro_avg, re_inflation_euro_a
 
 ##
 ## Load the data set from the United Nations Office on Drugs and Crime (1996-2019)
-eu_wholesale <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
-                           sheet = 2,
-                           range = "A34:AF55")
+eu_wholesale <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", sheet = 2, range = "A34:AF55")
 
 colnames(eu_wholesale)[1] <- "Country" # Rename the first column 
 head(eu_wholesale) # Check 
