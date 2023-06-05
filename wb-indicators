@@ -318,3 +318,11 @@ head(military) # Check
 ##
 ## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
 rm(military_exp_gdp, military_govexp, military_expusd)
+
+##
+## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
+rm(exports, imports, gdp, military, wb_data)
+
+##
+## Export the data frames: "eu_cocaine" to a CSV file named "europe.csv" and "eu_cocaine_avg" to a CSV file named "eu_cocaine_avg.csv".
+fwrite(wb_indicators, "wb_indicators.csv")
