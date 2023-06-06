@@ -23,7 +23,7 @@ setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
 
 ## First, lets load the World Bank data set for the selected countries between the years 1996-2019.
 wb <- read_excel("wb_indicators.xlsx")
-head(wb)
+head(wb) # Give the data a sneak peak 
 
 ## Rename the columns for later manipulation.
 wb <- wb %>% rename("country" = "Country Name", "code" = "Country Code", "series" = "Series Name", "scode" = "Series Code", 
@@ -39,23 +39,19 @@ wb <- wb %>% rename("country" = "Country Name", "code" = "Country Code", "series
 wb[29] <- NULL 
 colnames(wb) # Check to see that 2020 is no longer there.
 
-##
-## Cleaning up the variables for "Exports of goods and services"
+## The cleaning/mutating process first includes separating  all the variables, and rejoining them. The first set of variables ## are related to "Exports of goods and services"
 
-##
-## Extract the Exports of goods and services (% of GDP) 
-exports_gdp <- wb_data[wb_data$"series" == "Exports of goods and services (% of GDP)", ]
+## Extract "Exports of goods and services (% of GDP)" variable from "wb"
+exports_gdp <- wb[wb$"series" == "Exports of goods and services (% of GDP)", ]
 exports_gdp <- pivot_longer(exports_gdp, cols = starts_with("19") | starts_with("20"), names_to = "year", values_to = "exports_gdp",
                             values_transform = list(exports_gdp = as.numeric))
 head(exports_gdp)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
+## Remove the following variables: "series" and "scode" from the data set.
 exports_gdp[3:4] <- NULL 
-head(exports_gdp)
+colnames(exports_gdp) # Check to see that "series" and "scode" were removed.
 
-##
-## Extract the Exports of goods and services (% of GDP) 
+## Extract Exports of goods and services (% of GDP) 
 exports_dollar <- wb_data[wb_data$"series" == "Exports of goods and services (current US$)", ]
 exports_dollar <- pivot_longer(exports_dollar, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                values_to = "exports_dollar", values_transform = list(exports_dollar = as.numeric))
