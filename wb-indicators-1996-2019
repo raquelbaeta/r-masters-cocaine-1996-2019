@@ -1,18 +1,23 @@
+##
+## Author: Raquel Baeta
 ## Thesis: The Role of International Commitments in Combating the Illicit 
 ## Distribution of Cocaine.
-## Author: Raquel Baeta
+## Source: United Nations Office on Drugs and Crime
+## Data set variables: Annual cocaine seizures from 1996 to 2019.
 
-##
-## Packages needed for analysis 
+## Install the necessary packages needed for this analysis.
 install.packages("readxl")
 install.packages("tidyr")
 install.packages("dplyr")
+install.packages("tidyverse")
 install.packages("data.table")
 
+## Load the necessary packages needed for this analysis.
 library(readxl)
 library(tidyr)
 library(dplyr)
 library(data.table)
+library(tidyverse)
 
 ##
 ## This is the set Working directory for the analysis.
