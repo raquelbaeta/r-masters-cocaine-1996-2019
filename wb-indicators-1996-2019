@@ -39,41 +39,38 @@ wb <- wb %>% rename("country" = "Country Name", "code" = "Country Code", "series
 wb[29] <- NULL 
 colnames(wb) # Check to see that 2020 is no longer there.
 
-## The cleaning/mutating process first includes separating  all the variables, and rejoining them. The first set of variables ## are related to "Exports of goods and services"
+## The cleaning/mutating process first includes separating  all the variables, and rejoining them. The first set of variables 
+## are related to "Exports of goods and services"
 
 ## Extract "Exports of goods and services (% of GDP)" variable from "wb"
 exports_gdp <- wb[wb$"series" == "Exports of goods and services (% of GDP)", ]
-exports_gdp <- pivot_longer(exports_gdp, cols = starts_with("19") | starts_with("20"), names_to = "year", values_to = "exports_gdp",
-                            values_transform = list(exports_gdp = as.numeric))
+exports_gdp <- pivot_longer(exports_gdp, cols = starts_with("19") | starts_with("20"), names_to = "year", 
+                            values_to = "exports_gdp", values_transform = list(exports_gdp = as.numeric))
 head(exports_gdp)
 
 ## Remove the following variables: "series" and "scode" from the data set.
 exports_gdp[3:4] <- NULL 
 colnames(exports_gdp) # Check to see that "series" and "scode" were removed.
 
-## Extract Exports of goods and services (% of GDP) 
-exports_dollar <- wb_data[wb_data$"series" == "Exports of goods and services (current US$)", ]
+## Extract "Exports of goods and services (current US$)" from "wb".
+exports_dollar <- wb[wb$"series" == "Exports of goods and services (current US$)", ]
 exports_dollar <- pivot_longer(exports_dollar, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                values_to = "exports_dollar", values_transform = list(exports_dollar = as.numeric))
 head(exports_dollar)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
+## Remove the following variables: "series" and "scode" from the data set.
 exports_dollar[3:4] <- NULL 
-head(exports_dollar)
+colnames(exports_dollar) # Check to see that "series" and "scode" were removed.
 
-##
-## Extract the Imports of goods and services (% of GDP) 
-exports_annual_growth <- wb_data[wb_data$"series" == "Exports of goods and services (annual % growth)", ]
-exports_annual_growth <- pivot_longer(exports_annual_growth, cols = starts_with("19") | starts_with("20"),  
-                                      names_to = "year", values_to = "exports_annual_growth",
-                                      values_transform = list(exports_annual_growth = as.numeric))
-head(exports_annual_growth)
+## Extract "Exports of goods and services (annual % growth)" from "wb".
+exports_growth <- wb[wb$"series" == "Exports of goods and services (annual % growth)", ]
+exports_growth <- pivot_longer(exports_growth, cols = starts_with("19") | starts_with("20"), names_to = "year", 
+                               values_to = "exports_growth", values_transform = list(exports_growth = as.numeric))
+head(exports_growth)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-exports_annual_growth[3:4] <- NULL 
-head(exports_annual_growth)
+## Remove the following variables: "series" and "scode" from the data set.
+exports_growth[3:4] <- NULL 
+colnames(exports_growth) # Check to see that "series" and "scode" were removed.
 
 ##
 ## Merge all the data sets relating to the "Exports of goods and services" variable together 
