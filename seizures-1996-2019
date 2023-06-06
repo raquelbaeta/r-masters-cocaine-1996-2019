@@ -7,7 +7,6 @@
 ## Install the necessary packages needed for this analysis.
 install.packages("readxl")
 install.packages("tidyr")
-install.packages("janitor")
 install.packages("dplyr")
 install.packages("tidyverse")
 install.packages("data.table")
@@ -18,7 +17,6 @@ library(tidyr)
 library(dplyr)
 library(data.table)
 library(tidyverse)
-library(janitor)
 
 ## Set Working directory for the analysis.
 setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
