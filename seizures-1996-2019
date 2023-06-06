@@ -23,31 +23,37 @@ library(janitor)
 ## Set Working directory for the analysis.
 setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
 
-## Load the United Nations Office on Drugs and Crime data set [1990-2019].
-data <- read_excel("unodc_annual_seizure_1990_2019.xlsx")
-head(data) # Give the data a sneak peak 
+## First, lets load the United Nations Office on Drugs and Crime data set [1990-2019].
+seizures <- read_excel("unodc_annual_seizure_1990_2019.xlsx")
+head(seizures) # Give the data a sneak peak 
 
-data[6:11] <- NULL # Remove the year 1990 to 2019.
-data <- data %>% rename("region" = "Region", "subregion" = "Sub Region", "country" = "Country", "group" = "Drug Group", 
+## Remove the excess years that are not included in this study (1990 to 1994), and rename the column names for later 
+## manipulation.
+seizures[6:11] <- NULL # Remove the year 1990 to 1994.
+seizures <- seizures %>% rename("region" = "Region", "subregion" = "Sub Region", "country" = "Country", "group" = "Drug Group", 
                         "drug" = "Drug")
 
-## Select the relevant columns
-data <- select(data, "region", "subregion", "country", "group", "drug", "1996":"2019")
+## Select the relevant columns to mutate the data set.
+seizures <- select(seizures, "region", "subregion", "country", "group", "drug", "1996":"2019")
 
-## Fill in the missing values in region, sub_region and drug_group columns
-data <- fill(data, "region", "subregion", "country", "group", "drug")
+## There are missing values in the categorical variables, using fill(), fill the following missing values in "region", 
+## "sub_region" and "group" columns.
+seizures <- fill(seizures, "region", "subregion", "country", "group", "drug")
 
-## Pivot the data from wide to long format and rename the columns
-data <- pivot_longer(data, cols = "1996":"2019", names_to = "year", values_to = "seizure")
+## Pivot the data from wide to long format, add and fill the columns "year" and "seziure".
+seizures <- pivot_longer(seizures, cols = "1996":"2019", names_to = "year", values_to = "seizure")
 
-## Filter the data by cocaine-type group and the selected countries
-data <- filter(data, data$"group" == "Cocaine-type")
+## Filter the data by "Cocaine-type" in "group" and select the necessary countries utilised in this analysis.
+seizures <- filter(seizures, group == "Cocaine-type", 
+                   country %in% c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", 
+                                  "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "Switzerland", 
+                                  "United Kingdom", "United States of America"))
 
-## Convert the year column to numeric
-data <- mutate(data, year = as.numeric(year))
+## Convert "year" to numeric
+seizures <- mutate(seizures, year = as.numeric(year))
 
-## Assign the data to a new object called seizures
-seizures <- data
-
-## View the first 10 rows of seizures
+# View the first 10 rows of seizures
 head(seizures, 10)
+
+
+
