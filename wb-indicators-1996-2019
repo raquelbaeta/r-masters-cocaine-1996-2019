@@ -36,8 +36,8 @@ wb <- wb %>% rename("country" = "Country Name", "code" = "Country Code", "series
                     "2019" = "2019 [YR2019]", "2020" = "2020 [YR2020]")
 
 ## Remove the year 2020.
-wb_data[29] <- NULL # Remove the year 2020.
-head(wb_data)
+wb[29] <- NULL 
+colnames(wb) # Check to see that 2020 is no longer there.
 
 ##
 ## Cleaning up the variables for "Exports of goods and services"
