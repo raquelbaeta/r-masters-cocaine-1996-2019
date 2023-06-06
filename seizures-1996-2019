@@ -55,5 +55,6 @@ seizures <- mutate(seizures, year = as.numeric(year))
 # View the first 10 rows of seizures
 head(seizures, 10)
 
-
+## Export the data set: "seizures" to a CSV file named "seizures.csv".
+fwrite(seizures, "seizures.csv")
 
