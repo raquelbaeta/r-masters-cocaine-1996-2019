@@ -1,0 +1,53 @@
+##
+## Author: Raquel Baeta
+## Thesis: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+## Source: United Nations Office on Drugs and Crime
+## Data set variables: Annual cocaine seizures from 1996 to 2019.
+
+## Install the necessary packages needed for this analysis.
+install.packages("readxl")
+install.packages("tidyr")
+install.packages("janitor")
+install.packages("dplyr")
+install.packages("tidyverse")
+install.packages("data.table")
+
+## Load the necessary packages needed for this analysis.
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(data.table)
+library(tidyverse)
+library(janitor)
+
+## Set Working directory for the analysis.
+setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
+
+## Load the United Nations Office on Drugs and Crime data set [1990-2019].
+data <- read_excel("unodc_annual_seizure_1990_2019.xlsx")
+head(data) # Give the data a sneak peak 
+
+data[6:11] <- NULL # Remove the year 1990 to 2019.
+data <- data %>% rename("region" = "Region", "subregion" = "Sub Region", "country" = "Country", "group" = "Drug Group", 
+                        "drug" = "Drug")
+
+## Select the relevant columns
+data <- select(data, "region", "subregion", "country", "group", "drug", "1996":"2019")
+
+## Fill in the missing values in region, sub_region and drug_group columns
+data <- fill(data, "region", "subregion", "country", "group", "drug")
+
+## Pivot the data from wide to long format and rename the columns
+data <- pivot_longer(data, cols = "1996":"2019", names_to = "year", values_to = "seizure")
+
+## Filter the data by cocaine-type group and the selected countries
+data <- filter(data, data$"group" == "Cocaine-type")
+
+## Convert the year column to numeric
+data <- mutate(data, year = as.numeric(year))
+
+## Assign the data to a new object called seizures
+seizures <- data
+
+## View the first 10 rows of seizures
+head(seizures, 10)
