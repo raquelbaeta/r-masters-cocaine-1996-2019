@@ -1,8 +1,9 @@
 ##
+##
 ## Author: Raquel Baeta
-## Thesis: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
-## Source: United Nations Office on Drugs and Crime
-## Data set variables: Annual cocaine seizures from 1996 to 2019.
+## Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+## Data Source: United Nations Office on Drugs and Crime (UNODC).
+## Variables: Gross Domestic Product (GDP), Exports of Goods and Services, Imports of Goods and Services and Military expenditure.
 
 ## Install the necessary packages needed for this analysis.
 install.packages("readxl")
@@ -18,10 +19,10 @@ library(dplyr)
 library(data.table)
 library(tidyverse)
 
-## Set Working directory for the analysis.
+## Set Working directory
 setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
 
-## First, lets load the World Bank data set for the selected countries between the years 1996-2019.
+## First, load the World Bank data set for the selected countries between the years 1996 and 2019.
 wb <- read_excel("wb_indicators.xlsx")
 head(wb) # Give the data a sneak peak 
 
@@ -35,262 +36,250 @@ wb <- wb %>% rename("country" = "Country Name", "code" = "Country Code", "series
                     "2015" = "2015 [YR2015]", "2016" = "2016 [YR2016]", "2017" = "2017 [YR2017]", "2018" = "2018 [YR2018]",
                     "2019" = "2019 [YR2019]", "2020" = "2020 [YR2020]")
 
-## Remove the year 2020.
-wb[29] <- NULL 
-colnames(wb) # Check to see that 2020 is no longer there.
+## The columns "1996" to "2000" are characters and require a transformation to become numeric.
+wb <- wb %>% mutate_at(c("1996", "1997", "1998", "1999", "2000"), as.numeric)
 
-## The cleaning/mutating process first includes separating  all the variables, and rejoining them. The first set of variables 
-## are related to "Exports of goods and services"
+## Remove the additional columns including "scode" and "2020" from the data set.
+wb[4] <- NULL # Remove "scode".
+wb[28] <- NULL # Remove "2020"
+colnames(wb) # Check to see that "scode" and "2020" were removed.
 
-## Extract "Exports of goods and services (% of GDP)" variable from "wb"
+## The cleaning/mutating process first includes separating all the variables to later rejoin them together. 
+
+## [1] First group is relating to "Exports of goods and services". 
+## In this group, the variables include (a) "Exports of goods and services (% of GDP)", (b) "Exports of goods and services (current
+## US$)", and (c) "Exports of goods and services (annual % growth)" which may be found in the "series" column. 
+
+## [2] The second group is relating to "Imports of goods and services". 
+## In this group, the variables include (d) "Imports of goods and services (% of GDP)", (e) "Imports of goods and services (current 
+## US$)", and (f) "Imports of goods and services (annual % growth)" which may be found in the "series" column. 
+
+## [3] The third group is relating to "Gross Domestic Product (GDP)". 
+## In this group, the variables include (g) "GDP (current US$)", (h) "GDP growth (annual %)", (i) "GDP per capita (current US$)", (j) 
+## "GDP per capita growth (annual %)", and (k) "GDP per capita, PPP (current international $)" which may be found in the "series" 
+## column. 
+
+## [4] The last group is relating to "Military expenditure". 
+## In this group, include the variables (l) "Military expenditure (% of GDP)", (m) "Military expenditure (% of general government 
+## expenditure", and (n) "Military expenditure (current USD)" which may be found in the "series" column. 
+
+##
+## [1] The first set of variables are related to "Exports of goods and services".
+
+## [a] Extract "Exports of goods and services (% of GDP)" variable from "wb"
 exports_gdp <- wb[wb$"series" == "Exports of goods and services (% of GDP)", ]
-exports_gdp <- pivot_longer(exports_gdp, cols = starts_with("19") | starts_with("20"), names_to = "year", 
-                            values_to = "exports_gdp", values_transform = list(exports_gdp = as.numeric))
-head(exports_gdp)
+exports_gdp <- pivot_longer(wb, cols = starts_with("19") | starts_with("20"), names_to = "year", values_to = "exports_gdp",
+                            values_transform = list(exports_gdp = as.numeric))
+head(exports_gdp) # Give the data a sneak peak 
 
-## Remove the following variables: "series" and "scode" from the data set.
-exports_gdp[3:4] <- NULL 
-colnames(exports_gdp) # Check to see that "series" and "scode" were removed.
+## Remove the column "series".
+exports_gdp[3] <- NULL 
+colnames(exports_gdp) # Check to see "series" was removed.
 
-## Extract "Exports of goods and services (current US$)" from "wb".
+## [b] Extract "Exports of goods and services (current US$)" from "wb".
 exports_dollar <- wb[wb$"series" == "Exports of goods and services (current US$)", ]
 exports_dollar <- pivot_longer(exports_dollar, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                values_to = "exports_dollar", values_transform = list(exports_dollar = as.numeric))
 head(exports_dollar)
 
-## Remove the following variables: "series" and "scode" from the data set.
-exports_dollar[3:4] <- NULL 
-colnames(exports_dollar) # Check to see that "series" and "scode" were removed.
+## Remove the column "series".
+exports_dollar[3] <- NULL 
+colnames(exports_dollar) # Check to see "series" was removed.
 
-## Extract "Exports of goods and services (annual % growth)" from "wb".
+## [c] Extract "Exports of goods and services (annual % growth)" from "wb".
 exports_growth <- wb[wb$"series" == "Exports of goods and services (annual % growth)", ]
 exports_growth <- pivot_longer(exports_growth, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                values_to = "exports_growth", values_transform = list(exports_growth = as.numeric))
 head(exports_growth)
 
-## Remove the following variables: "series" and "scode" from the data set.
-exports_growth[3:4] <- NULL 
-colnames(exports_growth) # Check to see that "series" and "scode" were removed.
+## Remove the column "series".
+exports_growth[3] <- NULL 
+colnames(exports_growth) # Check to see "series" was removed.
+
+## Merge the "Exports of goods and services" variables together.
+exports <- merge(exports_dollar, exports_growth, by = c("country", "year"))
+head(exports) # Peak to see if the merge was successful.
+
+## Remove the additional columns that accumulated during the merge.
+exports[5] <- NULL # Remove duplicates created by "code.y"
+colnames(exports) # Check
+
+## Clean up the work environment before cleaning removing the following variables.
+rm(exports_dollar, exports_growth)
 
 ##
-## Merge all the data sets relating to the "Exports of goods and services" variable together 
-exports <- data.frame(exports_gdp, exports_dollar, exports_annual_growth, by = c("country", "year"))
-head(exports) # Check
+## [2] The second set of variables are related to "Imports of goods and services".
 
-##
-## Remove the additional years that accumulated during the merge above.
-exports[5:7] <- NULL # Remove "Year.1"
-exports[6:8] <- NULL # Remove "Year.2"
-exports[7] <- NULL # Remove "Year.3"
-head(exports) # Check
-
-##
-## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
-rm(exports_gdp, exports_dollar, exports_annual_growth)
-
-##
-## Cleaning up the variables for "Import of goods and services"
-
-##
-## Extract the Import of goods and services (% of GDP) 
-imports_gdp <- wb_data[wb_data$"series" == "Exports of goods and services (% of GDP)", ]
+## [d] Extract "Imports of goods and services (% of GDP)" variable from "wb"
+imports_gdp <- wb[wb$"series" == "Imports of goods and services (% of GDP)", ]
 imports_gdp <- pivot_longer(imports_gdp, cols = starts_with("19") | starts_with("20"), names_to = "year", values_to = "imports_gdp",
                             values_transform = list(imports_gdp = as.numeric))
 head(imports_gdp)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-imports_gdp[3:4] <- NULL 
-head(imports_gdp)
+## Remove the column "series".
+imports_gdp[3] <- NULL 
+colnames(imports_gdp) # Check to see that "series" was removed.
 
-##
-## Extract the Imports of goods and services (% of GDP) 
-imports_dollar <- wb_data[wb_data$"series" == "Exports of goods and services (current US$)", ]
+## [e] Extract "Imports of goods and services (current US$)".
+imports_dollar <- wb[wb$"series" == "Imports of goods and services (current US$)", ]
 imports_dollar <- pivot_longer(imports_dollar, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                values_to = "imports_dollar", values_transform = list(imports_dollar = as.numeric))
 head(imports_dollar)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-imports_dollar[3:4] <- NULL 
-head(imports_dollar)
+## Remove the column "series".
+imports_dollar[3] <- NULL 
+colnames(imports_gdp) # Check to see that "series" was removed.
 
-##
-## Extract the Imports of goods and services (% of GDP) 
-imports_annual_growth <- wb_data[wb_data$"series" == "Exports of goods and services (annual % growth)", ]
-imports_annual_growth <- pivot_longer(imports_annual_growth, cols = starts_with("19") | starts_with("20"), names_to = "year", 
-                                      values_to = "imports_annual_growth", values_transform = list(imports_annual_growth = as.numeric))
-head(imports_annual_growth)
+## [f] Extract "Imports of goods and services (annual % growth)".
+imports_growth <- wb[wb$"series" == "Imports of goods and services (annual % growth)", ]
+imports_growth <- pivot_longer(imports_growth, cols = starts_with("19") | starts_with("20"), names_to = "year", 
+                               values_to = "imports_growth", values_transform = list(imports_growth = as.numeric))
+head(imports_growth)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-imports_annual_growth[3:4] <- NULL 
-head(imports_annual_growth)
+## Remove the column "series".
+imports_growth[3:4] <- NULL 
+colnames(imports_growth) # Check to see "series" was removed.
 
-##
-## Merge all the data sets relating to the "Exports of goods and services" 
-## variable together 
-imports <- data.frame(imports_gdp, imports_dollar, imports_annual_growth, by = c("country", "year"))
+## Merge the "Import of goods and services" variables together.
+imports <- data.frame(imports_gdp, imports_dollar, imports_growth, by = c("country", "year"))
 head(imports) # Check
 
-##
-## Remove the additional years that accumulated during the merge above.
-imports[5:7] <- NULL # Remove "Year.1"
-imports[6:8] <- NULL # Remove "Year.2"
-imports[7] <- NULL # Remove "Year.3"
-head(imports) # Check
+## Remove the additional columns that accumulated during the merge.
+imports[5:7] <- NULL # Remove the first set of duplicates.
+imports[6:7] <- NULL # Remove the second set of duplicates.
+imports[7] <- NULL # Remove "by"
+colnames(imports) # Check
+
+## Clean up the work environment before cleaning removing the following variables.
+rm(imports_gdp, imports_dollar, imports_growth)
 
 ##
-## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
-rm(imports_gdp, imports_dollar, imports_annual_growth)
+## [3] The third set of variables are related to "Gross Domestic Product (GDP)".
 
-##
-## Cleaning up the variables for GDP variables which include "GDP (current US$)", "GDP growth (annual %)", "GDP per capita (current 
-## US$)", and "GDP per capita, PPP (current international $)".
-
-## Extract the GDP (current US$)
-gdp_dollar <- wb_data[wb_data$"series" == "GDP (current US$)", ]
+## [g] Extract "GDP (current US$)"
+gdp_dollar <- wb[wb$"series" == "GDP (current US$)", ]
 gdp_dollar <- pivot_longer(gdp_dollar, cols = starts_with("19") | starts_with("20"), names_to = "year", values_to = "gdp_dollar",
                            values_transform = list(gdp_dollar = as.numeric))
 head(gdp_dollar)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-gdp_dollar[3:4] <- NULL 
-head(gdp_dollar)
+## Remove the column "series".
+gdp_dollar[3] <- NULL 
+colnames(gdp_dollar) # Check to see "series" was removed.
 
-##
-## Extract the GDP growth (annual %)
-gdp_annual_growth <- wb_data[wb_data$"series" == "GDP growth (annual %)", ]
-gdp_annual_growth <- pivot_longer(gdp_annual_growth, cols = starts_with("19") | starts_with("20"), names_to = "year", 
-                                      values_to = "gdp_annual_growth", values_transform = list(gdp_annual_growth = as.numeric))
-head(gdp_annual_growth)
+## [h] Extract the GDP growth (annual %)
+gdp_growth <- wb[wb$"series" == "GDP growth (annual %)", ]
+gdp_growth <- pivot_longer(gdp_growth, cols = starts_with("19") | starts_with("20"), names_to = "year", 
+                           values_to = "gdp_annual_growth", values_transform = list(gdp_growth = as.numeric))
+head(gdp_growth)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-gdp_annual_growth[3:4] <- NULL 
-head(gdp_annual_growth)
+## Remove the column "series".
+gdp_growth[3] <- NULL 
+colnames(gdp_growth) # Check to see "series" was removed.
 
-##
-## Extract the GDP per capita (current US$)
-gdp_cap_dol <- wb_data[wb_data$"series" == "GDP per capita (current US$)", ]
+## [i] Extract "GDP per capita (current US$)".
+gdp_cap_dol <- wb[wb$"series" == "GDP per capita (current US$)", ]
 gdp_cap_dol <- pivot_longer(gdp_cap_dol, cols = starts_with("19") | starts_with("20"), names_to = "year", values_to = "gdp_cap_dol",
-                                  values_transform = list(gdp_cap_dol = as.numeric))
+                            values_transform = list(gdp_cap_dol = as.numeric))
 head(gdp_cap_dol)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-gdp_cap_dol[3:4] <- NULL 
-head(gdp_cap_dol)
+## Remove the column "series".
+gdp_cap_dol[3] <- NULL 
+head(gdp_cap_dol) # Check to see "series" was removed.
 
-##
-## Extract the GDP per capita growth (annual %)
-gdpcap_anuual <- wb_data[wb_data$"series" == "GDP per capita growth (annual %)", ]
-gdpcap_anuual <- pivot_longer(gdpcap_anuual, cols = starts_with("19") | starts_with("20"), names_to = "year", 
-                              values_to = "gdpcap_anuual", values_transform = list(gdpcap_anuual = as.numeric))
-head(gdpcap_anuual)
+## [j] Extract "GDP per capita growth (annual %)".
+gdpcap_growth <- wb[wb$"series" == "GDP per capita growth (annual %)", ]
+gdpcap_growth <- pivot_longer(gdpcap_growth, cols = starts_with("19") | starts_with("20"), names_to = "year", 
+                              values_to = "gdpcap_growth", values_transform = list(gdpcap_growth = as.numeric))
+head(gdpcap_growth)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-gdpcap_anuual[3:4] <- NULL 
-head(gdpcap_anuual)
+## Remove the column "series".
+gdpcap_growth[3] <- NULL 
+colnames(gdpcap_growth) # Check to see "series" was removed.
 
-##
-## Extract the GDP per capita, PPP (current international $)
-gdpcap_ppp <- wb_data[wb_data$"series" == "GDP per capita, PPP (current international $)", ]
+## [k] Extract the GDP per capita, PPP (current international $)
+gdpcap_ppp <- wb[wb$"series" == "GDP per capita, PPP (current international $)", ]
 gdpcap_ppp <- pivot_longer(gdpcap_ppp, cols = starts_with("19") | starts_with("20"), names_to = "year", values_to = "gdpcap_ppp",
                            values_transform = list(gdpcap_ppp = as.numeric))
 head(gdpcap_ppp)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-gdpcap_ppp[3:4] <- NULL 
-head(gdpcap_ppp)
+## Remove the column "series".
+gdpcap_ppp[3] <- NULL 
+colnames(gdpcap_ppp) # Check to see "series" was removed.
 
-##
-## Merge all the data sets relating to the "Exports of goods and services" variable together 
-gdp <- data.frame(gdp_dollar, gdp_annual_growth, gdp_cap_dol, gdpcap_anuual, gdpcap_ppp, by = c("country", "year"))
+## Merge data relating to "Gross Domestic Product (GDP)".
+gdp <- data.frame(gdp_dollar, gdp_growth, gdp_cap_dol, gdpcap_anuual, gdpcap_ppp, by = c("country", "year"))
 head(gdp) # Check
 
-##
-## Remove the additional years that accumulated during the merge above.
-gdp[5:7] <- NULL # Remove "Year.1"
-gdp[6:8] <- NULL # Remove "Year.2"
-gdp[7:9] <- NULL # Remove "Year.3"
-gdp[8:10] <- NULL # Remove "Year.4"
+## Remove the additional columns that accumulated during the merge.
+gdp[6:7] <- NULL # Remove the first set of duplicates.
+gdp[6:8] <- NULL # Remove the second set of duplicates.
+gdp[7:9] <- NULL # Remove the third set of duplicates.
+gdp[8:10] <- NULL # Remove the fourth set of duplicates.
 gdp[9] <- NULL # Remove "by"
 head(gdp) # Check
 
-##
-## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
-rm(gdp_dollar, gdp_annual_growth, gdp_cap_dol, gdpcap_anuual, gdpcap_ppp)
+## Clean up the work environment before cleaning removing the following variables.
+rm(gdp_dollar, gdp_growth, gdp_cap_dol, gdpcap_anuual, gdpcap_ppp)
 
 ##
-## Cleaning up the variables for Military  Expenditure variables which include "Military expenditure (% of GDP)", "Military expenditure (% of general 
-## government expenditure)" and "Military expenditure (current USD)".
+## [4] The fourth set of variables are related to "Military Expenditure".
 
-##
-## Extract the Military expenditure (% of GDP)
-military_exp_gdp <- wb_data[wb_data$"series" == "Military expenditure (% of GDP)", ]
+## [l] Extract "Military expenditure (% of GDP)".
+military_exp_gdp <- wb[wb$"series" == "Military expenditure (% of GDP)", ]
 military_exp_gdp <- pivot_longer(military_exp_gdp, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                  values_to = "military_exp_gdp", values_transform = list(military_exp_gdp = as.numeric))
 head(military_exp_gdp)
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-military_exp_gdp[3:4] <- NULL 
-head(military_exp_gdp) # Check
+## Remove the column "series".
+military_exp_gdp[3] <- NULL 
+colnames(military_exp_gdp) # Check to see "series" was removed.
 
-##
-## Extract the Military expenditure (% of general government expenditure)
-military_govexp <- wb_data[wb_data$"series" == "Military expenditure (% of general government expenditure)", ]
-
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-military_govexp[3:4] <- NULL 
-head(military_govexp) # Check
-
-##
-## Reorder the table so that the years all fall into a column.
+## [m] Extract "Military expenditure (% of general government expenditure)".
+military_govexp <- wb[wb$"series" == "Military expenditure (% of general government expenditure)", ]
 military_govexp <- pivot_longer(military_govexp, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                 values_to = "military_govexp", values_transform = list(military_govexp = as.numeric))
 head(military_govexp)
 
-##
-## Extract the Military expenditure (current USD)
-military_expusd <- wb_data[wb_data$"series" == "Military expenditure (current USD)", ]
+## Remove the column "series".
+military_govexp[3] <- NULL 
+colnames(military_govexp) # Check to see "series" was removed.
 
-##
-## Remove the "Series Name" or "series" variable, as well as the "Series Code" or "scode" from the data set.
-military_expusd[3:4] <- NULL 
-head(military_expusd) # Check
-
-##
-## Reorder the table so that the years all fall into a column.
+## [n] Extract "Military expenditure (current USD)".
+military_expusd <- wb[wb$"series" == "Military expenditure (current USD)", ]
 military_expusd <- pivot_longer(military_expusd, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                 values_to = "military_expusd", values_transform = list(military_expusd = as.numeric))
-head(military_expusd)
 
-##
-## Merge all the data sets relating to the "Military Expenditure" variable together 
+## Remove the column "series".
+military_expusd[3] <- NULL 
+colnames(military_expusd) # Check to see "series" was removed.
+
+## Merge data relating to the "Military Expenditure".
 military <- data.frame(military_exp_gdp, military_govexp, military_expusd, by = c("country", "year"))
 head(military) # Check
 
-##
-## Remove the additional years that accumulated during the merge above.
-military[5:7] <- NULL # Remove "Year.1"
-military[6:8] <- NULL # Remove "Year.2"
+## Remove the additional columns that accumulated during the merge.
+military[5:7] <- NULL # Remove the first set of duplicates.
+military[6:8] <- NULL # Remove the second set of duplicates.
 military[7] <- NULL # Remove "by"
-head(military) # Check
+colnames(military) # Check
 
-##
-## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
+## Clean up the work environment before cleaning removing the following variables.
 rm(military_exp_gdp, military_govexp, military_expusd)
 
-##
-## Clean up work environment before cleaning the data relating to cocaine wholesale prices in West and Central Europe, 1996-2019.
-rm(exports, imports, gdp, military, wb_data)
+## Merge the following variables: imports", "gdp", "military" into one data frame.
+wb_indicators <- data.frame(gdp, imports, military, by = c("country", "year"))
+head(wb_indicators)
 
-##
-## Export the data frames: "eu_cocaine" to a CSV file named "europe.csv" and "eu_cocaine_avg" to a CSV file named "eu_cocaine_avg.csv".
+## Remove the additional columns that accumulated during the merge.
+wb_indicators[9:11] <- NULL # Remove the first set of duplicates.
+wb_indicators[12:14] <- NULL # Remove "Year.2"
+wb_indicators[15] <- NULL # Remove "by"
+colnames(wb_indicators) # Check
+
+## Clean up the work environment before cleaning removing the following variables.
+rm(imports, gdp, military, wb)
+
+## Export the data frames to a CSV file named "wb_indicators.csv", "exports.csv" and "exports_gdp.csv".
 fwrite(wb_indicators, "wb_indicators.csv")
+fwrite(wb_indicators, "exports.csv")
+fwrite(wb_indicators, "exports_gdp.csv")
