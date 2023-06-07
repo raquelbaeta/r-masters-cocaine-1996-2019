@@ -80,7 +80,7 @@ colnames(exports_gdp) # Check to see "series" was removed.
 exports_dollar <- wb[wb$"series" == "Exports of goods and services (current US$)", ]
 exports_dollar <- pivot_longer(exports_dollar, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                values_to = "exports_dollar", values_transform = list(exports_dollar = as.numeric))
-head(exports_dollar)
+head(exports_dollar) # Give the data a sneak peak 
 
 ## Remove the column "series".
 exports_dollar[3] <- NULL 
@@ -90,7 +90,7 @@ colnames(exports_dollar) # Check to see "series" was removed.
 exports_growth <- wb[wb$"series" == "Exports of goods and services (annual % growth)", ]
 exports_growth <- pivot_longer(exports_growth, cols = starts_with("19") | starts_with("20"), names_to = "year", 
                                values_to = "exports_growth", values_transform = list(exports_growth = as.numeric))
-head(exports_growth)
+head(exports_growth) # Give the data a sneak peak 
 
 ## Remove the column "series".
 exports_growth[3] <- NULL 
@@ -177,24 +177,14 @@ gdp_growth[3] <- NULL
 colnames(gdp_growth) # Check to see "series" was removed.
 
 ## [i] Extract "GDP per capita (current US$)".
-gdp_cap_dol <- wb[wb$"series" == "GDP per capita (current US$)", ]
-gdp_cap_dol <- pivot_longer(gdp_cap_dol, cols = starts_with("19") | starts_with("20"), names_to = "year", values_to = "gdp_cap_dol",
-                            values_transform = list(gdp_cap_dol = as.numeric))
-head(gdp_cap_dol)
+gdpcap_dollar <- wb[wb$"series" == "GDP per capita (current US$)", ]
+gdpcap_dollar <- pivot_longer(gdpcap_dollar, cols = starts_with("19") | starts_with("20"), names_to = "year", 
+                              values_to = "gdp_cap_dol", values_transform = list(gdpcap_dollar = as.numeric))
+head(gdpcap_dollar) # Give the data a sneak peak 
 
 ## Remove the column "series".
-gdp_cap_dol[3] <- NULL 
-head(gdp_cap_dol) # Check to see "series" was removed.
-
-## [j] Extract "GDP per capita growth (annual %)".
-gdpcap_growth <- wb[wb$"series" == "GDP per capita growth (annual %)", ]
-gdpcap_growth <- pivot_longer(gdpcap_growth, cols = starts_with("19") | starts_with("20"), names_to = "year", 
-                              values_to = "gdpcap_growth", values_transform = list(gdpcap_growth = as.numeric))
-head(gdpcap_growth)
-
-## Remove the column "series".
-gdpcap_growth[3] <- NULL 
-colnames(gdpcap_growth) # Check to see "series" was removed.
+gdpcap_dollar[3] <- NULL 
+head(gdpcap_dollar) # Check to see "series" was removed.
 
 ## [k] Extract the GDP per capita, PPP (current international $)
 gdpcap_ppp <- wb[wb$"series" == "GDP per capita, PPP (current international $)", ]
@@ -207,7 +197,7 @@ gdpcap_ppp[3] <- NULL
 colnames(gdpcap_ppp) # Check to see "series" was removed.
 
 ## Merge data relating to "Gross Domestic Product (GDP)".
-gdp <- data.frame(gdp_dollar, gdp_growth, gdp_cap_dol, gdpcap_anuual, gdpcap_ppp, by = c("country", "year"))
+gdp <- data.frame(gdp_dollar, gdp_growth, gdpcap_dollar, gdpcap_growth, gdpcap_ppp, by = c("country", "year"))
 head(gdp) # Check
 
 ## Remove the additional columns that accumulated during the merge.
@@ -219,7 +209,7 @@ gdp[9] <- NULL # Remove "by"
 head(gdp) # Check
 
 ## Clean up the work environment before cleaning removing the following variables.
-rm(gdp_dollar, gdp_growth, gdp_cap_dol, gdpcap_anuual, gdpcap_ppp)
+rm(gdp_dollar, gdp_growth, gdpcap_dollar, gdpcap_growth, gdpcap_ppp)
 
 ##
 ## [4] The fourth set of variables are related to "Military Expenditure".
