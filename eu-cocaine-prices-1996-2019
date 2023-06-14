@@ -26,7 +26,7 @@ setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
 ## Load the data set from the United Nations Office on Drugs and Crime (1996-2019).
 eu_rtl <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", sheet = 2, range = "A5:AF26")
 colnames(eu_rtl)[1] <- "country" # Rename the first column.
-head(eu_rtl) # Take a sneak peak at the data.
+head(eu_rtl) # Take a sneak peek at the data.
 
 ## Remove the additional columns (the years 1990 to 1995 and 2020). 
 eu_rtl[2:7] <- NULL # Remove the years from 1990 to 1995.
@@ -48,9 +48,9 @@ eu_rtl <- as.data.frame(eu_rtl)
 
 ## Load the data set from the United Nations Office on Drugs and Crime (1996-2019).
 eu_rtl_avg <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", sheet = 2, range = "A5:AF26")
-head(eu_rtl_avg) # Take a sneak peak at the data.
+head(eu_rtl_avg) # Take a sneak peek at the data.
 
-## Remove the all the rows that include country data, and the years between 1990 to 1995, and "2020".
+## Remove all the rows that include country data, and the years between 1990 to 1995, and "2020".
 eu_rtl_avg <- eu_rtl_avg %>% slice(-c(1:17))
 colnames(eu_rtl_avg)[1] <- "series"
 eu_rtl_avg[2:7] <- NULL # Remove the years 1990 to 1995.
@@ -71,25 +71,25 @@ head(eu_rtl_avg)
 eu_rtl_unwghted_dollar <- eu_rtl_avg %>% filter(series == "Unweighted average, in US$")
 colnames(eu_rtl_unwghted_dollar)[3] <- "eu_rtl_unwghted_dollar"
 eu_rtl_unwghted_dollar[1] <- NULL # Remove the "series" column.
-colnames(eu_rtl_unwghted_dollar) # Give the data s sneak peak.
+colnames(eu_rtl_unwghted_dollar) # Give the data s sneak peek.
 
 ## [b] Extract "Weighted* average, US$" variable from "eu_rtl_avg".
 eu_rtl_wghted_dollar <- eu_rtl_avg %>% filter(series == "Weighted* average, US$")
 colnames(eu_rtl_wghted_dollar)[3] <- "eu_rtl_wghted_dollar"
 eu_rtl_wghted_dollar[1] <- NULL # Remove the "series" column.
-colnames(eu_rtl_wghted_dollar) # Give the data s sneak peak.
+colnames(eu_rtl_wghted_dollar) # Give the data s sneak peek.
 
 ## [c] Extract "Weighted* average, Euro" variable from "eu_rtl_avg".
 eu_rtl_wghted_euro <- eu_rtl_avg %>% filter(series == "Weighted* average, Euro")
 colnames(eu_rtl_wghted_euro)[3] <- "eu_rtl_wghted_euro"
 eu_rtl_wghted_euro[1] <- NULL # Remove the "series" column.
-colnames(eu_rtl_wghted_euro) # Give the data s sneak peak.
+colnames(eu_rtl_wghted_euro) # Give the data s sneak peek.
 
 ## [d] Extract "Weighted* average, Euro" variable from "eu_rtl_avg"
 eu_rtl_wghted_infltn_euro <- eu_rtl_avg %>% filter(series == "Euro-inflation-adjusted weighted* average, in 2020 Euro")
 colnames(eu_rtl_wghted_infltn_euro)[3] <- "eu_rtl_wghted_infltn_euro"
 eu_rtl_wghted_infltn_euro[1] <- NULL # Remove the "series" column.
-colnames(eu_rtl_wghted_infltn_euro) # Give the data s sneak peak.
+colnames(eu_rtl_wghted_infltn_euro) # Give the data s sneak peek.
 
 ## Merge the variables into one data frame.
 eu_rtl_avg <- data.frame(eu_rtl_unwghted_dollar, eu_rtl_wghted_dollar, eu_rtl_wghted_euro, eu_rtl_wghted_infltn_euro, by = "year")
@@ -100,7 +100,7 @@ eu_rtl_avg[4] <- NULL # Remove duplicate of "year" column.
 eu_rtl_avg[5] <- NULL # Remove duplicate of "year" column.
 eu_rtl_avg[6] <- NULL # Remove the merging column "by".
 
-## Clean up the work environment before cleaning removing the following variables.
+## Clean up the work environment before cleaning and removing the following variables.
 rm(eu_rtl_unwghted_dollar, eu_rtl_wghted_dollar, eu_rtl_wghted_euro, eu_rtl_wghted_infltn_euro)
 
 
@@ -133,9 +133,9 @@ eu_wholsl <- as.data.frame(eu_wholsl)
 ## Load the data set from the United Nations Office on Drugs and Crime (1996-2019).
 eu_wholsl_avg <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", sheet = 2, 
                             range = "A34:AF55")
-head(eu_wholsl_avg) # Take a sneak peak at the data.
+head(eu_wholsl_avg) # Take a sneak peek at the data.
 
-## Rename the first column "series", remove the all the rows that include country data, and the years between 1990 to 1995, and "2020".
+## Rename the first column "series", and remove all the rows that include country data, and the years between 1990 to 1995, and "2020".
 colnames(eu_wholsl_avg)[1] <- "series"
 eu_wholsl_avg <- eu_wholsl_avg %>% slice(-c(1:17))
 eu_wholsl_avg[2:7] <- NULL # Remove the years 1990 to 1995.
@@ -156,25 +156,25 @@ head(eu_wholsl_avg)
 eu_wholsl_unwghted_dollar <- eu_wholsl_avg %>% filter(series == "Unweighted average, in US$")
 colnames(eu_wholsl_unwghted_dollar)[3] <- "eu_wholsl_unwghted_dollar"
 eu_wholsl_unwghted_dollar[1] <- NULL # Remove the "series" column.
-colnames(eu_wholsl_unwghted_dollar) # Give the data s sneak peak.
+colnames(eu_wholsl_unwghted_dollar) # Give the data s sneak peek.
 
 ## [f] Extract "Weighted* average, US$" variable from "eu_retail".
 eu_wholsl_wghted_dollar <- eu_wholsl_avg %>% filter(series == "Weighted* average, US$")
 colnames(eu_wholsl_wghted_dollar)[3] <- "eu_wholsl_wghted_dollar"
 eu_wholsl_wghted_dollar[1] <- NULL # Remove the "series" column.
-colnames(eu_wholsl_wghted_dollar) # Give the data s sneak peak.
+colnames(eu_wholsl_wghted_dollar) # Give the data s sneak peek.
 
 ## [g] Extract "Weighted* average, Euro" variable from "eu_retail".
 eu_wholsl_wghted_euro <- eu_wholsl_avg %>% filter(series == "Weighted* average, Euro per gram")
 colnames(eu_wholsl_wghted_euro)[3] <- "eu_wholsl_wghted_euro"
 eu_wholsl_wghted_euro[1] <- NULL # Remove the "series" column.
-colnames(eu_wholsl_wghted_euro) # Give the data s sneak peak.
+colnames(eu_wholsl_wghted_euro) # Give the data s sneak peek.
 
 ## [h] Extract "Weighted* average, Euro" variable from "eu_retail"
 eu_wholsl_wghted_infltn_euro <- eu_wholsl_avg %>% filter(series == "Euro-inflation-adjusted weighted* average, in 2020 Euro")
 colnames(eu_wholsl_wghted_infltn_euro)[3] <- "eu_wholsl_wghted_infltn_euro"
 eu_wholsl_wghted_infltn_euro[1] <- NULL # Remove the "series" column.
-colnames(eu_wholsl_wghted_infltn_euro) # Give the data s sneak peak.
+colnames(eu_wholsl_wghted_infltn_euro) # Give the data s sneak peek.
 
 ## Merge the variables into one data frame.
 eu_wholsl_avg <- data.frame(eu_wholsl_unwghted_dollar, eu_wholsl_wghted_dollar, eu_wholsl_wghted_euro, eu_wholsl_wghted_infltn_euro, 
@@ -186,29 +186,29 @@ eu_wholsl_avg[4] <- NULL # Remove duplicate of "year" column.
 eu_wholsl_avg[5] <- NULL # Remove duplicate of "year" column.
 eu_wholsl_avg[6] <- NULL # Remove the merging column "by".
 
-## Clean up the work environment before cleaning removing the following variables.
+## Clean up the work environment before cleaning and removing the following variables.
 rm(eu_wholsl_unwghted_dollar, eu_wholsl_wghted_dollar, eu_wholsl_wghted_euro, eu_wholsl_wghted_infltn_euro)
 
 
 ## Merging variables together.
 
-## Merge eu "rtl" and "wholsl" variables together by country name and and year.
+## Merge Europe country "rtl" and "wholsl" variables together by country name and year.
 eu_cocaine <- merge(eu_rtl, eu_wholsl, by = c("year", "country"))
 head(eu_cocaine) # Check
 
-## Remove "Euro-inflation-adjusted weighted* average, in 2020 Euro" that was left in the data frame.
+## Remove the "Euro-inflation-adjusted weighted* average, in 2020 Euro" that was left in the data frame.
 eu_cocaine <- subset(eu_cocaine, country != "Euro-inflation-adjusted weighted* average, in 2020 Euro")
 head(eu_cocaine)
 
-## Clean up the work environment before cleaning removing the following variables.
+## Clean up the work environment before cleaning and removing the following variables.
 rm(eu_rtl, eu_wholsl)
 
-## Merge eu "rtl_avg" and "wholsl_avg" variables together by country name and and year.
+## Merge eu "rtl_avg" and "wholsl_avg" variables together by country name and year.
 eu_avg <- merge(eu_rtl_avg, eu_wholsl_avg, by = "year")
 eu_avg$country <- "European Countries" # Add the US as a country variable.
 head(eu_avg) # Check
 
-## Clean up the work environment before cleaning removing the following variables.
+## Clean up the work environment before cleaning and removing the following variables.
 rm(eu_rtl_avg, eu_wholsl_avg)
 
 ## Export the data frames: "eu_avg.csv" to a CSV file named "eu_cocaine.csv".
