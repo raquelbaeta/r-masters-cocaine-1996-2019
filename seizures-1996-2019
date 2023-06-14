@@ -21,9 +21,9 @@ library(tidyverse)
 ## Set Working directory for the analysis.
 setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
 
-## First, lets load the United Nations Office on Drugs and Crime data set [1990-2019].
+## First, let's load the United Nations Office on Drugs and Crime data set [1990-2019].
 seizures <- read_excel("unodc_annual_seizure_1990_2019.xlsx")
-head(seizures) # Give the data a sneak peak 
+head(seizures) # Give the data a sneak peek. 
 
 ## Remove the excess years that are not included in this study (1990 to 1994), and rename the column names for later 
 ## manipulation.
@@ -34,11 +34,11 @@ seizures <- seizures %>% rename("region" = "Region", "subregion" = "Sub Region",
 ## Select the relevant columns to mutate the data set.
 seizures <- select(seizures, "region", "subregion", "country", "group", "drug", "1996":"2019")
 
-## There are missing values in the categorical variables, using fill(), fill the following missing values in "region", 
+## There are missing values in the categorical variables, using fill(), fill in the following missing values in "region", 
 ## "sub_region" and "group" columns.
 seizures <- fill(seizures, "region", "subregion", "country", "group", "drug")
 
-## Pivot the data from wide to long format, add and fill the columns "year" and "seziure".
+## Pivot the data from wide to long format, and add and fill the columns "year" and "seizure".
 seizures <- pivot_longer(seizures, cols = "1996":"2019", names_to = "year", values_to = "seizure")
 
 ## Filter the data by "Cocaine-type" in "group" and select the necessary countries utilised in this analysis.
