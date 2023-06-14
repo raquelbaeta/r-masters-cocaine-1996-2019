@@ -25,7 +25,7 @@ library(countrycode) # for countrycode function
 setwd("/Users/raquelbaeta/Desktop/working_sessions")
 
 ## First, load the World Bank data set for the selected countries between the years 1996 and 2019.
-wb <- read_excel("datasets/P_Popular Indicators.xlsx")
+wb <- read_excel("datasets/wb_indicators.xlsx")
 head(wb) # Give the data a sneak peek. 
 
 ## This data set includes the following variables: 
