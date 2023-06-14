@@ -1,0 +1,81 @@
+##
+## Author: Raquel Baeta
+## Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+## Data Source: United Nations Office on Drugs and Crime (UNODC) and World Bank.
+
+## Packages needed for merging the data frames
+install.packages("dplyr")
+stall.packages("countrycode")
+
+library(dplyr)
+library(countrycode)
+
+## In this script, the following data frames are merged, "wgi", "wb", "eu_avg", "us_avg" and "seizures". 
+
+## First, 'wb" data frame is merged with the "wgi" data frame.
+
+## Load the csv files that created in "wb_indicators" and "wgi_indicators".
+wb <- read_csv("csv_files/wb.csv")
+wgi <- read_csv("csv_files/wgi.csv")
+
+## Join the dtaa frames by country name, country code and year.
+wb_wgi <- full_join(wb, wgi, by = c("country", "code", "year"))
+
+## Second, 'eu_avg" data frame is merged with the "us_avg" data frame.
+
+## Load the csv files that created in "eu_avg" and "us_avg".
+eu_avg <- read_csv("csv_files/eu_avg.csv", show_col_types = FALSE)
+us_avg <- read_csv("csv_files/us_avg.csv", show_col_types = FALSE)
+
+## Select and bind the rows retalated to the retail prices of cocaine in the United States and Europe.
+retail <- bind_rows(rename(select(eu_avg, country, year, eu_rtl), rtl_avg = eu_rtl), 
+                    rename(select(us_avg, country, year, us_rtl_avg), rtl_avg = us_rtl_avg))
+
+## Select and bind the rows retalated to the wholesale prices of cocaine in the United States and Europe.
+wholesale <- bind_rows(rename(select(eu_avg, country, year, eu_wholsl), wholsl_avg = eu_wholsl), 
+                       rename(select(us_avg, country, year, us_wholsl_avg), wholsl_avg = us_wholsl_avg))
+
+## Join  both "retail" and "wholesale" data frames.
+prices <- full_join(retail, wholesale, by = c("country", "year"))
+
+## Remove "Unweighted average, in US$" rows, and rename "Weighted* average, US$" to "United States of America".
+prices <- filter(prices, country != "Unweighted average, in US$")
+prices <- mutate(prices, country = ifelse(country == "Weighted* average, US$", "United States of America", country))
+
+## Add coountry codes to the data frame to merge later.
+prices$code <- countrycode(prices$country, origin = "country.name", destination = "iso3c")
+
+## Load the csv files that created in "seizures".
+seizures <- read_csv("csv_files/seizures.csv")
+
+## Add coountry codes to the data frame.
+seizures$code <- countrycode(seizures$country, origin = "country.name", destination = "iso3c")
+
+## Join  both "prices" and "seizures" data frames.
+cocaine <- full_join(prices, seizures, by = c("country", "code", "year"))
+cocaine <- select(cocaine, region, subregion, country, code, year, group, drug, wholsl_avg, rtl_avg, seizure)
+
+## Export the data frames to a CSV file named "cocaine".
+fwrite(cocaine, "cocaine.csv")
+
+## Join  both "wb_wgi" and "cocaine" data frames.
+data <- full_join(wb_wgi, cocaine, by = c("country", "code", "year"))
+colnames(data)
+
+## Reorder the columns into a more sensical order.
+data <- select(data, 
+               country, code, year, region, subregion, group, drug, seizure, wholsl_avg, rtl_avg, 
+               population, 
+               gdp_dollar, gdpcap_dollar, gdp_growth, gni_cap, gni_ppp, gnicap_ppp,
+               exports_dollar, exports_growth, exports_gdp,
+               imports_dollar, imports_growth, imports_gdp,
+               military_dollar, military_govexp, miltray_gdp,
+               cc_est, cc_std_err, cc_no_src, cc_per_rnk, cc_per_rnk_upper, cc_per_rnk_lower,
+               ge_est, ge_std_err, ge_no_src, ge_per_rnk, ge_per_rnk_upper, ge_per_rnk_lower,
+               pv_est, pv_std_err, pv_no_src, pv_per_rnk, pv_per_rnk_upper, pv_per_rnk_lower,
+               rq_est, rq_std_err, rq_no_src, rq_per_rnk, rq_per_rnk_upper, rq_per_rnk_lower,
+               rl_est, rl_std_err, rl_no_src, rl_per_rnk, rl_per_rnk_upper, rl_per_rnk_lower,
+               va_est, va_std_err, va_no_src, va_per_rnk, va_per_rnk_upper, va_per_rnk_lower)
+
+## Export the data frames to a CSV file named "data".
+fwrite(data, "data.csv")
