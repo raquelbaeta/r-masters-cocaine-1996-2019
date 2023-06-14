@@ -1,0 +1,107 @@
+##
+## Author: Raquel Baeta
+## Thesis title: The Role of International Commitments in Combating the Illicit 
+## Distribution of Cocaine.
+## Data Source: United Nations Office on Drugs and Crime (UNODC).
+## Variables: "Voice and Accountability: Estimate", "Political Stability and Absence of Violence/Terrorism: Estimate", 
+## "Government Effectiveness: Estimate", "Regulatory Quality: Estimate", "Rule of Law: Estimate", "Control of Corruption: 
+## Estimate
+
+## Install the necessary packages needed for this analysis.
+install.packages("readxl")
+install.packages("tidyr")
+install.packages("dplyr")
+install.packages("tidyverse")
+install.packages("countrycode")
+install.packages("data.table")
+
+## Load the necessary packages needed for this analysis.
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(tidyverse)
+library(data.table)
+library(countrycode) # for countrycode function
+
+## This is the set Working directory.
+setwd("/Users/raquelbaeta/Desktop/working_sessions")
+
+## First, load the World Bank data set for the selected countries between the years 1996 and 2019.
+wgi <- read_excel("datasets/wgi_indicators.xlsx")
+head(wgi) # Give the data a sneak peak 
+
+## This data set includes the following variables: 
+
+## [1] Voice and Accountability: 
+## The extent to which a country’s citizens are able to participate in selecting their government, as well as freedom of 
+## expression, freedom of association and free media.
+
+## [2] Political Stability and Absence of Violence/Terrorism: 
+## The likelihood that the government will be destabilized or overthrown by unconstitutional or violent means, including 
+## domestic violence and terrorism.
+
+## [3] Government Effectiveness: 
+## The quality of public services, the quality of the civil service and the degree of its independence from political pressures,
+## the quality of policy formulation and implementation, and the credibility of the government’s commitment to such policies.
+
+## [4] Regulatory Quality: 
+## The ability of the government to provide sound policies and regulations that enable and promote private sector development.
+
+## [5] Rule of Law: 
+## The extent to which agents have confidence in and abide by the rules of society, and in particular the quality of contract 
+## enforcement, property rights, the police, and the courts, as well as the likelihood of crime and violence.
+
+## [6] Control of Corruption: 
+## The extent to which public power is exercised for private gain, including both petty and grand forms of corruption, as well 
+## as "capture" of the state by elites and private interests1.
+
+## Rename the columns for later manipulation.
+colnames(wgi)
+wgi <- wgi %>% rename(
+  "country" = "Country Name", 
+  "code" = "Country Code",
+  "year" = "Time", 
+  "yearcode" = "Time Code",
+  "cc_est" = "Control of Corruption: Estimate [CC.EST]", 
+  "ge_est" = "Government Effectiveness: Estimate [GE.EST]", 
+  "ge_no_src" = "Government Effectiveness: Number of Sources [GE.NO.SRC]", 
+  "ge_per_rnk" = "Government Effectiveness: Percentile Rank [GE.PER.RNK]", 
+  "ge_per_rnk_lower" = "Government Effectiveness: Percentile Rank, Lower Bound of 90% Confidence Interval [GE.PER.RNK.LOWER]", 
+  "ge_per_rnk_upper" = "Government Effectiveness: Percentile Rank, Upper Bound of 90% Confidence Interval [GE.PER.RNK.UPPER]",
+  "ge_std_err" = "Government Effectiveness: Standard Error [GE.STD.ERR]", 
+  "pv_est" = "Political Stability and Absence of Violence/Terrorism: Estimate [PV.EST]", 
+  "pv_no_src" = "Political Stability and Absence of Violence/Terrorism: Number of Sources [PV.NO.SRC]", 
+  "pv_per_rnk" = "Political Stability and Absence of Violence/Terrorism: Percentile Rank [PV.PER.RNK]",
+  "pv_per_rnk_lower" = "Political Stability and Absence of Violence/Terrorism: Percentile Rank, Lower Bound of 90% Confidence Interval [PV.PER.RNK.LOWER]", 
+  "pv_per_rnk_upper" = "Political Stability and Absence of Violence/Terrorism: Percentile Rank, Upper Bound of 90% Confidence Interval [PV.PER.RNK.UPPER]",
+  "pv_std_err" = "Political Stability and Absence of Violence/Terrorism: Standard Error [PV.STD.ERR]",
+  "rq_est" = "Regulatory Quality: Estimate [RQ.EST]", 
+  "rq_no_src" = "Regulatory Quality: Number of Sources [RQ.NO.SRC]", 
+  "rq_per_rnk" = "Regulatory Quality: Percentile Rank [RQ.PER.RNK]",
+  "rq_per_rnk_lower" = "Regulatory Quality: Percentile Rank, Lower Bound of 90% Confidence Interval [RQ.PER.RNK.LOWER]",
+  "rq_per_rnk_upper" = "Regulatory Quality: Percentile Rank, Upper Bound of 90% Confidence Interval [RQ.PER.RNK.UPPER]",
+  "rq_std_err" = "Regulatory Quality: Standard Error [RQ.STD.ERR]",
+  "rl_est" = "Rule of Law: Estimate [RL.EST]",
+  "rl_no_src" = "Rule of Law: Number of Sources [RL.NO.SRC]",
+  "rl_per_rnk" =  "Rule of Law: Percentile Rank [RL.PER.RNK]",
+  "rl_per_rnk_lower" = "Rule of Law: Percentile Rank, Lower Bound of 90% Confidence Interval [RL.PER.RNK.LOWER]",
+  "rl_per_rnk_upper" = "Rule of Law: Percentile Rank, Upper Bound of 90% Confidence Interval [RL.PER.RNK.UPPER]",
+  "rl_std_err" = "Rule of Law: Standard Error [RL.STD.ERR]",
+  "va_est" = "Voice and Accountability: Estimate [VA.EST]",
+  "va_no_src" = "Voice and Accountability: Number of Sources [VA.NO.SRC]",
+  "va_per_rnk" = "Voice and Accountability: Percentile Rank [VA.PER.RNK]",
+  "va_per_rnk_lower" = "Voice and Accountability: Percentile Rank, Lower Bound of 90% Confidence Interval [VA.PER.RNK.LOWER]",
+  "va_per_rnk_upper" = "Voice and Accountability: Percentile Rank, Upper Bound of 90% Confidence Interval [VA.PER.RNK.UPPER]",
+  "va_std_err" = "Voice and Accountability: Standard Error [VA.STD.ERR]",
+  "va_per_rnk" = "Voice and Accountability: Percentile Rank [VA.PER.RNK]",
+  "va_per_rnk_lower" = "Voice and Accountability: Percentile Rank, Lower Bound of 90% Confidence Interval [VA.PER.RNK.LOWER]",
+  "va_per_rnk_upper" = "Voice and Accountability: Percentile Rank, Upper Bound of 90% Confidence Interval [VA.PER.RNK.UPPER]",
+  "va_std_err" = "Voice and Accountability: Standard Error [VA.STD.ERR]",
+  "cc_std_err" = "Control of Corruption: Standard Error [CC.STD.ERR]",
+  "cc_per_rnk_upper" = "Control of Corruption: Percentile Rank, Upper Bound of 90% Confidence Interval [CC.PER.RNK.UPPER]",
+  "cc_per_rnk_lower" = "Control of Corruption: Percentile Rank, Lower Bound of 90% Confidence Interval [CC.PER.RNK.LOWER]",
+  "cc_per_rnk" = "Control of Corruption: Percentile Rank [CC.PER.RNK]",
+  "cc_no_src" = "Control of Corruption: Number of Sources [CC.NO.SRC]")
+
+## Export the data frames to a CSV file named "wb".
+fwrite(wgi, "wgi_indicators.csv")
