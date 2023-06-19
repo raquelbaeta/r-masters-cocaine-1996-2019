@@ -5,10 +5,16 @@
 
 ## Packages needed for merging the data frames
 install.packages("dplyr")
-stall.packages("countrycode")
+install.packages("countrycode")
+install.packages("data.table")
 
+## Load packages 
 library(dplyr)
 library(countrycode)
+library(data.table)
+
+## This is the set Working directory.
+setwd("/Users/raquelbaeta/Desktop/working_sessions")
 
 ## In this script, the following data frames are merged, "wgi", "wb", "eu_avg", "us_avg" and "seizures". 
 
@@ -62,10 +68,13 @@ fwrite(cocaine, "cocaine.csv")
 data <- full_join(wb_wgi, cocaine, by = c("country", "code", "year"))
 colnames(data)
 
-## Reorder the columns into a more sensical order.
-data <- select(data, 
-               country, code, year, region, subregion, group, drug, seizure, wholsl_avg, rtl_avg, 
-               population, 
+## Join  both "data" and "untreaties" data frames.
+data <- full_join(data, untreaties, by = c("country", "code", "region"))
+colnames(data)
+
+## Reorder the columns into a more sensible order.
+data <- select(data, country, code, year, region, subregion, population,
+               un1961, un1971, un1988, group, drug, seizure, wholsl_avg, rtl_avg,
                gdp_dollar, gdpcap_dollar, gdp_growth, gni_cap, gni_ppp, gnicap_ppp,
                exports_dollar, exports_growth, exports_gdp,
                imports_dollar, imports_growth, imports_gdp,
@@ -77,5 +86,12 @@ data <- select(data,
                rl_est, rl_std_err, rl_no_src, rl_per_rnk, rl_per_rnk_upper, rl_per_rnk_lower,
                va_est, va_std_err, va_no_src, va_per_rnk, va_per_rnk_upper, va_per_rnk_lower)
 
+## Remove duplicates created by the merge 
+data <- data[!duplicated(data), ]
+
 ## Export the data frames to a CSV file named "data".
 fwrite(data, "data.csv")
+
+## Remove the data sets that were merged.
+rm(wb, wgi, wb_wgi, eu_avg, us_avg, retail, wholesale, prices, seizures, cocaine)
+
