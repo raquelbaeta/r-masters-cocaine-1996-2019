@@ -1,216 +1,286 @@
-##
-## Author: Raquel Baeta
-## Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
-## Data Source: United Nations Office on Drugs and Crime (UNODC).
-## Variables: "European retail average, Unweighted average, in US$", Weighted* average, US$", "Weighted* average, Euro", "Euro-
-## inflation-adjusted weighted* average, in 2020 Euro"
+#
+# Author: Raquel Baeta
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+# Data Source: United Nations Office on Drugs and Crime (UNODC).
 
-## Packages needed for cleaning and manipulating. 
+# Variables: Annual wholesale and retail averages for all European countries in Euro, as well as the "Weighted* average, in Euro", 
+# and "Euro-inflation-adjusted weighted* average, in 2020 Euro" for both wholesale and retail.
+
+# Packages needed for cleaning and manipulating. 
 install.packages("readxl")
 install.packages("tidyr")
 install.packages("dplyr")
 install.packages("data.table")
-install.packages("kableExtra")
 
 library(readxl)
 library(tidyr)
 library(dplyr)
 library(data.table)
-library(kableExtra)
 
-## This is the set working directory for the analysis.
+# This is the set working directory for this analysis.
 setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
 
-## [1] Country annual retail metrics for cocaine prices.
+#
+# [1] & [2] include the retail variables and [3] & [4] include the wholesale variables. [5] includes the merged variables for retail 
+# and wholesale averages, as well as inflation prices.
 
-## Load the data set from the United Nations Office on Drugs and Crime (1996-2019).
-eu_rtl <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", sheet = 2, range = "A5:AF26")
-colnames(eu_rtl)[1] <- "country" # Rename the first column.
-head(eu_rtl) # Take a sneak peek at the data.
+#
+# [1] Annual "Retail Prices" Variable:
+# Annual retail metrics for cocaine prices in Europe between 1996-2019.
 
-## Remove the additional columns (the years 1990 to 1995 and 2020). 
-eu_rtl[2:7] <- NULL # Remove the years from 1990 to 1995.
-eu_rtl[26] <- NULL # Remove the year 2020.
-colnames(eu_rtl) # Check
+# Load the data set from the United Nations Office on Drugs and Crime.
+retail_prices <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", 
+                            sheet = 2,
+                            range = "A5:AF26")
 
-# Transform the data set so that "eu_rtl" is the variable for later manipulation.
-eu_rtl <- pivot_longer(eu_rtl, 
-                       cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007",
-                                "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"),
-                       names_to = "year", values_to = "eu_rtl")
-head(eu_rtl) # Check
+head(retail_prices) # Take a sneak peek at the data.
+colnames(retail_prices)[1] <- "country" # and rename the first column.
 
-# Convert the tibble to a data frame.
-eu_rtl <- as.data.frame(eu_rtl)
+# Remove the years not included (the years 1990 to 1995 and 2020). 
+retail_prices[2:7] <- NULL # remove the years from 1990 to 1995.
+retail_prices[26] <- NULL # remove the year 2020.
+colnames(retail_prices) # check
 
+# Transform the data set so that there is a variable for  "retail_prices" for later  manipulation.
+retail_prices <- pivot_longer(retail_prices, 
+                              cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", 
+                                       "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", 
+                                       "2018", "2019"),
+                              names_to = "year", 
+                              values_to = "retail")
+head(retail_prices) # check the pivot
 
-## [2] Annual retail metrics for cocaine prices.
+# Additional manipulations.
+retail_prices <- as.data.frame(retail_prices) # convert into a data frame.
+retail_prices$year <- as.numeric(retail_prices$year) # convert to numeric
 
-## Load the data set from the United Nations Office on Drugs and Crime (1996-2019).
-eu_rtl_avg <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", sheet = 2, range = "A5:AF26")
-head(eu_rtl_avg) # Take a sneak peek at the data.
+# Remove the rows that include the annual averages for Europe as a region, and not the individual countries' averages. 
+retail_prices <- retail_prices %>%
+  filter(country != "United Kingdom" & 
+           country != "Weighted* average, US$" &
+           country != "Unweighted average, in US$" &
+           country != "Euro-inflation-adjusted weighted* average, in 2020 Euro" & 
+           country != "Weighted* average, Euro")
+tail(retail_prices) # check the rows were removed.
 
-## Remove all the rows that include country data, and the years between 1990 to 1995, and "2020".
-eu_rtl_avg <- eu_rtl_avg %>% slice(-c(1:17))
-colnames(eu_rtl_avg)[1] <- "series"
-eu_rtl_avg[2:7] <- NULL # Remove the years 1990 to 1995.
-eu_rtl_avg[26] <- NULL # Remove the year 2020.
-colnames(eu_rtl_avg) # Check
+#
+# [2.1] Annual "Retail Averages" Variables:
+# Annual Averages for Retail Prices in Europe between 1996-2019.
 
-## Transform the data set so that "eu_retail" is the variable for later manipulation.
-eu_rtl_avg <- pivot_longer(eu_rtl_avg, 
-                           cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", 
-                                    "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"),
-                           names_to = "year", values_to = "eu_rtl_avg")
+# Load the data set from the United Nations Office on Drugs and Crime
+retail_average <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
+                             sheet = 2,
+                             range = "A5:AF26")
 
-## Additional manipulations.
-eu_rtl_avg$year <- as.numeric(eu_rtl_avg$year) 
-head(eu_rtl_avg)
+head(retail_average) # Take a sneak peek at the data.
+colnames(retail_average)[1] <- "country" # rename the first column.
 
-## [a] Extract "Unweighted average, in US$" variable from "eu_rtl_avg".
-eu_rtl_unwghted_dollar <- eu_rtl_avg %>% filter(series == "Unweighted average, in US$")
-colnames(eu_rtl_unwghted_dollar)[3] <- "eu_rtl_unwghted_dollar"
-eu_rtl_unwghted_dollar[1] <- NULL # Remove the "series" column.
-colnames(eu_rtl_unwghted_dollar) # Give the data s sneak peek.
+# Remove the years not included (the years 1990 to 1995 and 2020). 
+retail_average[2:7] <- NULL # remove the years from 1990 to 1995.
+retail_average[26] <- NULL # remove the year 2020.
+colnames(retail_average) # Check
 
-## [b] Extract "Weighted* average, US$" variable from "eu_rtl_avg".
-eu_rtl_wghted_dollar <- eu_rtl_avg %>% filter(series == "Weighted* average, US$")
-colnames(eu_rtl_wghted_dollar)[3] <- "eu_rtl_wghted_dollar"
-eu_rtl_wghted_dollar[1] <- NULL # Remove the "series" column.
-colnames(eu_rtl_wghted_dollar) # Give the data s sneak peek.
+# Transform the data set so that "retail_average" is a variable for later manipulation.
+retail_average <- pivot_longer(retail_average, 
+                               cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", 
+                                        "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", 
+                                        "2018", "2019"),
+                               names_to = "year", 
+                               values_to = "weighted_retail_average")
 
-## [c] Extract "Weighted* average, Euro" variable from "eu_rtl_avg".
-eu_rtl_wghted_euro <- eu_rtl_avg %>% filter(series == "Weighted* average, Euro")
-colnames(eu_rtl_wghted_euro)[3] <- "eu_rtl_wghted_euro"
-eu_rtl_wghted_euro[1] <- NULL # Remove the "series" column.
-colnames(eu_rtl_wghted_euro) # Give the data s sneak peek.
+# Additional manipulations
+retail_average <- as.data.frame(retail_average) # convert into a data frame.
+retail_average$year <- as.numeric(retail_average$year) # convert to numeric
 
-## [d] Extract "Weighted* average, Euro" variable from "eu_rtl_avg"
-eu_rtl_wghted_infltn_euro <- eu_rtl_avg %>% filter(series == "Euro-inflation-adjusted weighted* average, in 2020 Euro")
-colnames(eu_rtl_wghted_infltn_euro)[3] <- "eu_rtl_wghted_infltn_euro"
-eu_rtl_wghted_infltn_euro[1] <- NULL # Remove the "series" column.
-colnames(eu_rtl_wghted_infltn_euro) # Give the data s sneak peek.
+# Select and filter "Weighted* average, Euro" into a new data set.
+retail_average <- retail_average %>%
+  filter(grepl("Weighted\\* average, Euro", country))
 
-## Merge the variables into one data frame.
-eu_rtl_avg <- data.frame(eu_rtl_unwghted_dollar, eu_rtl_wghted_dollar, eu_rtl_wghted_euro, eu_rtl_wghted_infltn_euro, by = "year")
+# Remove the country column
+retail_average[1] <- NULL
 
-## Remove column duplicates.
-eu_rtl_avg[3] <- NULL # Remove duplicate of "year" column.
-eu_rtl_avg[4] <- NULL # Remove duplicate of "year" column.
-eu_rtl_avg[5] <- NULL # Remove duplicate of "year" column.
-eu_rtl_avg[6] <- NULL # Remove the merging column "by".
+#
+# [2.2] Annual "Retail Averages Adjusted for Inflation" Variable:
+# Annual average retail metrics adjusted for inflation for cocaine prices in Europe.
 
-## Clean up the work environment before cleaning and removing the following variables.
-rm(eu_rtl_unwghted_dollar, eu_rtl_wghted_dollar, eu_rtl_wghted_euro, eu_rtl_wghted_infltn_euro)
+# Load the data set from the United Nations Office on Drugs and Crime.
+retail_inflation_average <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
+                                       sheet = 2,
+                                       range = "A5:AF26")
 
+head(retail_inflation_average) # Take a sneak peek at the data.
+colnames(retail_inflation_average)[1] <- "country" # rename the first column.
 
-## [3] Country annual wholesale metrics for cocaine prices.
+# Remove the additional columns (the years 1990 to 1995 and 2020). 
+retail_inflation_average[2:7] <- NULL # remove the years from 1990 to 1995.
+retail_inflation_average[26] <- NULL # remove the year 2020.
+colnames(retail_inflation_average) # check
 
-## Load the data set from the United Nations Office on Drugs and Crime (1996-2019)
-eu_wholsl <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", sheet = 2, range = "A34:AF55")
-colnames(eu_wholsl)[1] <- "country" # Rename the first column 
-head(eu_wholsl) # Check 
+# Transform the data set so that "retail_inflation_average" is the variable for later manipulation.
+retail_inflation_average <- pivot_longer(retail_inflation_average,
+                                         cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", 
+                                                  "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015",
+                                                  "2016", "2017", "2018", "2019"),
+                                         names_to = "year",
+                                         values_to = "inflation_retail_average")
 
-## Remove the additional "year" columns not included in the study (1990 to 1995 and 2020). 
-eu_wholsl[2:7] <- NULL # Remove the years from 1990 to 1995.
-eu_wholsl[26] <- NULL # Remove the year 2020.
-head(eu_wholsl) # Check 
+# Additional manipulations
+  # Convert into a data frame.
+  retail_inflation_average <- as.data.frame(retail_inflation_average) 
+  # Convert to numeric
+  retail_inflation_average$year <- as.numeric(retail_inflation_average$year) 
 
-## Transform the data set so that "eu_wholesale" is the variable for later manipulation.
-eu_wholsl <- pivot_longer(eu_wholsl, 
-                          cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", 
-                                   "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"),
-                          names_to = "year", values_to = "eu_wholsl")
-head(eu_wholsl) # Check
+# Create a data set that includes the variable "Euro-inflation-adjusted weighted* average, in 2020 Euro".
+retail_inflation_average <- retail_inflation_average %>%
+  filter(country == "Euro-inflation-adjusted weighted* average, in 2020 Euro")
+head(retail_inflation_average) # check the top 
+tail(retail_inflation_average) # check the bottom
 
-# Convert the tibble to a data frame.
-eu_wholsl$year <- as.numeric(eu_wholsl$year)
-eu_wholsl <- as.data.frame(eu_wholsl)
+# Remove the country column
+retail_inflation_average[1] <- NULL
 
+#
+# [3] Annual "Wholesale Prices" Variable  
+# Annual wholesale metrics for cocaine prices in Europe between 1996-2019.
 
-## [4] Annual wholesale metrics for cocaine prices.
+# Load the data set from the United Nations Office on Drugs and Crime.
+wholesale_prices <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
+                               sheet = 2,
+                               range = "A34:AF55")
 
-## Load the data set from the United Nations Office on Drugs and Crime (1996-2019).
-eu_wholsl_avg <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx", sheet = 2, 
-                            range = "A34:AF55")
-head(eu_wholsl_avg) # Take a sneak peek at the data.
+head(wholesale_prices) # Take a sneak peek at the data.
+colnames(wholesale_prices)[1] <- "country" # rename the first column.
 
-## Rename the first column "series", and remove all the rows that include country data, and the years between 1990 to 1995, and "2020".
-colnames(eu_wholsl_avg)[1] <- "series"
-eu_wholsl_avg <- eu_wholsl_avg %>% slice(-c(1:17))
-eu_wholsl_avg[2:7] <- NULL # Remove the years 1990 to 1995.
-eu_wholsl_avg[26] <- NULL # Remove the year 2020.
-colnames(eu_wholsl_avg) # Check
+# Remove the additional columns (the years 1990 to 1995 and 2020). 
+wholesale_prices[2:7] <- NULL # remove the years from 1990 to 1995.
+wholesale_prices[26] <- NULL # remove the year 2020.
+colnames(wholesale_prices) # check
 
-## Transform the data set so that "eu_retail" is the variable for later manipulation.
-eu_wholsl_avg <- pivot_longer(eu_wholsl_avg, 
-                              cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", 
-                                       "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"),
-                             names_to = "year", values_to = "eu_wholsl_avg")
+# Transform the data set so that "wholesale_prices" is the variable for later manipulation.
+wholesale_prices <- pivot_longer(wholesale_prices, 
+                                 cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", 
+                                          "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", 
+                                          "2018", "2019"),
+                                 names_to = "year", 
+                                 values_to = "wholesale")
+head(wholesale_prices) # check
 
-## Additional manipulations.
-eu_wholsl_avg$year <- as.numeric(eu_wholsl_avg$year) 
-head(eu_wholsl_avg)
+# Additional manipulations
+  # Convert into a data frame.
+  wholesale_prices <- as.data.frame(wholesale_prices) 
+  # Convert to numeric
+  wholesale_prices$year <- as.numeric(wholesale_prices$year) 
 
-## [e] Extract "Unweighted average, in US$" variable from "eu_retail".
-eu_wholsl_unwghted_dollar <- eu_wholsl_avg %>% filter(series == "Unweighted average, in US$")
-colnames(eu_wholsl_unwghted_dollar)[3] <- "eu_wholsl_unwghted_dollar"
-eu_wholsl_unwghted_dollar[1] <- NULL # Remove the "series" column.
-colnames(eu_wholsl_unwghted_dollar) # Give the data s sneak peek.
+# Remove the rows that include the annual averages for Europe as a region, and not the individual countries' averages. 
+wholesale_prices <- wholesale_prices %>%
+  filter(country != "United Kingdom" & 
+           country != "Weighted* average, US$" &
+           country != "Unweighted average, in US$" &
+           country != "Euro-inflation-adjusted weighted* average, in 2020 Euro" & 
+           country != "Weighted* average, Euro per gram")
+tail(wholesale_prices) # check the rows were removed.
 
-## [f] Extract "Weighted* average, US$" variable from "eu_retail".
-eu_wholsl_wghted_dollar <- eu_wholsl_avg %>% filter(series == "Weighted* average, US$")
-colnames(eu_wholsl_wghted_dollar)[3] <- "eu_wholsl_wghted_dollar"
-eu_wholsl_wghted_dollar[1] <- NULL # Remove the "series" column.
-colnames(eu_wholsl_wghted_dollar) # Give the data s sneak peek.
+#
+# [4.1] Annual Wholesale "Weighted* average, Euro per gram" Variables.
+# Annual Averages for Wholesale Prices in Europe between 1996-2019.
 
-## [g] Extract "Weighted* average, Euro" variable from "eu_retail".
-eu_wholsl_wghted_euro <- eu_wholsl_avg %>% filter(series == "Weighted* average, Euro per gram")
-colnames(eu_wholsl_wghted_euro)[3] <- "eu_wholsl_wghted_euro"
-eu_wholsl_wghted_euro[1] <- NULL # Remove the "series" column.
-colnames(eu_wholsl_wghted_euro) # Give the data s sneak peek.
+# Load the data set from the United Nations Office on Drugs and Crime.
+wholesale_average <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
+                                sheet = 2,
+                                range = "A34:AF55")
 
-## [h] Extract "Weighted* average, Euro" variable from "eu_retail"
-eu_wholsl_wghted_infltn_euro <- eu_wholsl_avg %>% filter(series == "Euro-inflation-adjusted weighted* average, in 2020 Euro")
-colnames(eu_wholsl_wghted_infltn_euro)[3] <- "eu_wholsl_wghted_infltn_euro"
-eu_wholsl_wghted_infltn_euro[1] <- NULL # Remove the "series" column.
-colnames(eu_wholsl_wghted_infltn_euro) # Give the data s sneak peek.
+head(wholesale_average) # Take a sneak peek at the data.
+colnames(wholesale_average)[1] <- "country" # rename the first column.
 
-## Merge the variables into one data frame.
-eu_wholsl_avg <- data.frame(eu_wholsl_unwghted_dollar, eu_wholsl_wghted_dollar, eu_wholsl_wghted_euro, eu_wholsl_wghted_infltn_euro, 
-                            by = "year")
+# Remove the additional columns (the years 1990 to 1995 and 2020). 
+wholesale_average[2:7] <- NULL # remove the years from 1990 to 1995.
+wholesale_average[26] <- NULL # remove the year 2020.
+colnames(wholesale_average) # check
 
-# Remove column duplicates.
-eu_wholsl_avg[3] <- NULL # Remove duplicate of "year" column.
-eu_wholsl_avg[4] <- NULL # Remove duplicate of "year" column.
-eu_wholsl_avg[5] <- NULL # Remove duplicate of "year" column.
-eu_wholsl_avg[6] <- NULL # Remove the merging column "by".
+# Transform the data set so that "wholesale_average" is the variable for later manipulation.
+wholesale_average <- pivot_longer(wholesale_average, 
+                                  cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", 
+                                           "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", 
+                                           "2018", "2019"),
+                                  names_to = "year",
+                                  values_to = "weighted_wholesale_average")
+head(wholesale_average) # check
 
-## Clean up the work environment before cleaning and removing the following variables.
-rm(eu_wholsl_unwghted_dollar, eu_wholsl_wghted_dollar, eu_wholsl_wghted_euro, eu_wholsl_wghted_infltn_euro)
+# Additional manipulations
+  # Convert into a data frame.
+  wholesale_average <- as.data.frame(wholesale_average) 
+  # Convert to numeric
+  wholesale_average$year <- as.numeric(wholesale_average$year) 
 
+# Create a data set that includes the variable "Weighted* average, Euro per gram".
+wholesale_average <- wholesale_average %>%
+  filter(country == "Weighted* average, Euro per gram")
 
-## Merging variables together.
+head(wholesale_average)
+wholesale_average[1] <- NULL # remove the country column 
 
-## Merge Europe country "rtl" and "wholsl" variables together by country name and year.
-eu_cocaine <- merge(eu_rtl, eu_wholsl, by = c("year", "country"))
-head(eu_cocaine) # Check
+#
+# [4.2] Annual "Average wholesale Adjusted for Inflation" prices.
+# Annual Averages for Wholesale Prices in Europe between 1996-2019.
 
-## Remove the "Euro-inflation-adjusted weighted* average, in 2020 Euro" that was left in the data frame.
-eu_cocaine <- subset(eu_cocaine, country != "Euro-inflation-adjusted weighted* average, in 2020 Euro")
-head(eu_cocaine)
+# Load the data set from the United Nations Office on Drugs and Crime.
+wholesale_inflation_average <- read_excel(path = "~/Desktop/working_sessions/datasets/price_dollar_western_europe.xlsx",
+                                          sheet = 2,
+                                          range = "A34:AF55")
 
-## Clean up the work environment before cleaning and removing the following variables.
-rm(eu_rtl, eu_wholsl)
+head(wholesale_inflation_average) # Take a sneak peek at the data.
+colnames(wholesale_inflation_average)[1] <- "country" # rename the first column.
 
-## Merge eu "rtl_avg" and "wholsl_avg" variables together by country name and year.
-eu_avg <- merge(eu_rtl_avg, eu_wholsl_avg, by = "year")
-eu_avg$country <- "European Countries" # Add the US as a country variable.
-head(eu_avg) # Check
+# Remove the additional columns (the years 1990 to 1995 and 2020). 
+wholesale_inflation_average[2:7] <- NULL # remove the years from 1990 to 1995.
+wholesale_inflation_average[26] <- NULL # remove the year 2020.
+colnames(wholesale_inflation_average) # check
 
-## Clean up the work environment before cleaning and removing the following variables.
-rm(eu_rtl_avg, eu_wholsl_avg)
+# Transform the data set so that "wholesale_inflation_average" is the variable for later manipulation.
+wholesale_inflation_average <- pivot_longer(wholesale_inflation_average,
+                                            cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", 
+                                                     "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", 
+                                                     "2016", "2017", "2018", "2019"),
+                                            names_to = "year",
+                                            values_to = "inflation_wholesale_average")
 
-## Export the data frames: "eu_avg.csv" to a CSV file named "eu_cocaine.csv".
-fwrite(eu_cocaine, "eu_avg.csv")
-fwrite(eu_cocaine_avg, "eu_cocaine.csv")
+# Additional manipulations
+  # Convert into a data frame.
+  wholesale_inflation_average <- as.data.frame(wholesale_inflation_average) 
+  # Convert to numeric
+  wholesale_inflation_average$year <- as.numeric(wholesale_inflation_average$year) 
+
+# Create a data set that includes the variable "Euro-inflation-adjusted weighted* average, in 2020 Euro".
+wholesale_inflation_average <- wholesale_inflation_average %>%
+  filter(country == "Euro-inflation-adjusted weighted* average, in 2020 Euro")
+
+head(wholesale_inflation_average)
+wholesale_inflation_average[1] <- NULL # remove the country column 
+
+#
+# [5.1] Annual "Average Country Prices" Variable
+# Annual Averages for Cocaine Prices in Europe between 1996-2019.
+
+# Merge the annual averages for wholesale and retail prices.
+cocaine_prices <- full_join(retail_prices, wholesale_prices, by = c("country", "year"))
+
+# Clean up the work environment before cleaning and removing the following variables.
+rm(retail_prices, wholesale_prices)
+
+#
+# [5.2] Annual "Average Adjusted for Inflation" Variable
+# Annual Averages for Cocaine Prices in Europe between 1996-2019.
+
+  # Merge the average adjusted for inflation prices.
+  annual_price_average <- merge(retail_average, wholesale_average, by = "year", all = TRUE)
+  annual_price_average <- merge(annual_price_average, retail_inflation_average, by = "year", all = TRUE)
+  annual_price_average <- merge(annual_price_average, wholesale_inflation_average, by = "year", all = TRUE)
+
+# Clean up the work environment before cleaning and removing the following variables.
+rm(retail_average, wholesale_average, retail_inflation_average, 
+   wholesale_inflation_average)
+
+# Export data frames named "cocaine_prices.csv" and "annual_price_average.csv" into a CSV files. 
+fwrite(cocaine_prices, "cocaine_prices.csv") # country
+fwrite(annual_price_average, "annual_price_average.csv") # region
+
