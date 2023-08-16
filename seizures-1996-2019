@@ -1,58 +1,52 @@
-##
-## Author: Raquel Baeta
-## Thesis: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
-## Source: United Nations Office on Drugs and Crime
-## Data set variables: Annual cocaine seizures from 1996 to 2019.
+#
+# Author: Raquel Baeta
+# Thesis: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+# Source: United Nations Office on Drugs and Crime
 
-## Install the necessary packages needed for this analysis.
+# Variables: Region, Subregion, Country, Drug Group, Drug-type, and Cocaine seizures. 
+
+# Packages needed for cleaning and manipulating. 
 install.packages("readxl")
 install.packages("tidyr")
 install.packages("dplyr")
 install.packages("tidyverse")
 install.packages("data.table")
 
-## Load the necessary packages needed for this analysis.
 library(readxl)
 library(tidyr)
 library(dplyr)
 library(data.table)
 library(tidyverse)
 
-## Set Working directory for the analysis.
+# This is the set working directory for this analysis.
 setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
 
-## First, let's load the United Nations Office on Drugs and Crime data set [1990-2019].
+# Load the United Nations Office on Drugs and Crime data set.
 seizures <- read_excel("unodc_annual_seizure_1990_2019.xlsx")
-head(seizures) # Give the data a sneak peek. 
+head(seizures) # Give the data a sneak peek 
 
-## Remove the excess years that are not included in this study (1990 to 1994), and rename the column names for later 
-## manipulation.
-seizures[6:11] <- NULL # Remove the year 1990 to 1994.
+# Remove the years not included in this study and rename the columns for later manipulation.
+seizures[6:11] <- NULL # remove the year 1990 to 1994.
 seizures <- seizures %>% rename("region" = "Region", "subregion" = "Sub Region", "country" = "Country", "group" = "Drug Group", 
-                        "drug" = "Drug")
+                                "drug" = "Drug")
 
-## Select the relevant columns to mutate the data set.
-seizures <- select(seizures, "region", "subregion", "country", "group", "drug", "1996":"2019")
-
-## There are missing values in the categorical variables, using fill(), fill in the following missing values in "region", 
-## "sub_region" and "group" columns.
+# There are missing values in the categorical variables, using fill(), fill the following missing values in "region", "sub_region" 
+# and "group" columns.
 seizures <- fill(seizures, "region", "subregion", "country", "group", "drug")
 
-## Pivot the data from wide to long format, and add and fill the columns "year" and "seizure".
+# Pivot the data from wide to long format, and add and fill the columns "year" and "seizures".
 seizures <- pivot_longer(seizures, cols = "1996":"2019", names_to = "year", values_to = "seizure")
 
-## Filter the data by "Cocaine-type" in "group" and select the necessary countries utilised in this analysis.
+# Filter the data by "Cocaine-type" in "group" and select the countries to for the seizure variable.
 seizures <- filter(seizures, group == "Cocaine-type", 
-                   country %in% c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", 
-                                  "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "Switzerland", 
-                                  "United Kingdom", "United States of America"))
+                   country %in% c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy",
+                                  "Luxembourg", "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "Switzerland"))
 
-## Convert "year" to numeric
+# Convert "year" to numeric
 seizures <- mutate(seizures, year = as.numeric(year))
 
 # View the first 10 rows of seizures
 head(seizures, 10)
 
-## Export the data set: "seizures" to a CSV file named "seizures.csv".
+# Export the data set: "seizures" to a CSV file named "seizures.csv".
 fwrite(seizures, "seizures.csv")
-
