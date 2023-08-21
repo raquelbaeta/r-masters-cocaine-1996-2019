@@ -1,11 +1,11 @@
-##
-## Author: Raquel Baeta
-## Thesis title: The Role of International Commitments in Combating the Illicit 
-## Distribution of Cocaine.
-## Data Source: United Nations Office on Drugs and Crime (UNODC).
-## Variables: Gross Domestic Product (GDP), Exports of Goods and Services, Imports of Goods and Services and Military expenditures.
+#
+# Author: Raquel Baeta
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+# Data Source: United Nations Office on Drugs and Crime (UNODC).
+# Variables: Gross Domestic Product (GDP), Exports of Goods and Services, Imports of Goods and Services and 
+# Military expenditure
 
-## Install the necessary packages needed for this analysis.
+# Packages needed for cleaning and manipulating. 
 install.packages("readxl")
 install.packages("tidyr")
 install.packages("dplyr")
@@ -13,7 +13,6 @@ install.packages("tidyverse")
 install.packages("countrycode")
 install.packages("data.table")
 
-## Load the necessary packages needed for this analysis.
 library(readxl)
 library(tidyr)
 library(dplyr)
@@ -21,32 +20,32 @@ library(tidyverse)
 library(data.table)
 library(countrycode) # for countrycode function
 
-## This is the set Working directory.
+# This is the set working directory for this analysis.
 setwd("/Users/raquelbaeta/Desktop/working_sessions")
 
-## First, load the World Bank data set for the selected countries between the years 1996 and 2019.
+# Load the World Bank data set for the selected countries between 1996 and 2019.
 wb <- read_excel("datasets/wb_indicators.xlsx")
-head(wb) # Give the data a sneak peek. 
+head(wb) # give the data a sneak peek. 
 
-## This data set includes the following variables: 
+# This data set includes the following variables: 
 
-## [1] First group is related to "Exports of goods and services". 
-## In this group, the variables include (a) "Exports of goods and services (% of GDP)", (b) "Exports of goods and services (current
-## US$)", and (c) "Exports of goods and services (annual % growth)".
+# [1] First group is related to "Exports of goods and services". In this group, the variables include (a) 
+# "Exports of goods and services (% of GDP)", (b) "Exports of goods and services (current US$)", and (c) "Exports 
+# of goods and services (annual % growth)".
 
-## [2] The second group is related to "Imports of goods and services". 
-## In this group, the variables include (d) "Imports of goods and services (% of GDP)", (e) "Imports of goods and services (current
-## US$)", and (f) "Imports of goods and services (annual % growth)".
+# [2] The second group is related to "Imports of goods and services". In this group, the variables include (d) 
+# "Imports of goods and services (% of GDP)", (e) "Imports of goods and services (current US$)", and (f) "Imports 
+# of goods and services (annual % growth)".
 
-## [3] The third group is related to "Gross Domestic Product (GDP)". 
-## In this group, the variables include (g) "GDP (current US$)", (h) "GDP growth (annual %)", (i) "GDP per capita (current US$)", 
-## (j) "GDP per capita growth (annual %)", and (k) "GDP per capita, PPP (current international $)".
+# [3] The third group is related to "Gross Domestic Product (GDP)". In this group, the variables include (g) "GDP 
+# (current US$)", (h) "GDP growth (annual %)", (i) "GDP per capita (current US$)", (j) "GDP per capita growth 
+# (annual # %)", and (k) "GDP per capita, PPP (current international $)".
 
-## [4] The last group is related to "Military expenditure". 
-## In this group, including the variables (l) "Military expenditure (% of GDP)", (m) "Military expenditure (% of general government 
-## expenditure", and (n) "Military expenditure (current USD)".
+# [4] The last group is related to "Military expenditure". In this group, include the variables (l) "Military 
+# expenditure (% of GDP)", (m) "Military expenditure (% of general government expenditure", and (n) "Military 
+# expenditure (current USD)".
 
-## Rename the columns for later manipulation.
+# Rename the columns for later manipulation.
 colnames(wb)
 wb <- wb %>% rename(
   "country" = "Country Name", 
@@ -61,7 +60,7 @@ wb <- wb %>% rename(
   "gdp_growth" = "GDP growth (annual %) [NY.GDP.MKTP.KD.ZG]",
   "exports_gdp" = "Exports of goods and services (% of GDP) [NE.EXP.GNFS.ZS]", 
   "imports_gdp" = "Imports of goods and services (% of GDP) [NE.IMP.GNFS.ZS]", 
-  "miltray_gdp" = "Military expenditure (% of GDP) [MS.MIL.XPND.GD.ZS]", 
+  "military_gdp" = "Military expenditure (% of GDP) [MS.MIL.XPND.GD.ZS]", 
   "gdpcap_dollar" = "GDP per capita (current US$) [NY.GDP.PCAP.CD]",
   "exports_growth" = "Exports of goods and services (annual % growth) [NE.EXP.GNFS.KD.ZG]", 
   "exports_dollar" = "Exports of goods and services (current US$) [NE.EXP.GNFS.CD]",
@@ -70,9 +69,12 @@ wb <- wb %>% rename(
   "military_dollar" = "Military expenditure (current USD) [MS.MIL.XPND.CD]", 
   "military_govexp" = "Military expenditure (% of general government expenditure) [MS.MIL.XPND.ZS]")
 
-## Remove rows that are not needed.
-wb[4] <- NULL # Remove "yearcode".
-wb <- wb %>% filter(row_number() <= nrow(wb)-5)
+# Remove rows that are not included in this study,
+wb[4:5] <- NULL # remove "yearcode" and "population".
 
-## Export the data frames to a CSV file named "wb".
-fwrite(wb, "wb_indicators.csv")
+# Ensure that the data does not include the following countries "United States" and "United Kingdom".
+wb <- wb %>%
+  filter(country != "United States", country != "United Kingdom")
+
+# Export the data frames to a CSV file named "wb".
+fwrite(wb, "wb.csv")
