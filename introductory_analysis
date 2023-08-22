@@ -86,7 +86,8 @@ ggpairs_seizures_wgi <- ggpairs(annual_price_wgi_reordered, columns = c("seizure
 # Save the plot as a png. file
 ggsave(filename = "ggpairs_seizures_wgi.png", plot = ggpairs_seizures_wgi)
 
-# Time-series plot for cocaine seizure over years. A time-series plot is a graphical representation of data points collected over a period of time, with time usually displayed on the x-axis and the corresponding values on the y-axis.
+# Time-series plot for cocaine seizure over years. A time-series plot is a graphical representation of data points collected
+# over a period of time, with time usually displayed on the x-axis and the corresponding values on the y-axis.
 time_seizures <- ggplot(annual_price_wgi_reordered, aes(x = year, y = seizure)) +
                         geom_line() +
                         labs(title = "Time-Series Plot: Cocaine Seizures Over Years",
