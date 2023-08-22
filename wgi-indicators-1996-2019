@@ -117,3 +117,17 @@ wgi <- wgi[, -which(names(wgi) == "yearcode")]
 
 # Export the data frames to a CSV file named "wgi".
 fwrite(wgi, "wgi_indicators.csv")
+
+#
+# Calculate the annual average for the estimates.
+
+# Specify the columns for which you want to calculate averages
+columns_to_average_wgi <- c("cc_est", "ge_est", "pv_est", "rq_est", "rl_est", "va_est")
+
+# Calculate annual averages for the specified columns
+annual_averages_wgi <- wgi %>%
+  group_by(year) %>%
+  summarise(across(all_of(columns_to_average), mean))
+
+# Export the data frames to a CSV file named "wgi".
+fwrite(annual_averages_wgi, "annual_wgi.csv")
