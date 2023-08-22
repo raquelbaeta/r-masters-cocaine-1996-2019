@@ -5,10 +5,12 @@
 
 # Packages needed for cleaning and manipulating.
 install.packages("readr")
+install.packages("data.table")
 install.packages("dplyr")
 install.packages("countrycode")
 
 library(readr)
+library(data.table)
 library(dplyr)
 library(countrycode)
 
@@ -20,7 +22,7 @@ setwd("/Users/raquelbaeta/Desktop/working_sessions")
 
 # [1] First, 'wb" data frame is merged with the "wgi" data frame.
 
-# Load the csv files that created in "wb_indicators" and "wgi_indicators".
+# Load the csv files
 wb <- read_csv("csv_files/wb_indicators.csv")
 wgi <- read_csv("csv_files/wgi_indicators.csv")
 wgi_annual <- read_csv("csv_files/annual_wgi.csv") # load for later
@@ -29,8 +31,7 @@ wgi_annual <- read_csv("csv_files/annual_wgi.csv") # load for later
 wb_wgi <- full_join(wb, wgi, by = c("country", "code", "year"))
 rm(wb, wgi) # remove the single data sets
 
-# [2] Second, merge the data frames of annual cocaine prices and annual cocaine 
-# seizures in Europe..
+# [2] Second, merge the data frames of annual cocaine prices and annual cocaine seizures in Europe.
 
 # Load the csv files that include the variables related to annual cocaine prices and state commitment.
 cocaine <- read_csv("csv_files/cocaine_prices.csv", show_col_types = FALSE)
@@ -46,8 +47,22 @@ rm(cocaine, seizures) # remove the single data sets
 prices_kg$code <- countrycode(prices_kg$country, origin = "country.name", destination = "iso3c")
 
 # [3] Third, merge annual averages for annual cocaine price and annual average World Governance Indicator (WGI) together.
-annual_price_wgi <- full_join(price_annual, wgi_annual, by = "year")
+annual_price_wgi <- full_join(prices_kg, wgi_annual, by = "year")
 rm(price_annual, wgi_annual) # remove the single data sets
+
+# Reorder the two data sets before the final merge for data visualisations.
+# Specify the desired column order
+desired_column_order <- c("region", "subregion", "code", "country", "year", "drug", "wholesale", "retail", "seizure",  "cc_est", 
+                          "ge_est", "pv_est", "rq_est", "rl_est", "va_est")
+
+# Reorder the columns based on the desired order
+annual_price_wgi_reordered <- annual_price_wgi %>%
+  select(all_of(desired_column_order))
+rm(annual_price_wgi) # remove the old set
+
+
+# Export the data set: "data" to a CSV file named "data.csv".
+fwrite(annual_price_wgi, "annual_price_wgi.csv")
 
 # Merge "price_kg" and "seizures" together and remove the old data.
 cocaine <- full_join(prices_kg, untreaties, by = c("country", "region", "code"))
@@ -63,7 +78,8 @@ cocaine_reordered <- cocaine %>%
   select(all_of(desired_column_order))
 rm(cocaine)
 
-# [4] Fifth, the final merge for wb_wgi variables and cocaine_reordered
+# [4] Fourth, merge wb_wgi variables and cocaine_reordered.
+
 # Merge "price_kg" and "seizures" together and remove the old data.
 data <- full_join(wb_wgi, cocaine_reordered, by = c("country", "code"))
 data[3] <- NULL # remove the year duplicate
@@ -76,6 +92,7 @@ data <- data %>%
 rm(wb_wgi, cocaine_reordered)
 
 # Reorder the two data sets before the final merge for data visualisations.
+
 # Specify the desired column order
 desired_column_order <- c("region", "subregion", "code", "country", "year", "un1961", "un1971", "un1988", "drug", "wholesale", 
                           "retail", "seizure", "gni_cap", "gni_ppp", "gnicap_ppp", "gdp_growth", "gdp_dollar", "gdpcap_dollar", 
