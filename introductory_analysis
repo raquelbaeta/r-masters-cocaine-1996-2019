@@ -1,0 +1,97 @@
+#
+# Author: Raquel Baeta
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+# Data Source: Cleaned data (before five-year aggregation)
+
+# Packages needed for cleaning and manipulating.
+install.packages("readr")
+install.packages("ggplot2")
+install.packages("lm4")
+install.packages("GGally")
+install.packages("tidyerse")
+install.packages("data.table")
+
+library(readr)
+library(ggplot2)
+library(GGally)
+library(tidyverse)
+library(lmtest)
+library(data.table)
+
+# This is the set working directory for this analysis.
+setwd("/Users/raquelbaeta/Desktop/working_sessions")
+
+# Load the annual data
+annual_price_csv <- read_csv("csv_files/annual_price_wgi.csv")
+
+# Convert the seizure (kilograms) into grams for equal measurement.
+annual_price_wgi_reordered$seizure <- annual_price_wgi_reordered$seizure * 1000
+
+# [1] A scatter plot for the correlation between prices and seizures
+
+# Scatter plot for cocaine seizure vs. wholesale price
+seizure_vs_wholesale <- ggplot(annual_price_wgi_reordered, aes(x = wholesale, y = seizure)) +
+  geom_point(color = "blue", alpha = 0.7) +  # add transparency to points
+  labs(title = "Scatter Plot: Cocaine Seizure vs. Wholesale Price",
+       x = "Wholesale Price (USD per gram)",
+       y = "Cocaine Seizure (per gram)") +
+  theme_minimal() +  # apply a minimalistic theme
+  theme(plot.title = element_text(hjust = 0.5)) +  # Center the plot title
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # add linear regression line
+  annotate("rect", xmin = 0.5, xmax = 1.2, ymin = 5000, ymax = 7000, 
+           fill = "white", alpha = 0.8) +  # add a white background for annotation
+  theme(legend.position = "none")  # remove legend
+
+# Save the plot as a png. file
+ggsave(filename = "seizure_vs_wholesale.png", plot = seizure_vs_wholesale)
+
+# Scatter plot for cocaine seizure vs. retail price
+seizure_vs_retail <- ggplot(annual_price_wgi_reordered, aes(x = retail, y = seizure)) +
+  geom_point(color = "blue", alpha = 0.7) +  # add transparency to points
+  labs(title = "Scatter Plot: Cocaine Seizure vs. Retail Price",
+       x = "Retail Price (USD per gram)",
+       y = "Cocaine Seizure (per gram)") +
+  theme_minimal() +  # apply a minimalistic theme
+  theme(plot.title = element_text(hjust = 0.5)) +  # center the plot title
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # add linear regression line
+  annotate("rect", xmin = 0.5, xmax = 1.2, ymin = 5000, ymax = 7000, 
+           fill = "white", alpha = 0.8) +  # add a white background for annotation
+  theme(legend.position = "none")  # remove legend
+
+# Save the plot as a png. file
+ggsave(filename = "seizure_vs_retail.png", plot = seizure_vs_retail)
+
+# [2] An introductory analysis of the variables
+
+# Perform multiple linear regression
+model <- lm(seizure ~ cc_est + ge_est + pv_est + rq_est + rl_est + va_est, data = annual_price_wgi_reordered)
+
+# Summary of regression
+summary(model)
+
+# Given the low R-squared values and p-values above 0.05, the regression results suggest that the model does not provide strong 
+# evidence to support a significant relationship between the variables cc_est, ge_est, pv_est, rq_est, rl_est, va_est, and 
+# seizures.
+
+# In terms of relevance to state commitment, the lack of significant relationships implies that the variables cc_est, ge_est, 
+# pv_est, rq_est, rl_est, and va_est may not have a direct linear relationship with cocaine seizures.
+
+# Create a pair plot. This will create a matrix of scatter plots that shows the relationships between the variables. The ggpairs 
+# function from the GGally package is a powerful tool for exploratory data analysis in R, especially when dealing with multiple 
+# variables. It creates a matrix of scatterplots and other visualizations that allow a quick understanding of the relationships 
+# and patterns within the data.
+ggpairs_seizures_wgi <- ggpairs(annual_price_wgi_reordered, columns = c("seizure", "cc_est", "ge_est", "pv_est", "rq_est", 
+                                                                        "rl_est", "va_est"))
+
+# Save the plot as a png. file
+ggsave(filename = "ggpairs_seizures_wgi.png", plot = ggpairs_seizures_wgi)
+
+# Time-series plot for cocaine seizure over years. A time-series plot is a graphical representation of data points collected over a period of time, with time usually displayed on the x-axis and the corresponding values on the y-axis.
+time_seizures <- ggplot(annual_price_wgi_reordered, aes(x = year, y = seizure)) +
+                        geom_line() +
+                        labs(title = "Time-Series Plot: Cocaine Seizures Over Years",
+                             x = "Year",
+                             y = "Cocaine Seizures")
+
+# Save the plot as a png. file
+ggsave(filename = "time_seizures.png", plot = time_seizures)
