@@ -1,98 +1,221 @@
 #
 # Author: Raquel Baeta
 # Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
-# Data Source: Cleaned data (before five-year aggregation)
+# Data Source: data
 
 # Packages needed for cleaning and manipulating.
 install.packages("readr")
+install.packages("dplyr")
 install.packages("ggplot2")
 install.packages("lm4")
 install.packages("GGally")
 install.packages("tidyerse")
 install.packages("data.table")
+install.packages("stargazer")
+install.packages("gridExtra")
+install.packages("grid")
 
 library(readr)
+library(dplyr)
 library(ggplot2)
 library(GGally)
 library(tidyverse)
 library(lmtest)
 library(data.table)
+library(stargazer)
+library(gridExtra)
+library(grid)
 
 # This is the set working directory for this analysis.
 setwd("/Users/raquelbaeta/Desktop/working_sessions")
 
 # Load the annual data
-annual_price_csv <- read_csv("csv_files/annual_price_wgi.csv")
+annual_price_wgi <- read_csv("csv_files/annual_price_wgi.csv")
 
 # Convert the seizure (kilograms) into grams for equal measurement.
-annual_price_wgi_reordered$seizure <- annual_price_wgi_reordered$seizure * 1000
+annual_price_wgi$seizure <- annual_price_wgi$seizure * 1000
 
-# [1] A scatter plot for the correlation between prices and seizures
+# [1] A scatter plot for correlation between prices and seizures
 
 # Scatter plot for cocaine seizure vs. wholesale price
-seizure_vs_wholesale <- ggplot(annual_price_wgi_reordered, aes(x = wholesale, y = seizure)) +
-  geom_point(color = "blue", alpha = 0.7) +  # add transparency to points
-  labs(title = "Scatter Plot: Cocaine Seizure vs. Wholesale Price",
-       x = "Wholesale Price (USD per gram)",
-       y = "Cocaine Seizure (per gram)") +
-  theme_minimal() +  # apply a minimalistic theme
+seizures_vs_wholesale <- ggplot(
+    annual_price_wgi, aes(x = wholesale, y = seizure)) +
+    geom_point(color = "navy", alpha = 0.7) +  # Add transparency to points
+    labs(title = "Scatter Plot: Cocaine Seizures vs. Wholesale Price", 
+         x = "Wholesale Price (USD per gram)",
+         y = "Cocaine Seizures (per gram)", 
+         caption = "Source: United Nations Office on Drugs and Crime (UNODC)") +  # Add caption
+  theme_minimal() +  # Apply a minimalistic theme
   theme(plot.title = element_text(hjust = 0.5)) +  # Center the plot title
-  geom_smooth(method = "lm", color = "red", se = FALSE) +  # add linear regression line
-  annotate("rect", xmin = 0.5, xmax = 1.2, ymin = 5000, ymax = 7000, 
-           fill = "white", alpha = 0.8) +  # add a white background for annotation
-  theme(legend.position = "none")  # remove legend
+  geom_smooth(method = "lm", color = "orange", se = FALSE) +  # Add linear regression line
+  annotate("rect", xmin = 0.5, xmax = 1.2, ymin = 5000, ymax = 7000, fill = "white", alpha = 0.8) +  # Add a white background for annotation
+  theme(legend.position = "none")  # Remove legend
 
-# Save the plot as a png. file
-ggsave(filename = "seizure_vs_wholesale.png", plot = seizure_vs_wholesale)
+# Print and save the plot as a png. file
+print(seizures_vs_wholesale) # print graph
+ggsave(filename = "seizures_vs_wholesale.png", plot = seizures_vs_wholesale)
 
 # Scatter plot for cocaine seizure vs. retail price
-seizure_vs_retail <- ggplot(annual_price_wgi_reordered, aes(x = retail, y = seizure)) +
-  geom_point(color = "blue", alpha = 0.7) +  # add transparency to points
-  labs(title = "Scatter Plot: Cocaine Seizure vs. Retail Price",
-       x = "Retail Price (USD per gram)",
-       y = "Cocaine Seizure (per gram)") +
-  theme_minimal() +  # apply a minimalistic theme
-  theme(plot.title = element_text(hjust = 0.5)) +  # center the plot title
-  geom_smooth(method = "lm", color = "red", se = FALSE) +  # add linear regression line
-  annotate("rect", xmin = 0.5, xmax = 1.2, ymin = 5000, ymax = 7000, 
-           fill = "white", alpha = 0.8) +  # add a white background for annotation
-  theme(legend.position = "none")  # remove legend
+seizures_vs_wholesale <- ggplot(
+  annual_price_wgi, aes(x = wholesale, y = seizure)) +
+  geom_point(color = "navy", alpha = 0.7) +  # Add transparency to points
+  labs(title = "Scatter Plot: Cocaine Seizures vs. Wholesale Price",
+       x = "Wholesale Price (USD per gram)",
+       y = "Cocaine Seizures (per gram)",
+       caption = "Source: United Nations Office on Drugs and Crime (UNODC)") +  # Add caption
+  theme_minimal() +  # Apply a minimalistic theme
+  theme(plot.title = element_text(hjust = 0.5)) +  # Center the plot title
+  geom_smooth(method = "lm", color = "orange", se = FALSE) +  # Add linear regression line
+  annotate("rect", xmin = 0.5, xmax = 1.2, ymin = 5000, ymax = 7000, fill = "white", alpha = 0.8) +  # Add a white background for annotation
+  theme(legend.position = "none")  # Remove legend
 
-# Save the plot as a png. file
-ggsave(filename = "seizure_vs_retail.png", plot = seizure_vs_retail)
+# Print and save the plot as a png. file
+print(seizures_vs_retail)
+ggsave(filename = "seizures_vs_retail.png", plot = seizures_vs_retail)
 
-# [2] An introductory analysis of the variables
+# [2] An introductory analysis into the variables
 
 # Perform multiple linear regression
-model <- lm(seizure ~ cc_est + ge_est + pv_est + rq_est + rl_est + va_est, data = annual_price_wgi_reordered)
+model <- lm(seizure ~ cc_est + ge_est + pv_est + rq_est + rl_est + va_est, data = annual_price_wgi)
 
 # Summary of regression
 summary(model)
 
-# Given the low R-squared values and p-values above 0.05, the regression results suggest that the model does not provide strong 
-# evidence to support a significant relationship between the variables cc_est, ge_est, pv_est, rq_est, rl_est, va_est, and 
-# seizures.
+# Get model diagnostics
+model_diagnostics <- augment(model)
 
-# In terms of relevance to state commitment, the lack of significant relationships implies that the variables cc_est, ge_est, 
-# pv_est, rq_est, rl_est, and va_est may not have a direct linear relationship with cocaine seizures.
+# Create diagnostic plots
+diagnostic_plots <- ggplot(model_diagnostics, aes(.fitted, .resid)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE, color = "orange") +
+  labs(title = "Diagnostic Plots for Multiple Linear Regression", x = "Fitted Values", y = "Residuals") +
+  theme_minimal()
 
-# Create a pair plot. This will create a matrix of scatter plots that shows the relationships between the variables. The ggpairs 
-# function from the GGally package is a powerful tool for exploratory data analysis in R, especially when dealing with multiple 
-# variables. It creates a matrix of scatterplots and other visualizations that allow a quick understanding of the relationships 
-# and patterns within the data.
-ggpairs_seizures_wgi <- ggpairs(annual_price_wgi_reordered, columns = c("seizure", "cc_est", "ge_est", "pv_est", "rq_est", 
-                                                                        "rl_est", "va_est"))
+# Display diagnostic plots
+print(diagnostic_plots)
+
+# Given the low R-squared values and p-values above 0.05, the regression results suggest that the model does not 
+# provide strong evidence to support a significant relationship between the variables cc_est, ge_est, pv_est, 
+# rq_est, rl_est, va_est, and the seizure variable.
+
+# In terms of relevance to state commitment, the lack of significant relationships implies that the variables 
+# cc_est, ge_est, pv_est, rq_est, rl_est, and va_est may not have a direct linear relationship with the seizure 
+# variable.
+
+# Assumption Validation: Diagnostic plots help assess the assumptions of the multiple linear regression model. 
+# If the assumptions are met, it adds credibility to the model's validity, strengthening the conclusions drawn
+# about the relationship between state commitment and the predictor variables.
+
+# Transparency and Robustness: Including diagnostic plots demonstrates transparency in the analysis. It allows 
+# the readers to see how well the model fits the data and identify any potential issues. This transparency 
+# enhances the robustness of my findings and conclusions. 
+
+# Supporting Interpretation: The diagnostic plots can aid in interpreting the results. If the residual plot 
+# shows a random scatter around zero, it suggests that the assumption of homoscedasticity is met. If there are 
+# patterns or trends in the residuals, it may prompt investigation further or consider model modifications.
+
+# Display the results from the regression analysis.
+regression_seizures_wgi <- stargazer(model,
+  title = "Regression Results: Cocaine Seizures and WGI.",
+  type = "text", # Display as plain text
+  digits = 3, # Number of decimal places
+  header = FALSE, # Omit column headers
+  star.cutoffs = c(0.05, 0.01, 0.001), # specify stars for significance levels
+  omit = "Intercept" # exclude the intercept from the table
+)
+
+print(regression_seizures_wgi)
+
+# Create a pair plot. This will create a matrix of scatter plots that shows the relationships between the 
+# variables. The ggpairs function from the GGally package is a powerful tool for exploratory data analysis in R, 
+# especially when dealing with multiple variables. It creates a matrix of scatterplots and other visualizations 
+# that allow quick understanding of the relationships and patterns within the data.
+
+# Customize the appearance of individual scatterplots
+individual_plots <- list()
+
+for (column in c("cc_est", "ge_est", "pv_est", "rq_est", "rl_est", "va_est")) {
+  plot <- ggplot(annual_price_wgi, aes_string(x = "seizure", y = column)) +
+    geom_point(alpha = 0.3, color = "navy") +
+    labs(title = paste("Scatterplot:", column), x = "Seizures",y = column) +
+    theme_minimal()
+  individual_plots[[column]] <- plot
+}
+
+# Display individual scatterplots in a combined grid with a title
+combined_plots <- grid.arrange(grobs = individual_plots, ncol = 2)
+title <- textGrob("Individual Scatterplots: Seizures and World Governance Indicators",
+                  gp = gpar(fontsize = 14, fontface = "bold"))
+
+grid.arrange(arrangeGrob(title = title, heights = unit(2, "line")), 
+                         combined_plots, ncol = 1, heights = c(0.2, 1))
+
+# Display the customised pair plot
+print(ggpairs_seizures_wgi)
 
 # Save the plot as a png. file
 ggsave(filename = "ggpairs_seizures_wgi.png", plot = ggpairs_seizures_wgi)
 
-# Time-series plot for cocaine seizure over years. A time-series plot is a graphical representation of data points collected
-# over a period of time, with time usually displayed on the x-axis and the corresponding values on the y-axis.
-time_seizures <- ggplot(annual_price_wgi_reordered, aes(x = year, y = seizure)) +
-                        geom_line() +
-                        labs(title = "Time-Series Plot: Cocaine Seizures Over Years",
-                             x = "Year",
-                             y = "Cocaine Seizures")
+# Time-series plot for cocaine seizure over years. A time-series plot is a graphical representation of data 
+# points collected over a period of time, with the time variable usually displayed on the x-axis and the 
+# corresponding values on the y-axis.
+time_seizures <- ggplot(annual_price_wgi, aes(x = year, y = seizure)) + 
+  geom_line(color = "navy") +  # Set line color to navy
+  labs(title = "Time-Series Plot: Cocaine Seizures Over Years",
+       x = "Year", y = "Cocaine Seizures", 
+       subtitle = "Trends in Cocaine Seizures from 1996 to 2019",  # Add subtitle
+       caption = "Source: United Nations Office on Drugs and Crime (UNODC)")  # Add caption with data source
+
+# Customize plot appearance
+time_seizures +
+  theme_minimal() +  # Apply a minimal theme
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 14),
+        plot.caption = element_text(size = 10, hjust = 0),
+        axis.title = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        legend.position = "none")  # Remove legend
+
+# Display the time-series plot
+print(time_seizures) # print the plot
 
 # Save the plot as a png. file
 ggsave(filename = "time_seizures.png", plot = time_seizures)
+
+# [3] Aggregate the data for the main analysis.
+
+# Load the annual data
+data <- read_csv("csv_files/data.csv")
+
+# Convert all columns to numeric 
+data$gni_ppp <- as.numeric(data$gni_ppp)
+data$gni_cap <- as.numeric(data$gni_cap)
+data$gnicap_ppp <- as.numeric(data$gnicap_ppp)
+
+# Add a new column for the five-year interval
+data <- data %>%
+  mutate(interval = floor((year - 1996) / 5) * 5 + 1996)
+
+# List of variables to summarise
+summary_vars <- c("wholesale", "retail", "seizure", "gni_cap", "gni_ppp", "gnicap_ppp", "gdp_growth", 
+                  "gdp_dollar", "gdpcap_dollar", "exports_gdp", "exports_growth", "exports_dollar", 
+                  "imports_gdp", "imports_growth", "imports_dollar", "military_gdp", "military_govexp", 
+                  "military_dollar", "cc_est", "cc_no_src", "cc_per_rnk", "cc_per_rnk_upper",
+                  "cc_per_rnk_lower", "cc_std_err", "ge_est", "ge_no_src", "ge_per_rnk", "ge_per_rnk_lower", 
+                  "ge_per_rnk_upper", "ge_std_err", "pv_est", "pv_no_src", "pv_per_rnk", "pv_per_rnk_lower", 
+                  "pv_per_rnk_upper", "pv_std_err", "rq_est", "rq_no_src", "rq_per_rnk", "rq_per_rnk_lower",
+                  "rq_per_rnk_upper", "rq_std_err", "rl_est", "rl_no_src",  "rl_per_rnk", "rl_per_rnk_lower", 
+                  "rl_per_rnk_upper", "rl_std_err", "va_est", "va_no_src", "va_per_rnk", "va_per_rnk_lower", 
+                  "va_per_rnk_upper", "va_std_err")
+
+# Aggregate data by five-year intervals and calculate summary statistics for each variable
+aggregated_data <- data %>%
+  group_by(interval) %>%
+  summarize(across(all_of(summary_vars), 
+                   list(mean = ~ mean(., na.rm = TRUE), sum = ~ sum(., na.rm = TRUE)), .names = "{.col}_{.fn}"))
+
+# Ungroup the aggregated data
+aggregated_fiveyear_data <- ungroup(aggregated_data)
+
+# Export the data frames to a CSV file named "aggregated_fiveyear_data".
+fwrite(aggregated_fiveyear_data, "aggregated_fiveyear_data.csv")
