@@ -1,0 +1,58 @@
+# Start
+
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+# Author: Raquel Baeta
+
+# Data Source: United Nations (UN)
+# Variables: Cocaine seizures
+
+# Step 1: Install Required Packages
+install.packages("readxl") # work with Excel files
+install.packages("tidyr") # data manipulation
+install.packages("dplyr") # data manipulation
+install.packages("tidyverse") # data manipulation
+install.packages("data.table") # data manipulation
+
+# Step 2: Load Libraries
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(data.table)
+library(tidyverse)
+
+# Step 3: Set Working Directory
+setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
+
+# Step 4: Read Data
+# Read the Excel file "unodc_annual_seizure_1990_2019.xlsx" into a data frame named seizures.
+seizures <- read_excel("unodc_annual_seizure_1990_2019.xlsx")
+
+# Step 5: Remove Unwanted Years and Rename Columns
+# Remove columns corresponding to years not included in the study and rename columns for easier manipulation.
+seizures[6:11] <- NULL
+seizures <- seizures %>% 
+  rename("region" = "Region", "subregion" = "Sub Region", "country" = "Country", "group" = "Drug Group", "drug" = "Drug")
+
+# Step 6: Fill Missing Values
+# Use the fill() function to fill missing values in categorical columns.
+seizures <- fill(seizures, "region", "subregion", "country", "group", "drug")
+
+# Step 7: Pivot Data to Long Format
+# Pivot the data from wide to long format, creating columns for "year" and "seizure".
+seizures <- pivot_longer(seizures, cols = "1996":"2019", names_to = "year", values_to = "seizure")
+
+# Step 8: Filter Data and Select Relevant Countries
+# Filter the data to include only rows where the "group" is "Cocaine-type" and the countries are from the specified list.
+seizures <- filter(seizures, group == "Cocaine-type", 
+  country %in% c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", 
+                 "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "Switzerland"))
+
+# Step 9: Convert Year to Numeric
+seizures <- mutate(seizures, year = as.numeric(year))
+head(seizures, 10) # view the first 10 rows of the cleaned seizures data frame.
+
+# Step 10: Export Cleaned Data
+# Export the cleaned data frame seizures to a CSV file named "seizures.csv".
+fwrite(seizures, "seizures.csv")
+
+# End
