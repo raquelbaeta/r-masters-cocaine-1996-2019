@@ -1,52 +1,56 @@
-#
+# Start
+
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
 # Author: Raquel Baeta
-# Thesis: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
-# Source: United Nations Office on Drugs and Crime
 
-# Variables: Region, Subregion, Country, Drug Group, Drug-type, and Cocaine seizures. 
+# Data Source: United Nations (UN)
+# Variables: Convention on Psychotropic Substances [1971], Single Convention on Narcotic Drugs [1961], and United Nations Convention 
+# against illicit traffic in Narcotic Drugs and Psychotropic Substances [1988].
 
-# Packages needed for cleaning and manipulating. 
-install.packages("readxl")
-install.packages("tidyr")
-install.packages("dplyr")
-install.packages("tidyverse")
-install.packages("data.table")
+# Step 1: Install Required Packages
+install.packages("readxl") # work with Excel files
+install.packages("dplyr") # data manipulation
+install.packages("countrycode") # country code conversions
 
+# Step 2: Load Libraries
 library(readxl)
-library(tidyr)
 library(dplyr)
-library(data.table)
-library(tidyverse)
+library(countrycode)
 
-# This is the set working directory for this analysis.
-setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
+# Step 3: Set Working Directory
+setwd("/Users/raquelbaeta/Desktop/working_sessions")
 
-# Load the United Nations Office on Drugs and Crime data set.
-seizures <- read_excel("unodc_annual_seizure_1990_2019.xlsx")
-head(seizures) # Give the data a sneak peek 
+# Step 4: Read Data
+# Read the Excel file "un_treaty.xlsx" into a data frame named untreaties.
+untreaties <- read_excel("datasets/un_treaty.xlsx")
 
-# Remove the years not included in this study and rename the columns for later manipulation.
-seizures[6:11] <- NULL # remove the year 1990 to 1994.
-seizures <- seizures %>% rename("region" = "Region", "subregion" = "Sub Region", "country" = "Country", "group" = "Drug Group", 
-                                "drug" = "Drug")
+# Step 5: Filter Data
+# Filter out rows corresponding to countries "United States of America" and "United Kingdom" as these countries were dropped from the 
+# analysis.
+untreaties <- untreaties %>%
+  filter(country != "United States of America", country != "United Kingdom")
 
-# There are missing values in the categorical variables, using fill(), fill the following missing values in "region", "sub_region" 
-# and "group" columns.
-seizures <- fill(seizures, "region", "subregion", "country", "group", "drug")
+# Step 6: Convert Treaty Values to Numeric
+# Convert the treaty values in columns un1971, un1961, and un1988 to numeric values ("0" for no commitment or "1" for commitment) using 
+# the ifelse function.
+untreaties$un1971 <- ifelse(untreaties$un1971 > 0, 1, 0)
+untreaties$un1961 <- ifelse(untreaties$un1961 > 0, 1, 0)
+untreaties$un1988 <- ifelse(untreaties$un1988 > 0, 1, 0)
 
-# Pivot the data from wide to long format, and add and fill the columns "year" and "seizures".
-seizures <- pivot_longer(seizures, cols = "1996":"2019", names_to = "year", values_to = "seizure")
+# Step 7: Handle Missing Values
+# Replace any missing values in the treaty columns with 0.
+untreaties$un1971[is.na(untreaties$un1971)] <- 0
+untreaties$un1961[is.na(untreaties$un1961)] <- 0
+untreaties$un1988[is.na(untreaties$un1988)] <- 0
 
-# Filter the data by "Cocaine-type" in "group" and select the countries to for the seizure variable.
-seizures <- filter(seizures, group == "Cocaine-type", 
-                   country %in% c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy",
-                                  "Luxembourg", "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "Switzerland"))
+# Step 8: Add ISO 3-letter Codes and Continent Names
+# Add new columns code and region to the data frame. The code column contains ISO 3-letter country codes, and the region column contains 
+# continent names.
+untreaties$code <- countrycode(untreaties$country, origin = "country.name", destination = "iso3c")
+untreaties$region <- countrycode(untreaties$code, origin = "iso3c", destination = "continent")
 
-# Convert "year" to numeric
-seizures <- mutate(seizures, year = as.numeric(year))
+# Step 9: Export Cleaned Data
+# Export the cleaned data frame untreaties to a CSV file named "untreaties.csv".
+fwrite(untreaties, "untreaties.csv")
 
-# View the first 10 rows of seizures
-head(seizures, 10)
-
-# Export the data set: "seizures" to a CSV file named "seizures.csv".
-fwrite(seizures, "seizures.csv")
+# End
