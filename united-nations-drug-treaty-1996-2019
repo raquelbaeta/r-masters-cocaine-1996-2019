@@ -8,14 +8,14 @@
 # against illicit traffic in Narcotic Drugs and Psychotropic Substances [1988].
 
 # Install Required Packages
-install.packages("readxl") # work with Excel files
-install.packages("dplyr") # data manipulation
-install.packages("countrycode") # country code conversions
+install.packages("readxl") 
+install.packages("dplyr") 
+install.packages("countrycode") 
 
 # Load Libraries
-library(readxl)
-library(dplyr)
-library(countrycode)
+library(readxl) # work with Excel files
+library(dplyr) # data manipulation
+library(countrycode) # country code conversions
 
 # Step 1: Read the Excel file "un_treaty.xlsx" into a data frame named untreaties.
 untreaties <- read_excel("un_treaty.xlsx")
