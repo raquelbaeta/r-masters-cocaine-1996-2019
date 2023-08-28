@@ -7,96 +7,206 @@
 # Variables: Annual wholesale and retail averages for all European countries in Euro, as well as the "Weighted* average, in Euro", and 
 # "Euro-inflation-adjusted weighted* average, in 2020 Euro" for both wholesale and retail.
 
-# Step 1: Install Required Packages
-install.packages("readxl") # work with Excel files
-install.packages("tidyr") # data reshaping
-install.packages("dplyr") # data manipulation
-install.packages("data.table") # data handling
+# Step 5.1: Load the retail price data from the Excel file "price_dollar_western_europe.xlsx" and specify the relevant sheet and range.
+retail_prices <- read_excel("price_dollar_western_europe.xlsx", 
+                            sheet = 2, 
+                            range = "A5:AF26")
 
-# Step 2: Load Libraries
-library(readxl)
-library(tidyr)
-library(dplyr)
-library(data.table)
+# Rename the first column to "country" for better clarity.
+colnames(retail_prices)[1] <- "country"
 
-# Step 3: Set Working Directory
-setwd("/Users/raquelbaeta/Desktop/working_sessions/datasets")
-
-# Step 4: Load and clean retail price data
-# Load the retail price data from the Excel file "price_dollar_western_europe.xlsx" and specify the relevant sheet and range. Rename 
-# the first column to "country" for better clarity.
-retail_prices <- read_excel("price_dollar_western_europe.xlsx", sheet = 2, range = "A5:AF26")
-colnames(retail_prices)[1] <- "country" # rename first column
-
-# Remove unwanted years and rows
 # Use the %>% pipe operator from the "dplyr" package to perform a series of data manipulation steps.
-retail_prices <- retail_prices %>% select(-c("1990", "1991", "1992", "1993", "1994", "1995", "2020")) %>% # remove unwanted years
-  filter(!country %in% c("United Kingdom", "Weighted* average, US$", "Unweighted average, in US$", "Weighted* average, Euro", 
-  "Euro-inflation-adjusted weighted* average, in 2020 Euro")) # filter out unwanted rows
+retail_prices <- retail_prices %>%
 
-# Reshape data
+  # remove unwanted years
+  select(-c("1990", "1991", "1992", "1993", "1994", "1995", "2020")) %>%
+
+  # filter out unwanted rows
+  filter(!country %in%
+           c("United Kingdom", "Weighted* average, US$", "Unweighted average, in US$", "Weighted* average, Euro",
+             "Euro-inflation-adjusted weighted* average, in 2020 Euro"))
+
 # Reshape the data from wide to long format using the pivot_longer() function from the "tidyr" package. This function helps transform 
-# the yearly columns (1996 to 2019) into a single "year" column and their corresponding values into a "retail" column.
-retail_prices <- pivot_longer(retail_prices, cols = c("1996":"2019"), names_to = "year", values_to = "retail")
+# the yearly columns (1996 to 2019) into a single "year" column and their corresponding values in a "retail" column.
+retail_prices <- pivot_longer(retail_prices,
+                              cols = c("1996":"2019"),
+                              names_to = "year",
+                              values_to = "retail")
 
-# Step 5: Load and clean cocaine price data
-# Load the wholesale price data from the Excel file and rename the first column to "country".
-wholesale_prices <- read_excel("price_dollar_western_europe.xlsx", sheet = 2, range = "A34:AF55")
-colnames(wholesale_prices)[1] <- "country" # rename first column
+# Step 5.2: Load the wholesale price data from the Excel file.
+wholesale_prices <- read_excel("price_dollar_western_europe.xlsx", 
+                               sheet = 2, 
+                               range = "A34:AF55")
 
-# Remove unwanted years and rows
+# Rename the first column to "country" for better clarity.
+colnames(wholesale_prices)[1] <- "country" 
+
 # Use the %>% pipe operator from the "dplyr" package to perform a series of data manipulation steps.
-wholesale_prices <- wholesale_prices %>% select(-c("1990", "1991", "1992", "1993", "1994", "1995", "2020")) %>% # remove unwanted years
-  filter(!country %in% c("United Kingdom", "Weighted* average, US$", "Unweighted average, in US$",
-  "Euro-inflation-adjusted weighted* average, in 2020 Euro", "Weighted* average, Euro per gram")) # filter out unwanted rows
+wholesale_prices <- wholesale_prices %>%
 
-# Reshape data
+  # remove unwanted years
+  select(-c("1990", "1991", "1992", "1993", "1994", "1995", "2020")) %>%
+
+  # filter out unwanted rows
+   filter(!country %in%
+           c("United Kingdom", "Weighted* average, US$", "Unweighted average, in US$", "Weighted* average, Euro per gram",
+             "Euro-inflation-adjusted weighted* average, in 2020 Euro"))
+
 # Reshape the data from wide to long using the pivot_longer() function from the "tidyr" package. This function helps transform yearly 
 # columns (1996 to 2019) into a single "year" column and their corresponding values into a "wholesale" column.
-wholesale_prices <- pivot_longer(wholesale_prices, cols = c("1996":"2019"), names_to = "year", values_to = "wholesale")
+wholesale_prices <- pivot_longer(wholesale_prices,
+                                 cols = c("1996":"2019"),
+                                 names_to = "year",
+                                 values_to = "wholesale")
 
-# Step 6: Data Manipulation, Merging, and Export
-# Merge retail and wholesale price data. Use the full_join() function from the "dplyr" package to merge the retail and wholesale price 
-# data. Specify the columns "country" and "year" as the joining keys. The result is a data set named "cocaine_prices" that contains 
-# both retail and wholesale prices for each country and year.
-cocaine_prices <- full_join(retail_prices, wholesale_prices, by = c("country", "year"))
+# Step 5.3: Merge retail and wholesale price data. Use the full_join() function from the "dplyr" package to merge the retail and 
+# wholesale price data. Specify the columns "country" and "year" as the joining keys. The result is a data set named "cocaine_prices" 
+# that contains both retail and wholesale prices for each country and year.
+prices <- full_join(retail_prices, wholesale_prices, by = c("country", "year"))
 
-# Annual Cocaine Prices
+# Clean environment
+rm(retail_prices, wholesale_prices)
 
-# Step 7: [a] Load average retail and wholesale data
-# Load and filter for the "Weighted* average, Euro" category.
-retail_average <- read_excel("price_dollar_western_europe.xlsx", sheet = 2, range = "A5:AF26")
-retail_average <- retail_average %>% filter(country == "Weighted* average, Euro")
+# Step 5.4: Load and filter for the "Weighted* average, Euro" category.
+retail_wght_average <- read_excel("price_dollar_western_europe.xlsx",
+                                  sheet = 2,
+                                  range = "A5:AF26")
 
-# [b] Load average inflation-adjusted retail data
-# Load and filter for the "Euro-inflation-adjusted weighted* average, in 2020 Euro" category.
-retail_inflation_average <- read_excel("price_dollar_western_europe.xlsx", sheet = 2, range = "A5:AF26")
-retail_inflation_average <- retail_inflation_average %>% filter(country == "Euro-inflation-adjusted weighted* average, in 2020 Euro")
+# Rename the first column to "country" for better clarity.
+colnames(retail_wght_average)[1] <- "country"
 
-# [c] Load average wholesale data
-# Load and filter for the "Weighted* average, Euro per gram" category.
-wholesale_average <- read_excel("price_dollar_western_europe.xlsx", sheet = 2, range = "A34:AF55")
-wholesale_average <- wholesale_average %>% filter(country == "Weighted* average, Euro per gram")
+# Use the %>% pipe operator from the "dplyr" package to perform a series of data manipulation steps.
+retail_wght_average <- retail_wght_average %>%
 
-# [d] Load average inflation-adjusted wholesale data
-# Load the average inflation-adjusted wholesale price data and filter for the "Euro-inflation-adjusted weighted* average, in 2020 Euro" 
-# category.
-wholesale_inflation_average <- read_excel("price_dollar_western_europe.xlsx", sheet = 2, range = "A34:AF55")
+  # remove unwanted years
+  select(-c("1990", "1991", "1992", "1993", "1994", "1995", "2020")) %>%
 
-wholesale_inflation_average <- wholesale_inflation_average %>% 
+  # filter out unwanted rows
+  filter(country == "Weighted* average, Euro")
+
+# Reshape the data from wide to long using the pivot_longer() function from the "tidyr" package. This function helps transform yearly 
+# columns (1996 to 2019) into a single "year" column and their corresponding values into a "wholesale" column.
+retail_wght_average <- pivot_longer(retail_wght_average,
+                                    cols = c("1996":"2019"),
+                                    names_to = "year",
+                                    values_to = "retail_wgted_average")
+
+# Remove the "country" column
+retail_wght_average[1] <- NULL
+
+# Step 5.5: Load and filter for the "Weighted* average, Euro per gram" category.
+wholesale_wght_average <- read_excel("price_dollar_western_europe.xlsx",
+                                     sheet = 2,
+                                     range = "A34:AF55")
+
+# Rename the first column to "country" for better clarity.
+colnames(wholesale_wght_average)[1] <- "country"
+
+# Use the %>% pipe operator from the "dplyr" package to perform a series of data manipulation steps.
+wholesale_wght_average <- wholesale_wght_average %>%
+
+  # remove unwanted years
+  select(-c("1990", "1991", "1992", "1993", "1994", "1995", "2020")) %>%
+
+  # filter out unwanted rows
+  filter(country == "Weighted* average, Euro per gram")
+
+# Reshape the data from wide to long using the pivot_longer() function from the "tidyr" package. This function helps transform yearly columns (1996 to 2019) into a single "year" column and their corresponding values into a "wholesale" column.
+wholesale_wght_average <- pivot_longer(wholesale_wght_average,
+                                       cols = c("1996":"2019"),
+                                       names_to = "year",
+                                       values_to = "wholesale_wgted_average")
+
+# Remove the "country" column
+wholesale_wght_average[1] <- NULL
+
+# Use the merge() function to combine the different average price and wholesale data sets based on the "year" column. "all = TRUE" 
+# argument to ensure that all years are included in the final data set.
+wght_average <- merge(retail_wght_average, 
+                      wholesale_wght_average, 
+                      by = "year", 
+                      all = TRUE)
+
+# Clean environment
+rm(retail_wght_average, wholesale_wght_average) 
+
+# Step 5.6: Load and filter for the "Euro-inflation-adjusted weighted* average, in 2020 Euro" category.
+retail_inflation_average <- read_excel("price_dollar_western_europe.xlsx",
+                                       sheet = 2,
+                                       range = "A5:AF26")
+
+# Rename the first column to "country" for better clarity.
+colnames(retail_inflation_average)[1] <- "country"
+
+# Use the %>% pipe operator from the "dplyr" package to perform a series of data manipulation steps.
+retail_inflation_average <- retail_inflation_average %>%
+
+  # remove unwanted years
+  select(-c("1990", "1991", "1992", "1993", "1994", "1995", "2020")) %>%
+
+  # filter out unwanted rows
   filter(country == "Euro-inflation-adjusted weighted* average, in 2020 Euro")
 
-# Step 8: Merge average price data and average inflation-adjusted data
-# Use the merge() function to combine the different average price and average inflation-adjusted datasets based on the "year" column. 
-# "all = TRUE" argument to ensure that all years are included in the final data set.
-annual_price_average <- merge(retail_average, wholesale_average, by = "year", all = TRUE)
-annual_price_average <- merge(annual_price_average, retail_inflation_average, by = "year", all = TRUE)
-annual_price_average <- merge(annual_price_average, wholesale_inflation_average, by = "year", all = TRUE)
+# Reshape the data from wide to long using the pivot_longer() function from the "tidyr" package. This function helps transform yearly 
+# columns (1996 to 2019) into a single "year" column and their corresponding values into a "wholesale" column.
+retail_inflation_average <- pivot_longer(retail_inflation_average,
+                                         cols = c("1996":"2019"),
+                                         names_to = "year",
+                                         values_to = "retail_inflation_average")
 
-# Step 9: Export the merged datasets to CSV files 
-# Using the fwrite() function from the "data.table" package create two CSV files named  "cocaine_prices.csv" and 
-# "annual_price_average.csv," containing the cleaned and manipulated data.
-fwrite(cocaine_prices, "cocaine_prices.csv")
-fwrite(annual_price_average, "annual_price_average.csv")
+# Remove the "country" column
+retail_inflation_average[1] <- NULL
+
+# Step 5.7: Load the average inflation-adjusted wholesale price data and filter for the "Euro-inflation-adjusted weighted* average, in 
+# 2020 Euro" category.
+wholesale_inflation_average <- read_excel("price_dollar_western_europe.xlsx",
+                                          sheet = 2,
+                                          range = "A34:AF55")
+
+# Rename the first column to "country" for better clarity.
+colnames(wholesale_inflation_average)[1] <- "country"
+
+# Use the %>% pipe operator from the "dplyr" package to perform a series of data manipulation steps.
+wholesale_inflation_average <- wholesale_inflation_average %>%
+
+  # remove unwanted years
+  select(-c("1990", "1991", "1992", "1993", "1994", "1995", "2020")) %>%
+
+  # filter out unwanted rows
+  filter(country == "Euro-inflation-adjusted weighted* average, in 2020 Euro")
+
+# Reshape the data from wide to long using the pivot_longer() function from the "tidyr" package. This function helps transform yearly 
+# columns (1996 to 2019) into a single "year" column and their corresponding values into a "wholesale" column.
+wholesale_inflation_average <- pivot_longer(wholesale_inflation_average,
+                                            cols = c("1996":"2019"),
+                                            names_to = "year",
+                                            values_to = "wholesale_inflation_average")
+
+# Remove the "country" column
+wholesale_inflation_average[1] <- NULL
+
+# Use the merge() function to combine the different average retail and wholesale price-adjusted data sets based on the "year" column. 
+# "all = TRUE" argument to ensure that all years are included in the final data set.
+inflation_average <- merge(retail_inflation_average, 
+                          wholesale_inflation_average,
+                           by = "year", 
+                           all = TRUE)
+
+# Clean environment
+rm(retail_inflation_average, wholesale_inflation_average)
+
+# Step 5.8: Use the merge() function to combine the different data sets based on the "year" column. "all = TRUE" argument to ensure 
+# that all years are included in the final data set.
+prices_avg <- merge(inflation_average, 
+                    wght_average, 
+                    by = "year", 
+                    all = TRUE)
+
+# Clean environment
+rm(wght_average, inflation_average) 
+
+# Step 5.9: Using the fwrite() function from the "data.table" package create two CSV files named  "prices.csv" and "prices_avg.csv".
+fwrite(prices, "prices.csv")
+fwrite(prices_avg, "prices_avg.csv")
 
 # End
