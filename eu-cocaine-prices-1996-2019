@@ -37,7 +37,10 @@ retail_prices <- retail_prices %>%
   
   # Filter out unwanted rows
   filter(!country %in%
-             c("United Kingdom", "Weighted* average, US$", "Unweighted average, in US$", "Weighted* average, Euro"
+             c("United Kingdom", 
+               "Weighted* average, US$", 
+               "Unweighted average, in US$",
+               "Weighted* average, Euro",
                "Euro-inflation-adjusted weighted* average, in 2020 Euro"))
 
 # 1.3: Reshape the data from wide to long format using the pivot_longer() function from the "tidyr" package. This function helps 
@@ -62,8 +65,10 @@ wholesale_prices <- wholesale_prices %>%
   select(-c("1990", "1991", "1992", "1993", "1994", "1995", "2020")) %>%
   
   # Filter out unwanted rows
-   filter(!country %in%
-             c("United Kingdom", "Weighted* average, US$", "Unweighted average, in US$", "Weighted* average, Euro per gram"
+  filter(!country %in%
+           c("United Kingdom", 
+             "Weighted* average, US$", 
+             "Unweighted average, in US$", "Weighted* average, Euro per gram",
              "Euro-inflation-adjusted weighted* average, in 2020 Euro"))
 
 # 2.3: Reshape the data from wide to long using the pivot_longer() function from the "tidyr" package. This function helps transform 
