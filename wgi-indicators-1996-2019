@@ -7,53 +7,44 @@
 # Variables: "Voice and Accountability", "Political Stability and Absence of Violence/Terrorism",  "Government Effectiveness", 
 # "Regulatory Quality", "Rule of Law", and "Control of Corruption".
 
-# Step 1: Install Required Packages
-install.packages("readxl") # work with Excel files
-install.packages("tidyr") # data reshaping
-install.packages("dplyr") # data manipulation
-install.packages("data.table") # data handling
-
-# Step 2: Load Libraries
-library(readxl)
-library(tidyr)
-library(dplyr)
-library(data.table)
-
-# Step 3: Set the working directory
-setwd("/Users/raquelbaeta/Desktop/working_sessions")
-
-# Step 4: Read the data 
-wgi <- read_excel("datasets/wgi_indicators.xlsx")
+# Step 4.1: Read the data
+wgi <- read_excel("wgi_indicators.xlsx")
 head(wgi) # preview the first few rows
 
-# Step 5: Renaming Columns and Filtering Data
-# Rename columns for clarity and later manipulation
-colnames(wgi) <- c("country", "code", "year", "cc_est", "ge_est", "ge_no_src", "ge_per_rnk", "ge_per_rnk_lower", "ge_per_rnk_upper", 
-                   "ge_std_err", "pv_est", "pv_no_src", "pv_per_rnk", "pv_per_rnk_lower", "pv_per_rnk_upper", "pv_std_err", 
-                   "rq_est", "rq_no_src", "rq_per_rnk", "rq_per_rnk_lower", "rq_per_rnk_upper", "rq_std_err", "rl_est", "rl_no_src", 
-                   "rl_per_rnk", "rl_per_rnk_lower", "rl_per_rnk_upper", "rl_std_err", "va_est", "va_no_src", "va_per_rnk",
-                   "va_per_rnk_lower", "va_per_rnk_upper", "va_std_err", "cc_std_err", "cc_per_rnk_upper", "cc_per_rnk_lower",
+# Remove rows with any NAs from the dataset
+wgi <- na.omit(wgi)
+
+# Step 4.2: Rename columns for clarity and later manipulation
+colnames(wgi) <- c("country", "code", "year", "timecode", "cc_est", "ge_est", "ge_no_src", "ge_per_rnk", "ge_per_rnk_lower", 
+                   "ge_per_rnk_upper",  "ge_std_err", "pv_est", "pv_no_src", "pv_per_rnk", "pv_per_rnk_lower", "pv_per_rnk_upper", 
+                   "pv_std_err", "rq_est", "rq_no_src", "rq_per_rnk", "rq_per_rnk_lower", "rq_per_rnk_upper", "rq_std_err", "rl_est", 
+                   "rl_no_src", "rl_per_rnk", "rl_per_rnk_lower", "rl_per_rnk_upper", "rl_std_err", "va_est", "va_no_src", "va_per_rnk",
+                   "va_per_rnk_lower", "va_per_rnk_upper", "va_std_err", "cc_std_err", "cc_per_rnk_upper", "cc_per_rnk_lower", 
                    "cc_per_rnk", "cc_no_src")
 
-# Remove rows for "United States" and "United Kingdom"
-wgi <- wgi %>% filter(country != "United States", country != "United Kingdom")
+# Remove the "timecode" column
+wgi[4] <- NULL 
 
-# Step 6: Removing Unnecessary Column
-# Remove the column "yearcode" as it's not needed for the analysis
-wgi <- wgi[, -which(names(wgi) == "yearcode")]
+# Step 4.3: Remove rows for "United States" and "United Kingdom"
+wgi <- wgi %>%
+  filter(country != "United States" & country != "United Kingdom")
 
-# Step 7: Exporting the Cleaned Dataset
-# Export the cleaned dataset to a CSV file named "wgi_indicators.csv."
+# Step 4.4: Export the cleaned data set to a CSV file named "wgi_indicators.csv."
 fwrite(wgi, "wgi_indicators.csv")
 
-# Step 8: Calculating Annual Averages
-# Specify the columns for which you want to calculate averages
-columns_to_average_wgi <- c("cc_est", "ge_est", "pv_est", "rq_est", "rl_est",  "va_est")
+# Step 4.5: Specify the columns for which you want to calculate averages
+columns_wgi_avg <- c("cc_est", "ge_est", "pv_est", "rq_est", "rl_est", "va_est")
 
 # Calculate annual averages for the specified columns
-annual_averages_wgi <- wgi %>% group_by(year) %>% summarise(across(all_of(columns_to_average_wgi), mean))
+wgi_avg <- wgi %>% 
+  
+  # Group the data by year
+  group_by(year) %>% 
+  
+  # Calculate the annual averages 
+  summarise(across(all_of(columns_wgi_avg), mean))
 
 # Export the dataset containing the calculated annual averages to a CSV file named "annual_wgi.csv."
-fwrite(annual_averages_wgi, "annual_wgi.csv")
+fwrite(wgi_avg, "wgi_avg.csv")
 
-# End
+# End 
