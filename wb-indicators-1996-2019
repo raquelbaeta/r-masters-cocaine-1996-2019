@@ -7,80 +7,68 @@
 # Variables: Gross Domestic Product (GDP), Exports of Goods and Services, Imports of Goods and Services Gross National Income (GNI) and 
 # Military expenditure
 
-# Step 1: Install Required Packages
-install.packages("readxl") # work with Excel files
-install.packages("tidyr") # data reshaping
-install.packages("dplyr") # data manipulation
-install.packages("data.table") # data handling
+# Step 3.1: Load the World Bank dataset which is stored in an Excel file named  "wb_indicators.xlsx" using the read_excel function from 
+# the "readxl" package 
+wb <- read_excel("wb_indicators.xlsx")
+head(wb) # preview the first few rows
 
-# Step 2: Load Libraries
-library(readxl)
-library(tidyr)
-library(dplyr)
-library(data.table)
+# Step 3.2: The raw dataset has columns with long, complex names. Make these column names more informative for ease of manipulation. By 
+# renaming the columns, the stage is set for better clarity and organisation in the subsequent steps.
+wb <- wb %>% rename("country" = "Country Name", 
+                    "code" = "Country Code",
+                    "year" = "Time", 
+                    "yearcode" = "Time Code",
+                    "population" = "Population, total [SP.POP.TOTL]", 
+                    "gni_cap" = "GNI per capita, Atlas method (current US$) [NY.GNP.PCAP.CD]", 
+                    "gni_ppp" = "GNI, PPP (current international $) [NY.GNP.MKTP.PP.CD]", 
+                    "gnicap_ppp" = "GNI per capita, PPP (current international $) [NY.GNP.PCAP.PP.CD]", 
+                    "gdp_dollar" = "GDP (current US$) [NY.GDP.MKTP.CD]", 
+                    "gdp_growth" = "GDP growth (annual %) [NY.GDP.MKTP.KD.ZG]",
+                    "exports_gdp" = "Exports of goods and services (% of GDP) [NE.EXP.GNFS.ZS]", 
+                    "imports_gdp" = "Imports of goods and services (% of GDP) [NE.IMP.GNFS.ZS]", 
+                    "military_gdp" = "Military expenditure (% of GDP) [MS.MIL.XPND.GD.ZS]", 
+                    "gdpcap_dollar" = "GDP per capita (current US$) [NY.GDP.PCAP.CD]",
+                    "exports_growth" = "Exports of goods and services (annual % growth) [NE.EXP.GNFS.KD.ZG]", 
+                    "exports_dollar" = "Exports of goods and services (current US$) [NE.EXP.GNFS.CD]",
+                    "imports_growth" = "Imports of goods and services (annual % growth) [NE.IMP.GNFS.KD.ZG]",
+                    "imports_dollar" =  "Imports of goods and services (current US$) [NE.IMP.GNFS.CD]", 
+                    "military_dollar" = "Military expenditure (current USD) [MS.MIL.XPND.CD]", 
+                    "military_govexp" = "Military expenditure (% of general government expenditure) [MS.MIL.XPND.ZS]")
 
-# Step 3: Set the working directory
-setwd("/Users/raquelbaeta/Desktop/working_sessions")
+# Step 3.3: Remove unnecessary columns
+wb[4:5] <- NULL  # Remove "yearcode" and "population".
 
-# Step 4: Read the data 
-# Load the World Bank dataset which is stored in an Excel file named "wb_indicators.xlsx" using the read_excel function from the 
-# "readxl" package 
-wb <- read_excel("raw_datasets/wb_indicators.xlsx")
-head(wb)
+# Remove rows with any NAs from the dataset
+wb <- na.omit(wb)
 
-# Step 5: Renaming Columns for Clarity
-# The raw dataset has columns with long, complex names. Make these column names more informative for ease of manipulation. By renaming 
-# the columns, the stage is set for better clarity and organisation in the subsequent steps.
-wb <- wb %>% rename("country" = "Country Name", "code" = "Country Code", "year" = "Time", "yearcode" = "Time Code",
-  "population" = "Population, total [SP.POP.TOTL]", 
-  "gni_cap" = "GNI per capita, Atlas method (current US$) [NY.GNP.PCAP.CD]", 
-  "gni_ppp" = "GNI, PPP (current international $) [NY.GNP.MKTP.PP.CD]", 
-  "gnicap_ppp" = "GNI per capita, PPP (current international $) [NY.GNP.PCAP.PP.CD]", 
-  "gdp_dollar" = "GDP (current US$) [NY.GDP.MKTP.CD]", 
-  "gdp_growth" = "GDP growth (annual %) [NY.GDP.MKTP.KD.ZG]",
-  "exports_gdp" = "Exports of goods and services (% of GDP) [NE.EXP.GNFS.ZS]", 
-  "imports_gdp" = "Imports of goods and services (% of GDP) [NE.IMP.GNFS.ZS]", 
-  "military_gdp" = "Military expenditure (% of GDP) [MS.MIL.XPND.GD.ZS]", 
-  "gdpcap_dollar" = "GDP per capita (current US$) [NY.GDP.PCAP.CD]",
-  "exports_growth" = "Exports of goods and services (annual % growth) [NE.EXP.GNFS.KD.ZG]", 
-  "exports_dollar" = "Exports of goods and services (current US$) [NE.EXP.GNFS.CD]",
-  "imports_growth" = "Imports of goods and services (annual % growth) [NE.IMP.GNFS.KD.ZG]",
-  "imports_dollar" =  "Imports of goods and services (current US$) [NE.IMP.GNFS.CD]", 
-  "military_dollar" = "Military expenditure (current USD) [MS.MIL.XPND.CD]", 
-  "military_govexp" = "Military expenditure (% of general government expenditure) [MS.MIL.XPND.ZS]")
-
-# Step 6: Data Cleaning and Filtering
-# Remove unnecessary columns and exclude specific countries that aren't relevant to the analysis
-wb[4:5] <- NULL  # Remove "yearcode" and "population"
+# Exclude specific countries that aren't relevant to the analysis
 wb <- wb %>% filter(country != "United States", country != "United Kingdom")
 
-# Step 7: Data Transformation, Handling Missing Values, and Export
-# [a] GDP and Economic Indicators. The data set includes various economic indicators related to GDP, such as "GDP (current US$)," "GDP 
-# growth (annual %)," and more. To focus on these indicators, create a subset of the data:
-economic_indicators <- wb %>% select(country, year, gdp_dollar, gdp_growth, gdpcap_dollar, gni_cap, gni_ppp, gdpcap_ppp)
+# Step 3.4: Data Transformation, Handling Missing Values, and Export. GDP and Economic Indicators: The data set includes various 
+# economic indicators related to GDP, such as "GDP (current US$)," "GDP growth (annual %)," and more. To focus on these indicators, 
+# create a subset of the data:
 
-# [b] Extract the data related to exports and imports
-exports_imports <- wb %>% select(country, year, exports_gdp, imports_gdp, exports_dollar, imports_dollar)
+    # [3.4.a] Subset the economic-related indicators 
+    economic_indicators <- wb %>%
+      select(country, code, year, gdp_dollar, gdp_growth, gdpcap_dollar, gni_cap, gni_ppp, gnicap_ppp)
+    
+    # [3.4.b] Extract the data related to exports and imports
+    exports_imports <- wb %>%
+      select(country, code, year, exports_gdp, exports_dollar, exports_growth, imports_gdp, imports_dollar, imports_growth)
+    
+    # [3.4.c] Subset to analyse military-related variables
+    military_data <- wb %>%
+      select(country, code, year, military_gdp, military_govexp, military_dollar)
 
-# [c] Subset to analyse military-related variables
-military_data <- wb %>% select(country, year, military_gdp, military_govexp, military_dollar)
-
-# Step 8: Identifying Missing Values
-# To identify missing values, use the summary function
+# Step 3.5: To identify missing values, use the summary function
 summary(economic_indicators)
 summary(exports_imports)
 summary(military_data)
 
-# For numeric variables, one approach is to replace missing values with the mean of the respective variable. 
-economic_indicators <- economic_indicators %>% mutate_all(~ ifelse(is.na(.), mean(., na.rm = TRUE), .))
-exports_imports <- exports_imports %>% mutate_all(~ ifelse(is.na(.), mean(., na.rm = TRUE), .))
-military_data <- military_data %>% mutate_all(~ ifelse(is.na(.), mean(., na.rm = TRUE), .))
+# Step 3.7: Exporting Data to CSV
+write.csv(wb, "wb_indicators.csv", row.names = FALSE)
+write.csv(economic_indicators, "economic_indicators.csv", row.names = FALSE)
+write.csv(exports_imports, "exports_imports.csv", row.names = FALSE)
+write.csv(military_data, "military_data.csv", row.names = FALSE)
 
-# Step 9: Merging variables
-merged_data <- left_join(economic_indicators, exports_imports, by = c("country", "year")) %>%
-  left_join(., military_data, by = c("country", "year"))
-
-# Exporting Data to CSV
-write.csv(merged_data, "cleaned_and_merged_data.csv", row.names = FALSE)
-
-# End 
+# End
