@@ -7,50 +7,37 @@
 # Variables: Convention on Psychotropic Substances [1971], Single Convention on Narcotic Drugs [1961], and United Nations Convention 
 # against illicit traffic in Narcotic Drugs and Psychotropic Substances [1988].
 
-# Step 1: Install Required Packages
-install.packages("readxl") # work with Excel files
-install.packages("dplyr") # data manipulation
-install.packages("countrycode") # country code conversions
+# Step 1.1: Read the Excel file "un_treaty.xlsx" into a data frame named untreaties.
+untreaties <- read_excel("un_treaty.xlsx")
+head(untreaties) # preview the first few rows
 
-# Step 2: Load Libraries
-library(readxl)
-library(dplyr)
-library(countrycode)
-
-# Step 3: Set Working Directory
-setwd("/Users/raquelbaeta/Desktop/working_sessions")
-
-# Step 4: Read Data
-# Read the Excel file "un_treaty.xlsx" into a data frame named untreaties.
-untreaties <- read_excel("datasets/un_treaty.xlsx")
-
-# Step 5: Filter Data
-# Filter out rows corresponding to countries "United States of America" and "United Kingdom" as these countries were dropped from the 
-# analysis.
+# Step 1.2: Filter out rows corresponding to countries "United States of America" and "United Kingdom" as these countries were dropped 
+# from the analysis.
 untreaties <- untreaties %>%
   filter(country != "United States of America", country != "United Kingdom")
 
-# Step 6: Convert Treaty Values to Numeric
-# Convert the treaty values in columns un1971, un1961, and un1988 to numeric values ("0" for no commitment or "1" for commitment) using 
-# the ifelse function.
+# Step 1.3: Convert the treaty values in columns un1971, un1961, and un1988 to numeric values ("0" for no commitment or "1" for 
+# commitment) using the ifelse function.
 untreaties$un1971 <- ifelse(untreaties$un1971 > 0, 1, 0)
 untreaties$un1961 <- ifelse(untreaties$un1961 > 0, 1, 0)
 untreaties$un1988 <- ifelse(untreaties$un1988 > 0, 1, 0)
 
-# Step 7: Handle Missing Values
-# Replace any missing values in the treaty columns with 0.
+# Step 1.4: Replace any missing values in the treaty columns with 0.
 untreaties$un1971[is.na(untreaties$un1971)] <- 0
 untreaties$un1961[is.na(untreaties$un1961)] <- 0
 untreaties$un1988[is.na(untreaties$un1988)] <- 0
 
-# Step 8: Add ISO 3-letter Codes and Continent Names
-# Add new columns code and region to the data frame. The code column contains ISO 3-letter country codes, and the region column contains 
-# continent names.
-untreaties$code <- countrycode(untreaties$country, origin = "country.name", destination = "iso3c")
-untreaties$region <- countrycode(untreaties$code, origin = "iso3c", destination = "continent")
+# Step 1.5: Add new columns code and region to the data frame. The code column contains ISO 3-letter country codes, and the region 
+# column contains continent names.
+untreaties$code <- countrycode(untreaties$country, 
+                               origin = "country.name", 
+                               destination = "iso3c")
 
-# Step 9: Export Cleaned Data
-# Export the cleaned data frame untreaties to a CSV file named "untreaties.csv".
+untreaties$region <- countrycode(untreaties$code, 
+                                 origin = "iso3c", 
+                                 destination = "continent")
+
+# Step 1.6: Export the cleaned data frame untreaties to a CSV file named "untreaties.csv".
 fwrite(untreaties, "untreaties.csv")
 
 # End
