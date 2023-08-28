@@ -1,114 +1,125 @@
-#
-# Author: Raquel Baeta
+# Start
+
 # Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
-# Data Source: United Nations Office on Drugs and Crime (UNODC) and World Bank.
+# Author: Raquel Baeta
 
-# Packages needed for cleaning and manipulating.
-install.packages("readr")
-install.packages("data.table")
-install.packages("dplyr")
-install.packages("countrycode")
+# Data Source: United Nations (UN), United Nations Office on Drugs and Crime (UNODC), World Governance Indicators (WGI) and World Bank 
+# (WB).
 
+# Step 1: Setting Up and Loading Packages
+
+# Install required packages
+install.packages("readr") # work with cvs files
+install.packages("dplyr") # data manipulation
+install.packages("countrycode") # country codes
+install.packages("data.table") # data handling
+
+# Load packages
 library(readr)
-library(data.table)
 library(dplyr)
 library(countrycode)
+library(data.table)
 
 # This is the set working directory for this analysis.
-setwd("/Users/raquelbaeta/Desktop/working_sessions")
+setwd("/Users/raquelbaeta/Desktop/working_sessions/raw_datasets")
 
-# In this script, the following variables are merged: annual price for cocaine, annual seizures, commitment to treaties, annual 
-# Gross Domestic Product (GDP) and government expenditure, annual public order expenditure and world governance indicators.
+# Step 2: Merging World Bank and World Governance Indicators Data
 
-# [1] First, 'wb" data frame is merged with the "wgi" data frame.
-
-# Load the csv files
-wb <- read_csv("csv_files/wb_indicators.csv")
+# Load the CSV files
+wb <- read_csv("csv_files/wb_indicators.csv") 
 wgi <- read_csv("csv_files/wgi_indicators.csv")
-wgi_annual <- read_csv("csv_files/annual_wgi.csv") # load for later
 
-# Join "wb_indicators" and "wgi_indicators" by country name, country code and year.
+# Merge "wb" and "wgi" by country, code, and year
 wb_wgi <- full_join(wb, wgi, by = c("country", "code", "year"))
-rm(wb, wgi) # remove the single data sets
 
-# [2] Second, merge the data frames of annual cocaine prices and annual cocaine seizures in Europe.
+# Clean up: Remove original data frames
+rm(wb, wgi)
 
-# Load the csv files that include the variables related to annual cocaine prices and state commitment.
-cocaine <- read_csv("csv_files/cocaine_prices.csv", show_col_types = FALSE)
-price_annual <- read_csv("csv_files/annual_price_average.csv", show_col_types = FALSE) # load for later
+# Step 3: Merging Cocaine Prices, Seizures, and Public Order Expenditure Data
+
+# Load the CSV files for cocaine prices, seizures, and public order
 seizures <- read_csv("csv_files/seizures.csv", show_col_types = FALSE)
-untreaties <- read_csv("csv_files/untreaties.csv") # load for later
+cocaine <- read_csv("csv_files/cocaine_prices.csv", show_col_types = FALSE)
+public_order <- read_csv("csv_files/public_order.csv")
 
-# Join "cocaine" and "seizures" by country name, country code and year.
+# Merge "cocaine," "seizures," and "public_order" by country, year
 prices_kg <- full_join(cocaine, seizures, by = c("country", "year"))
-rm(cocaine, seizures) # remove the single data sets
+prices_kg <- full_join(prices_kg, public_order, by = c("country", "year"))
 
-# Add country codes to the data frame.
+# Clean up: Remove original data frames
+rm(cocaine, seizures, public_order)
+
+# Add country codes using countrycode function
 prices_kg$code <- countrycode(prices_kg$country, origin = "country.name", destination = "iso3c")
 
-# [3] Third, merge annual averages for annual cocaine price and annual average World Governance Indicator (WGI) together.
-annual_price_wgi <- full_join(prices_kg, wgi_annual, by = "year")
-rm(price_annual, wgi_annual) # remove the single data sets
+# Reorder columns for consistent order
+desired_column_order <- c(
+  "region", "subregion", "code", "country", "year", "drug", "wholesale", "retail", "seizure", "annual_public_order")
 
-# Reorder the two data sets before the final merge for data visualisations.
-# Specify the desired column order
-desired_column_order <- c("region", "subregion", "code", "country", "year", "drug", "wholesale", "retail", "seizure",  "cc_est", 
-                          "ge_est", "pv_est", "rq_est", "rl_est", "va_est")
-
-# Reorder the columns based on the desired order
-annual_price_wgi_reordered <- annual_price_wgi %>%
+prices_kg <- prices_kg %>%
   select(all_of(desired_column_order))
-rm(annual_price_wgi) # remove the old set
 
+# Step 4: 2.1. Merging Annual Cocaine Price Averages and World Governance Indicators
 
-# Export the data set: "data" to a CSV file named "data.csv".
-fwrite(annual_price_wgi, "annual_price_wgi.csv")
+# Load the CSV files for annual cocaine price averages and WGI
+wgi_annual <- read_csv("csv_files/annual_wgi.csv")
+price_annual <- read_csv("csv_files/annual_price_average.csv", show_col_types = FALSE)
 
-# Merge "price_kg" and "seizures" together and remove the old data.
+# Merge annual cocaine price averages and WGI by year
+annual_price_wgi <- full_join(price_annual, wgi_annual, by = "year")
+
+# Clean up: Remove original data frames
+rm(price_annual, wgi_annual)
+
+# Step 5: Merging Cocaine Prices, Seizures, and State Commitment Data
+
+# Load the CSV file for state commitment (untreaties)
+untreaties <- read_csv("csv_files/untreaties.csv")
+
+# Merge "prices_kg" and "untreaties" by country, region, code
 cocaine <- full_join(prices_kg, untreaties, by = c("country", "region", "code"))
+
+# Clean up: Remove original data frames
 rm(prices_kg, untreaties)
 
-# Reorder the two data sets before the final merge for data visualisations.
-# Specify the desired column order
-desired_column_order <- c("region", "subregion", "code", "country", "year", "un1961", "un1971", "un1988", "drug", "wholesale", 
-                          "retail", "seizure") 
+# Reorder columns for consistent order
+desired_column_order <- c("region", "subregion", "code", "country", "year", "un1961", "un1971", "un1988", "drug", "wholesale",       
+  "retail", "seizure", "annual_public_order")
+cocaine <- cocaine %>%
 
-# Reorder the columns based on the desired order
-cocaine_reordered <- cocaine %>%
-  select(all_of(desired_column_order))
-rm(cocaine)
+select(all_of(desired_column_order))
 
-# [4] Fourth, merge wb_wgi variables and cocaine_reordered.
+# Step 6: Final Merge of World Bank, World Governance Indicators, and Cocaine Data
+# Merge "wb_wgi" and "cocaine" by country, code, and year
+data <- full_join(wb_wgi, cocaine, by = c("country", "code", "year"))
+data[3] <- NULL # Remove duplicate "year" column
 
-# Merge "price_kg" and "seizures" together and remove the old data.
-data <- full_join(wb_wgi, cocaine_reordered, by = c("country", "code"))
-data[3] <- NULL # remove the year duplicate
-
-# Rename "year.y"
+# Rename "year.y" to "year"
 data <- data %>%
   rename(year = year.y)
 
-# Remove data sets
-rm(wb_wgi, cocaine_reordered)
+# Clean up: Remove original data frames
+rm(wb_wgi, cocaine)
 
-# Reorder the two data sets before the final merge for data visualisations.
-
-# Specify the desired column order
-desired_column_order <- c("region", "subregion", "code", "country", "year", "un1961", "un1971", "un1988", "drug", "wholesale", 
-                          "retail", "seizure", "gni_cap", "gni_ppp", "gnicap_ppp", "gdp_growth", "gdp_dollar", "gdpcap_dollar", 
-                          "exports_gdp", "exports_growth", "exports_dollar", "imports_gdp", "imports_growth", "imports_dollar", 
-                          "military_gdp", "military_govexp", "military_dollar", "cc_est", "cc_no_src", "cc_per_rnk",
-                          "cc_per_rnk_upper", "cc_per_rnk_lower", "cc_std_err", "ge_est", "ge_no_src", "ge_per_rnk", 
-                          "ge_per_rnk_lower", "ge_per_rnk_upper", "ge_std_err", "pv_est", "pv_no_src", "pv_per_rnk", 
-                          "pv_per_rnk_lower", "pv_per_rnk_upper", "pv_std_err", "rq_est", "rq_no_src", "rq_per_rnk", 
-                          "rq_per_rnk_lower", "rq_per_rnk_upper", "rq_std_err", "rl_est", "rl_no_src", "rl_per_rnk", 
-                          "rl_per_rnk_lower", "rl_per_rnk_upper", "rl_std_err", "va_est", "va_no_src", "va_per_rnk", 
-                          "va_per_rnk_lower", "va_per_rnk_upper", "va_std_err") 
+# Reorder columns for consistent order
+desired_column_order <- c(
+  "region", "subregion", "code", "country", "year", "un1961", "un1971", "un1988", "drug", "wholesale", "retail", "seizure", "gni_cap",
+  "gni_ppp", "gnicap_ppp", "gdp_growth", "gdp_dollar", "gdpcap_dollar", "exports_gdp", "exports_growth", "exports_dollar", 
+  "imports_gdp", "imports_growth", "imports_dollar", "military_gdp", "military_govexp", "military_dollar", "annual_public_order", 
+  "cc_est", "cc_no_src", "cc_per_rnk", "cc_per_rnk_upper", "cc_per_rnk_lower", "cc_std_err", "ge_est", "ge_no_src", "ge_per_rnk",     
+  "ge_per_rnk_lower", "ge_per_rnk_upper", "ge_std_err", "pv_est", "pv_no_src", "pv_per_rnk", "pv_per_rnk_lower", "pv_per_rnk_upper", 
+  "pv_std_err", "rq_est", "rq_no_src", "rq_per_rnk", "rq_per_rnk_lower", "rq_per_rnk_upper", "rq_std_err", "rl_est", "rl_no_src", 
+  "rl_per_rnk", "rl_per_rnk_lower", "rl_per_rnk_upper", "rl_std_err", "va_est", "va_no_src", "va_per_rnk", "va_per_rnk_lower", 
+  "va_per_rnk_upper", "va_std_err")
 
 # Reorder the columns based on the desired order
 data_reordered <- data %>%
   select(all_of(desired_column_order))
-rm(data) # remove data set that isn't ordered.
 
-# Export the data set: "data" to a CSV file named "data.csv".
+# Convert seizure values from kilograms to grams
+data_reordered$seizure <- data_reordered$seizure * 1000
+
+# Export the final merged dataset to a CSV file named "data.csv"
 fwrite(data_reordered, "data.csv")
+
+# End 
