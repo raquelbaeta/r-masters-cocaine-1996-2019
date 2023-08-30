@@ -1,226 +1,426 @@
 #
-# Author: Raquel Baeta
 # Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+# Author: Raquel Baeta
 # Data Source: data
 
-# Packages needed for cleaning and manipulating.
-install.packages("readr")
-install.packages("dplyr")
-install.packages("ggplot2")
-install.packages("lm4")
-install.packages("broom")
-install.packages("GGally")
-install.packages("tidyerse")
-install.packages("data.table")
-install.packages("stargazer")
-install.packages("gridExtra")
-install.packages("grid")
+# Install Required Packages and set working directory
+install.packages("readr") 
+install.packages("dplyr")  
+install.packages("ggplot2")  
+install.packages("broom")  
+install.packages("data.table")  
+install.packages("stargazer") 
+install.packages("gridExtra") 
 
-library(readr)
-library(dplyr)
-library(ggplot2)
-library(lmtest)
-library(broom)
-library(GGally)
-library(tidyverse)
-library(data.table)
-library(stargazer)
-library(gridExtra)
-library(grid)
+# Load Libraries
+library(readr) # for csv files
+library(dplyr) # for data manipulation and transformation
+library(ggplot2) # for data visualisations
+library(lmtest) # regressions
+library(broom) # for model outputs and statistics
+library(data.table) # for data manipulation
+library(stargazer) # for regression summary tables
+library(gridExtra) # for arranging multiple plots
+library(grid) # for arranging multiple plots
 
-# This is the set working directory for this analysis.
+# Set Working Directory
 setwd("/Users/raquelbaeta/Desktop/working_sessions")
 
-# Load the annual data
-annual_price_wgi <- read_csv("csv_files/annual_price_wgi.csv")
+# Load annual data for Europe as a region
+data <- read_csv("csv_files/data.csv")
 
-# Convert the seizure (kilograms) into grams for equal measurement.
-annual_price_wgi$seizure <- annual_price_wgi$seizure * 1000
+# [1] Overall Commitment 
 
-# [1] A scatter plot for the correlation between prices and seizures.
+# Step 1.1: Summarise commitment status per country for each United Nations Treaty
+complete_data <- data[complete.cases(data), ]
+summarised_data <- complete_data %>%
+  group_by(country) %>%
+  summarize(un1961 = max(un1961), 
+            un1971 = max(un1971), 
+            un1988 = max(un1988))
 
-# Scatter plot for cocaine seizure vs. wholesale price
-seizures_vs_wholesale <- ggplot(annual_price_wgi, aes(x = wholesale, y = seizure)) +
-  geom_point(color = "navy", alpha = 0.7) + # add transparency to points
-  labs(title = "Scatter Plot: Cocaine Seizures vs. Wholesale Price", 
-       x = "Wholesale Price (USD per gram)", y = "Cocaine Seizures (per gram)", 
-       caption = "Source: United Nations Office on Drugs and Crime (UNODC)") + # Add caption
-  theme_minimal() +  # apply a minimalistic theme
-  theme(plot.title = element_text(hjust = 0.5)) + # center the plot title
-  geom_smooth(method = "lm", color = "orange", se = FALSE) + # add linear regression line
-  annotate("rect", xmin = 0.5, xmax = 1.2, ymin = 5000, ymax = 7000, fill = "white",
-           alpha = 0.8) +  # Add a white background for annotation
-  theme(legend.position = "none") # remove legend
+# Step 1.2: Reshape data for plotting
+reshaped_data <- summarised_data %>%
+  pivot_longer(cols = c(un1961, un1971, un1988),
+               names_to = "Treaty",
+               values_to = "Commitment")
 
-# Print and save the plot as a png. file
-print(seizures_vs_wholesale) # print graph
+# Step 2: Create a bar plot for state commitment
+commitment_plot <- ggplot(reshaped_data, 
+  aes(x = Treaty, fill = factor(Commitment))) +
+  geom_bar(stat = "count") +
+  labs(title = "State Commitment to United Nations Treaties",
+       x = "Treaty",
+       y = "Count",
+       caption = "Source: United Nations (UN)") +
+  scale_fill_manual(values = c("0" = "orange", "1" = "navy blue"),
+                    labels = c("0" = "No Commitment", "1" = "Commitment"),
+                    name = "State Commitment") +
+  theme(panel.border = element_blank(),
+        axis.text.x = element_text(angle = 0, hjust = 0.5))
+
+# Print and save the combined table and display the bar plot
+print(commitment_plot)
+ggsave(filename = "commitment_plot.png", plot = commitment_plot)
+rm(summarised_data, reshaped_data, commitment_plot) # clean environment
+
+# [2] Treaty Breakdown by state 
+
+# Step 1.1.1: Filter data for UN1961 treaty only
+un1961_data <- subset(complete_data, select = c("country", "un1961"))
+
+# Step 1.1.2: Create bar plot for UN1961 treaty commitment breakdown by state
+un1961_plot <- ggplot(un1961_data, 
+  aes(x = country, fill = factor(un1961))) +
+  geom_bar(stat = "count") +
+  labs(title = "State commitment to United Nations Single Convention on Narcotic Drugs, 1961",
+       x = "State", 
+       y = "Count",
+       caption = "Source: United Nations (UN)") +
+  scale_fill_manual(values = c("0" = "orange", "1" = "navy blue"),
+                    labels = c("0" = "No Commitment", "1" = "Commitment"),
+                    name = "State Commitment") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Print and save the combined table and display the bar plot
+print(un1961_plot)
+ggsave(filename = "un1961_state_plot.png", plot = un1961_plot)
+
+# Step 1.2.1: 1971 Treaty state breakdown
+un1971_data <- subset(complete_data, select = c("country", "un1971"))
+
+# Step 1.2.2: Create bar plot for UN1971 treaty commitment breakdown by state
+un1971_plot <- ggplot(un1971_data,
+  aes(x = country, fill = factor(un1971))) +
+  geom_bar(stat = "count") +
+  labs(title = "State commitment to United Nations Convention on Psychotropic Substances, 1971",
+       x = "State",
+       y = "Count",
+       caption = "Source: United Nations (UN)") +
+  scale_fill_manual(values = c("0" = "orange", "1" = "navy blue"),
+                    labels = c("0" = "No Commitment", "1" = "Commitment"),
+                    name = "State Commitment") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Print and save the combined table and display the bar plot
+print(un1971_plot)
+ggsave(filename = "un1971_state_plot.png", plot = un1971_plot)
+
+# Step 1.3.1: 1988 Treaty state breakdown
+un1988_data <- subset(complete_data, select = c("country", "un1988"))
+
+# Step 1.3.2: Create bar plot for UN1988 treaty commitment breakdown by state
+un1988_plot <- ggplot(un1988_data, 
+  aes(x = country, fill = factor(un1988))) +
+  geom_bar(stat = "count") +
+  labs(title = "State commitment to United Nations Convention against illicit traffic in Narcotic Drugs\nand Psychotropic Substances, 1988",
+       x = "State",
+       y = "Count",
+       caption = "Source: United Nations (UN)") +
+  scale_fill_manual(values = c("0" = "orange", "1" = "navy blue"),
+                    labels = c("0" = "No Commitment", "1" = "Commitment"),
+                    name = "State Commitment") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust margin to remove indent
+
+# Print and save the combined table and display the bar plot
+print(un1988_plot)
+ggsave(filename = "un1988_state_plot.png", plot = un1988_plot)
+
+# Step 1.4: Display and save all three plots together
+plot_grid_commitment <- grid.arrange(
+  un1961_plot, un1971_plot, un1988_plot, 
+  ncol = 1,
+  top = textGrob("Bar plots: State Commitment Over United Nations Treaties",
+                 gp = gpar(fontsize = 16, margin = margin(b = 20)))
+  )
+
+# Save the plot
+ggsave(filename = "plot_grid_commitment.png", plot = plot_grid_commitment)
+
+# Clean environment
+rm(un1971_data, un1971_plot, un1988_data, un1988_plot, plot_grid_commitment)
+
+# [2] Scatter Plots for Correlation Analysis
+
+# Step 2.2.1: Scatter plot for cocaine seizure vs. wholesale price
+seizures_vs_wholesale <- ggplot(complete_data, aes(x = wholesale, y = seizure)) +
+  # Add scatter points with consistent color and transparency
+  geom_point(color = "navy", alpha = 0.7) +
+  # Set the plot title and axis labels with proper formatting
+  labs(title = "Relationship between Cocaine Seizures and Wholesale Price between 1996 to 2019",
+       x = "Wholesale Price (USD per gram)",
+       y = "Cocaine Seizures (grams per observation)",
+       caption = "Source: United Nations Office on Drugs and Crime (UNODC)") +
+  # Apply a clean and academic theme
+  theme_minimal() +
+  # Add a linear regression line with academic color
+  geom_smooth(method = "lm", color = "darkorange", 
+              size = 1.2, linetype = "dashed", se = FALSE) +
+  # Add subtle transparency to the regression line
+  geom_smooth(method = "lm", color = alpha("darkorange", 0.6), 
+              size = 1.2, linetype = "dashed", se = FALSE) +
+  # Customize plot margins and background with academic style
+  theme(plot.margin = margin(2, 2, 2, 2, "cm"),
+        plot.background = element_rect(fill = "white"),
+        panel.grid.major = element_line(color = "lightgray"),
+        axis.title = element_text(size = 12, face = "bold"),
+        axis.text = element_text(size = 10),
+        plot.title = element_text(size = 16, face = "bold"),
+        plot.caption = element_text(size = 10, hjust = 0, margin = margin(t = 10)))
+
+# Step 2.2.2: Display and save the plot as a png. file
+print(seizures_vs_wholesale)
 ggsave(filename = "seizures_vs_wholesale.png", plot = seizures_vs_wholesale)
-rm(seizures_vs_wholesale) # clean
 
-# Scatter plot for cocaine seizure vs. retail price
-seizures_vs_retail <- ggplot(annual_price_wgi, aes(x = retail, y = seizure)) +
-  geom_point(color = "navy", alpha = 0.7) + # add transparency to points
-  labs(title = "Scatter Plot: Cocaine Seizures vs. Retail Price",
-       x = "Retail Price (USD per gram)", y = "Cocaine Seizures (per gram)",
-       caption = "Source: United Nations Office on Drugs and Crime (UNODC)") + # add caption
-  theme_minimal() + # apply a minimalistic theme
-  theme(plot.title = element_text(hjust = 0.5)) +  # center the plot title
-  geom_smooth(method = "lm", color = "orange", se = FALSE) + # add linear regression line
+# Step 2.3.1: Scatter plot for cocaine seizure vs. retail price
+seizures_vs_retail <- ggplot(complete_data, aes(x = retail, y = seizure)) +
+  # Add scatter points with consistent color and transparency
+  geom_point(color = "navy", alpha = 0.7) +
+  # Set the plot title and axis labels with proper formatting
+  labs(title = "Relationship between Cocaine Seizures and Retail Price between 1996 and 2019",
+       x = "Retail Price (USD per gram)",
+       y = "Cocaine Seizures (grams per observation)",
+       caption = "Source: United Nations Office on Drugs and Crime (UNODC)") +
+  # Apply a clean and academic theme
+  theme_minimal() +
+  # Center the plot title
+  theme(plot.title = element_text(hjust = 0.5)) +
+  # Add a linear regression line with academic color
+  geom_smooth(method = "lm", color = "darkorange", 
+              size = 1.2, linetype = "dashed", se = FALSE) +
+  # Add a white background for annotation
   annotate("rect", xmin = 0.5, xmax = 1.2, ymin = 5000, ymax = 7000, 
-           fill = "white", alpha = 0.8) +  # Add a white background for annotation
-  theme(legend.position = "none")  # Remove legend
+           fill = "white", alpha = 0.8) +
+  # Remove legend
+  theme(legend.position = "none",
+        # Customize plot margins and background with academic style
+        plot.margin = margin(2, 2, 2, 2, "cm"),
+        plot.background = element_rect(fill = "white"),
+        panel.grid.major = element_line(color = "lightgray"),
+        axis.title = element_text(size = 12, face = "bold"),
+        axis.text = element_text(size = 10),
+        plot.title = element_text(size = 16, face = "bold"),
+        plot.caption = element_text(size = 10, hjust = 0, margin = margin(t = 10)))
 
-# Print and save the plot as a png. file
+# Step 2.3.2: Display and save the plot as a png. file
 print(seizures_vs_retail)
 ggsave(filename = "seizures_vs_retail.png", plot = seizures_vs_retail)
-rm(seizures_vs_retail)
 
-# [2] An introductory analysis of the variables
+# Clean environment 
+rm(seizures_vs_retail, seizures_vs_wholesale)
 
-# Perform multiple linear regression
-model <- lm(seizure ~ cc_est + ge_est + pv_est + rq_est + rl_est + va_est, data = annual_price_wgi)
+# [3] Explore World Governance Indicators (WGI) and annual price averages for cocaine
 
-# Summary of regression
-summary(model)
+# Step 1: Load the average annual data for cocaine prices and World Governance Indicators (WGI)
+prices_wgi_avg <- read_csv("csv_files/prices_wgi_avg.csv")
 
-# Get model diagnostics
-model_diagnostics <- augment(model)
+# Step 2: Visualising the distribution of variables using histograms
 
-# Create diagnostic plots
-diagnostic_plots_wgi_seizures <- ggplot(model_diagnostics, aes(.fitted, .resid)) +
-  geom_point() +
-  geom_smooth(method = "loess", se = FALSE, color = "orange") +
-  labs(title = "Diagnostic Plots for World Governance Indicators (WGI) and Cocaine Seizures", 
-       x = "Fitted Values", y = "Residuals",
-       caption = "Source: World Governance Indicators (WGI) and United Nations Office on Drugs and Crime (UNODC)") +  # Add caption) +
+# Step 2.1: Wholesale Inflation Average
+histogram_price_inflation <- ggplot(prices_wgi_avg, 
+  aes(x = wholesale_inflation_average)) +
+  geom_histogram(binwidth = 5, fill = "navy", color = "white") +
+  labs(title = "Distribution of Wholesale Inflation Average",
+       x = "Wholesale Inflation Average",
+       y = "Frequency", 
+       caption = "Source: United Nations Office on Drugs and Crime (UNODC)") +
   theme_minimal()
 
-# Display diagnostic plots
-print(diagnostic_plots_wgi_seizures)
-ggsave(filename = "diagnostic_plots_wgi_seizures.png", plot = diagnostic_plots_wgi_seizures)
+# Display and save the plots
+print(histogram_price_inflation)
+ggsave(filename = "histogram_price_inflation.png", plot = histogram_price_inflation)
 
-# Given the low R-squared values and p-values above 0.05, the regression results suggest that the model does not 
-# provide strong evidence to support a significant relationship between the variables cc_est, ge_est, pv_est, 
-# rq_est, rl_est, va_est, and the seizure variable.
+# Step 2.2: Corruption Control Estimate
+histogram_cc_est <- ggplot(prices_wgi_avg, aes(x = cc_est)) +
+  geom_histogram(binwidth = 0.1, fill = "navy", color = "white") +
+  labs(title = "Distribution of Corruption Control Estimate (cc_est)",
+       x = "Corruption Control Estimate (cc_est)",
+       y = "Frequency",
+       caption = "Source: World Governance Indicators (WGI)") +
+  theme_minimal()
 
-# In terms of relevance to state commitment, the lack of significant relationships implies that the variables 
-# cc_est, ge_est, pv_est, rq_est, rl_est, and va_est may not have a direct linear relationship with the seizure 
-# variable.
+# Display and save the plots
+print(histogram_cc_est)
+ggsave(filename = "histogram_cc_est.png", plot = histogram_cc_est)
 
-# Assumption Validation: Diagnostic plots help assess the assumptions of the multiple linear regression model. 
-# If the assumptions are met, it adds credibility to the model's validity, strengthening the conclusions drawn
-# about the relationship between state commitment and the predictor variables.
+# Step 3: Scatter plots to explore relationships between variables
 
-# Transparency and Robustness: Including diagnostic plots demonstrates transparency in the analysis. It allows 
-# the readers to see how well the model fits the data and identify any potential issues. This transparency 
-# enhances the robustness of my findings and conclusions. 
+# Step 3.1: Corruption Control Estimate Vs. Wholesale Inflation Average
+scatter_cc_vs_wholesale <- ggplot(prices_wgi_avg, 
+  aes(x = cc_est, y = wholesale_inflation_average)) +
+  geom_point(color = "navy", alpha = 0.7) +
+  labs(title = "Scatter Plot: Corruption Control vs. Wholesale Inflation Average",
+       x = "Corruption Control Estimate (cc_est)",
+       y = "Wholesale Inflation Average",
+       caption = "Source: World Governance Indicators (WGI) and United Nations Office on Drugs and Crime (UNODC)") +
+  theme_minimal()
 
-# Supporting Interpretation: The diagnostic plots can aid in interpreting the results. If the residual plot 
-# shows a random scatter around zero, it suggests that the assumption of homoscedasticity is met. If there 
-# are patterns or trends in the residuals, it may prompt investigation further or consider model modifications.
+# Display and save the plots
+print(scatter_cc_vs_wholesale)
+ggsave(filename = "scatter_cc_vs_wholesale.png", plot = scatter_cc_vs_wholesale)
 
-# Display the results from the regression analysis.
-regression_seizures_wgi <- stargazer(model,
-  title = "Regression Results: Cocaine Seizures and WGI.",
-  type = "text", # display as plain text
-  digits = 3, # number of decimal places
-  header = FALSE, # omit column headers
-  star.cutoffs = c(0.05, 0.01, 0.001), # specify stars for significance levels
-  omit = "Intercept" # exclude the intercept from the table
-)
+# Step 3.2: Corruption Control Estimate Vs. Government Effectiveness Estimate
+scatter_cc_vs_ge <- ggplot(prices_wgi_avg, aes(x = cc_est, y = ge_est)) +
+  geom_point(color = "navy", alpha = 0.7) +
+  labs(title = "Scatter Plot: Corruption Control vs. Government Effectiveness",
+       x = "Corruption Control Estimate (cc_est)",
+       y = "Government Effectiveness Estimate (ge_est)",
+       caption = "Source: World Governance Indicators (WGI) and United Nations Office on Drugs and Crime (UNODC)") +
+  theme_minimal()
 
-# Display the results from the regression analysis
-print(regression_seizures_wgi)
-rm(model, model_diagnostics, diagnostic_plots_wgi_seizures, regression_seizures_wgi) # clean
+# Display and save the plots
+print(scatter_cc_vs_ge)
+ggsave(filename = "scatter_cc_vs_ge.png", plot = scatter_cc_vs_ge)
 
-# Create scatter plots. This will create a matrix of scatter plots that shows the relationships between the 
-# variables. It creates a matrix of scatterplots and other visualizations that allow quick understanding of the 
-# relationships and patterns within the data.
+# Step 4.5: Create a pair plot. This will create a matrix of scatter plots that shows the relationships between the variables. The 
+# ggpairs function from the GGally package is a powerful tool for exploratory data analysis in R, especially when dealing with multiple 
+# variables. It creates a matrix of scatterplots and other visualizations that allow quick understanding of the relationships and 
+# patterns within the data.
 
-# Customize the appearance of individual scatterplots
+# Step 4.5.1: Customise the appearance of individual scatterplots
 individual_plots <- list()
 
 for (column in c("cc_est", "ge_est", "pv_est", "rq_est", "rl_est", "va_est")) {
-  plot <- ggplot(annual_price_wgi, aes_string(x = "seizure", y = column)) +
+  plot <- ggplot(complete_data, aes_string(x = "seizure", y = column)) +
     geom_point(alpha = 0.3, color = "navy") +
     labs(title = paste("Scatterplot:", column), x = "Seizures",y = column) +
     theme_minimal()
   individual_plots[[column]] <- plot
 }
 
-# Display individual scatterplots in a combined grid with a title
+# Step 4.5.2: Display individual scatterplots in a combined grid with the title
 combined_plots <- grid.arrange(grobs = individual_plots, ncol = 2)
-title <- textGrob("Individual Scatterplots: Seizures and World Governance Indicators",
-         gp = gpar(fontsize = 14, fontface = "bold"))
+title <- textGrob(
+  "Individual Scatterplots: Cocaine seizures and World Governance Indicators (WGI)",
+  gp = gpar(fontsize = 14, fontface = "bold"))
 
-caption <- textGrob("Source: World Governance Indicators (WGI) and United Nations Office on Drugs and Crime (UNODC)", gp = gpar(fontsize = 10, hjust = 0, x = 0, y = 0))
+caption <- textGrob(
+  "Source: World Governance Indicators (WGI) and United Nations Office on Drugs and Crime (UNODC)",
+  gp = gpar(fontsize = 10, hjust = 0, x = 0, y = 0))
 
-scatterplots_seizures_wgi <- grid.arrange(arrangeGrob(title = title, heights = unit(2, "line")),
-  combined_plots, ncol = 1, heights = c(0.2, 1), bottom = caption  # add the caption at the bottom
+scatterplots_seizures_wgi <- grid.arrange(
+  arrangeGrob(title = title, heights = unit(2, "line")),
+  combined_plots, ncol = 1, heights = c(0.2, 1),
+  bottom = caption  # Add the caption at the bottom
 )
 
 # Display and save the plot as a png. file.
 print(scatterplots_seizures_wgi)
 ggsave(filename = "scatterplots_seizures_wgi.png", plot = scatterplots_seizures_wgi)
-rm(individual_plots, plot, combined_plots, title, caption, scatterplots_seizures_wgi) # clean
 
-# Time-series plot for cocaine seizure over years. A time-series plot is a graphical representation of data 
-# points collected over a period of time, with the time variable usually displayed on the x-axis and the 
-# corresponding values on the y-axis.
-time_seizures <- ggplot(annual_price_wgi, aes(x = year, y = seizure)) + 
-  geom_line(color = "navy") +  # set line color to navy
+# Clean environment
+rm(individual_plots, plot, combined_plots, title, caption, scatterplots_seizures_wgi)
+
+# Step 4.6: Time-series plot for cocaine seizure over years. 
+
+# Step 4.6.1: A time-series plot is a graphical representation of data points collected over a period of time, with the time variable 
+# usually displayed on the x-axis and the corresponding values on the y-axis.
+time_seizures <- ggplot(complete_data, aes(x = year, y = seizure)) +
+  geom_line(color = "navy") +  # Set line color to navy
   labs(title = "Time-Series Plot: Cocaine Seizures Over Years",
        x = "Year", y = "Cocaine Seizures", 
-       subtitle = "Trends in Cocaine Seizures from 1996 to 2019",  # add subtitle
-       caption = "Source: United Nations Office on Drugs and Crime (UNODC)")  # add caption with data source
+       subtitle = "Trends in Cocaine Seizures from 1996 to 2019",  # Add subtitle
+       caption = "Source: United Nations Office on Drugs and Crime (UNODC)")  # Add caption with data source
 
-# Customize plot appearance
+# Step 4.6.2: Customize plot appearance
 time_series_seizures <- time_seizures +
-  theme_minimal() +  # apply a minimal theme
-  theme(plot.title = element_text(size = 16, face = "bold"),
-        plot.subtitle = element_text(size = 14), plot.caption = element_text(size = 10, hjust = 0),
-        axis.title = element_text(size = 12), axis.text = element_text(size = 10),
-        legend.position = "none")  # remove legend
+  theme_minimal() +  # Apply a minimal theme
+  theme(plot.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        plot.caption = element_text(size = 10, hjust = 0),
+        axis.title = element_text(size = 10),
+        axis.text = element_text(size = 10),
+        legend.position = "none")  # Remove legend
 
 # Display and save the plot as a png. file
-print(time_series_seizures) # print the plot
+print(time_series_seizures) 
 ggsave(filename = "time_series_seizures.png", plot = time_series_seizures)
+
+# Clean environment
 rm(time_seizures, time_series_seizures)
 
-# [3] Aggregate the data for the main analysis.
+# [5] An introductory regression into the some variables
 
-# Load the annual data
-data <- read_csv("csv_files/data.csv")
+# Step 5.1.1: Perform multiple linear regression
+model <- lm(seizure ~ cc_est + ge_est + pv_est + rq_est + rl_est + va_est, 
+            data = complete_data)
+summary(model) # summary of regression
 
-# Convert all columns to numeric 
-data$gni_ppp <- as.numeric(data$gni_ppp)
-data$gni_cap <- as.numeric(data$gni_cap)
-data$gnicap_ppp <- as.numeric(data$gnicap_ppp)
+# Step 5.1.2: Get model diagnostics
+model_diagnostics <- augment(model)
 
-# Add a new column for the five-year interval
-data <- data %>%
-  mutate(interval = floor((year - 1996) / 5) * 5 + 1996)
+# Step 5.1.3: Create diagnostic plots
+diagnostic_plots_wgi_seizures <- ggplot(model_diagnostics, 
+                                        aes(.fitted, .resid)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE, color = "orange") +
+  labs(
+    title = "Diagnostic Plots for World Governance Indicators (WGI) and Cocaine Seizures", 
+    x = "Fitted Values", 
+    y = "Residuals",
+    caption = "Source: World Governance Indicators (WGI) and United Nations Office on Drugs and Crime (UNODC)") +  # Add caption) +
+  theme_minimal()
 
-# List of variables to summarise
-summary_vars <- c("wholesale", "retail", "seizure", "gni_cap", "gni_ppp", "gnicap_ppp", "gdp_growth", 
-                  "gdp_dollar", "gdpcap_dollar", "exports_gdp", "exports_growth", "exports_dollar",
-                  "imports_gdp", "imports_growth", "imports_dollar", "military_gdp", "military_govexp", 
-                  "military_dollar", "cc_est", "cc_no_src", "cc_per_rnk", "cc_per_rnk_upper",
-                  "cc_per_rnk_lower", "cc_std_err", "ge_est", "ge_no_src", "ge_per_rnk", "ge_per_rnk_lower", 
-                  "ge_per_rnk_upper", "ge_std_err", "pv_est", "pv_no_src", "pv_per_rnk", "pv_per_rnk_lower", 
-                  "pv_per_rnk_upper", "pv_std_err", "rq_est", "rq_no_src", "rq_per_rnk", "rq_per_rnk_lower",
-                  "rq_per_rnk_upper", "rq_std_err", "rl_est", "rl_no_src", "rl_per_rnk", "rl_per_rnk_lower", 
-                  "rl_per_rnk_upper", "rl_std_err", "va_est", "va_no_src", "va_per_rnk", "va_per_rnk_lower", 
-                  "va_per_rnk_upper", "va_std_err")
+# Display diagnostic plots
+print(diagnostic_plots_wgi_seizures)
+ggsave(filename = "diagnostic_plots_wgi_seizures.png", 
+       plot = diagnostic_plots_wgi_seizures)
 
-# Aggregate data by five-year intervals and calculate summary statistics for each variable
-aggregated_data <- data %>%
-  group_by(interval) %>%
-  summarize(across(all_of(summary_vars), list(mean = ~ mean(., na.rm = TRUE), sum = ~ sum(., na.rm = TRUE)),
-                   .names = "{.col}_{.fn}"))
+# Step 5.1.4: Display the results from the regression analysis.
+regression_seizures_wgi <- stargazer(model,
+                                     title = "Regression Results: Cocaine Seizures and WGI.",
+                                     type = "text", # Display as plain text
+                                     digits = 3, # Number of decimal places
+                                     header = FALSE, # Omit column headers
+                                     star.cutoffs = c(0.05, 0.01, 0.001), # specify stars for significance levels
+                                     omit = "Intercept" # exclude the intercept from the table
+)
 
-# Ungroup the aggregated data
-aggregated_fiveyear_data <- ungroup(aggregated_data)
+# Clean environment
+rm(model, model_diagnostics, diagnostic_plots_wgi_seizures, regression_seizures_wgi) 
 
-# Export the data frames to a CSV file named "aggregated_fiveyear_data".
-fwrite(aggregated_fiveyear_data, "aggregated_fiveyear_data.csv")
+# Step 5.2.1: Perform multiple linear regression (5-year aggregated data)
+model2 <- lm(seizure_mean ~ retail_mean + gdpcap_dollar_mean + military_govexp_mean + 
+               cc_est_mean,  data = aggregated_fiveyear_data)
+summary(model2) # summary of regression
+
+# Step 5.2.2: Get model diagnostics
+model_diagnostics <- augment(model2)
+
+# Step 5.2.3: Create diagnostic plots
+diagnostic_plots_model2 <- ggplot(model_diagnostics,
+  aes(.fitted, .resid)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE, color = "orange") +
+  labs(title = "Diagnostic Plots for Model 2", 
+       x = "Fitted Values", 
+       y = "Residuals") + 
+  theme_minimal()
+
+# Display diagnostic plots
+print(diagnostic_plots_model2)
+ggsave(filename = "diagnostic_plots_model2.png", plot = diagnostic_plots_model2)
+
+# Step 5.3.1: Perform multiple linear regression (complete_data data set)
+model3 <- lm(seizure ~ retail + wholesale + gdpcap_dollar + military_govexp + 
+             cc_est + pv_est, data = complete_data)
+summary(model3) # summary of regression
+
+# Step 5.3.2: Get model diagnostics
+model_diagnostics <- augment(model3)
+
+# Step 5.3.3: Create diagnostic plots
+diagnostic_plots_model3 <- ggplot(model_diagnostics,
+  aes(.fitted, .resid)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE, color = "orange") +
+  labs(title = "Diagnostic Plots for Model 3", 
+       x = "Fitted Values", 
+       y = "Residuals")
+  theme_minimal()
+
+# Display diagnostic plots
+print(diagnostic_plots_model3)
+ggsave(filename = "diagnostic_plots_model3.png", plot = diagnostic_plots_model3)
+
+# End 
