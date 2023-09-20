@@ -1,32 +1,26 @@
 #
-# Thesis title: The Role of International Commitments in Combating the Illicit
-# Distribution of Cocaine.
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
 # Author: Raquel Baeta
 # Data Source: data
 
+# Packages to install and load
 install.packages("reshape2")
 
 library(reshape2) # restructure and aggregate
 
 # Plot title: A dot matrix plot of state commitment to United Nations Treaties
 
-# Step 1: Create a data frame state commtiment data
-df <- data.frame(ctry = c("Austria", "Belgium", "Denmark", "Finland", "France",
-                          "Germany", "Greece", "Ireland", "Italy", "Luxembourg",
-                          "Netherlands", "Norway", "Portugal", "Spain", 
-                          "Sweden", "Switzerland"),
-                 UN_1961 = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
-                             TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
-                 UN_1971 = c(FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
-                             FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, 
-                             FALSE),
-                 UN_1988 = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
-                             TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE))
+# Step 1: Create a data frame state commitment data
+df <- data.frame(ctry = c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg",
+                          "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "Switzerland"),
+                 UN_1961 = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+                 UN_1971 = c(FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE),
+                 UN_1988 = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE))
 
 # Step 2: Reduce the size of plotting symbols for better spacing
 symbol_size <- 3
 
-# Step 3: Only extract the data from the data fram e
+# Step 3: Only extract the data from the data frame
 df_matrix <- as.matrix(df[, -1])
 
 # Step 4: Reshaped the data frame 
@@ -50,8 +44,7 @@ with(newdata,
 mtext(rev(ctry_labs), side=2, line=1, at=1:length(ctry_labs), las=1)
 mtext(treaty_labs, side=3, line=2, at=1:length(treaty_labs))
 
-# Step 6: Specify the path to save the plot as a PNG image in the working 
-# directory
+# Step 6: Specify the path to save the plot as a PNG image in the working directory
 png("dot_matrix.png", width=1500, height=800) 
 with(newdata,
      plot(as.numeric(Var2), rev(Var1),
