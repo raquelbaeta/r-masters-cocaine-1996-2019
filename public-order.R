@@ -1,7 +1,6 @@
 # Start
 
-# Thesis title: The Role of International Commitments in Combating the Illicit 
-# Distribution of Cocaine.
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
 # Author: Raquel Baeta
 
 # Data Source: World Bank (WB)
@@ -53,17 +52,13 @@ public_order <- remove_columns(public_order, columns_to_remove)
 
 # Step 5: Transform the data set using tidyr's pivot_longer function.
 public_order <- pivot_longer(public_order, 
-                             cols = c("1996", "1997", "1998", "1999", "2000", 
-                                      "2001", "2002", "2003", "2004", "2005", 
-                                      "2006", "2007", "2008", "2009", "2010", 
-                                      "2011", "2012", "2013", "2014", "2015", 
-                                      "2016", "2017", "2018", "2019"),
+                             cols = c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", 
+                                      "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"),
                              names_to = "year", 
                              values_to = "annual_public_order")
 head(public_order) # check the pivot
 
-# Export the cleaned and reshaped data frame to a CSV file named 
-# "public_order.csv".
+# Export the cleaned and reshaped data frame to a CSV file named "public_order.csv".
 fwrite(public_order, "public_order.csv")
 
 # End
