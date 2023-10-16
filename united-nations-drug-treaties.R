@@ -1,13 +1,11 @@
 # Start
 
-# Thesis title: The Role of International Commitments in Combating the Illicit 
-# Distribution of Cocaine.
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
 # Author: Raquel Baeta
 
 # Data Source: United Nations (UN)
-# Variables: Convention on Psychotropic Substances [1971], Single Convention on 
-# Narcotic Drugs [1961], and United Nations Convention against illicit traffic 
-# in Narcotic Drugs and Psychotropic Substances [1988].
+# Variables: Convention on Psychotropic Substances [1971], Single Convention on Narcotic Drugs [1961], and United Nations Convention 
+# against illicit traffic in Narcotic Drugs and Psychotropic Substances [1988].
 
 # Install Required Packages
 install.packages("readxl") 
@@ -21,20 +19,17 @@ library(countrycode) # country code conversions
 
 # [1] Clean data set 
 
-# Step 1.1: Read the Excel file "un_treaty.xlsx" into a data frame named 
-# untreaties.
+# Step 1.1: Read the Excel file "un_treaty.xlsx" into a data frame named untreaties.
 untreaties <- read_excel("un_treaty.xlsx")
 head(untreaties) # preview the first few rows
 
-# Step 1.2: Filter out rows corresponding to countries "United States of 
-# America" and "United Kingdom" as these countries were dropped from the 
-# analysis.
+# Step 1.2: Filter out rows corresponding to countries "United States of America" and "United Kingdom" as these countries were dropped 
+# from the analysis.
 untreaties <- untreaties %>%
   filter(country != "United States of America", country != "United Kingdom")
 
-# Step 1.3: Convert the treaty values in columns un1971, un1961, and un1988 to 
-# numeric values ("0" for no commitment or "1" for commitment) using the ifelse 
-# function.
+# Step 1.3: Convert the treaty values in columns un1971, un1961, and un1988 to numeric values ("0" for no commitment or "1" for 
+# commitment) using the ifelse function.
 untreaties$un1971 <- ifelse(untreaties$un1971 > 0, 1, 0)
 untreaties$un1961 <- ifelse(untreaties$un1961 > 0, 1, 0)
 untreaties$un1988 <- ifelse(untreaties$un1988 > 0, 1, 0)
@@ -44,9 +39,8 @@ untreaties$un1971[is.na(untreaties$un1971)] <- 0
 untreaties$un1961[is.na(untreaties$un1961)] <- 0
 untreaties$un1988[is.na(untreaties$un1988)] <- 0
 
-# Step 1.5: Add new columns code and region to the data frame. The code column 
-# contains ISO 3-letter country codes, and the region column contains continent 
-# names.
+# Step 1.5: Add new columns code and region to the data frame. The code column contains ISO 3-letter country codes, and the region 
+# column contains continent names.
 untreaties$code <- countrycode(untreaties$country, 
                                origin = "country.name", 
                                destination = "iso3c")
@@ -55,16 +49,14 @@ untreaties$region <- countrycode(untreaties$code,
                                  origin = "iso3c", 
                                  destination = "continent")
 
-# Step 1.6: Export the cleaned data frame untreaties to a CSV file named 
-# "untreaties.csv".
+# Step 1.6: Export the cleaned data frame untreaties to a CSV file named "untreaties.csv".
 fwrite(untreaties, "untreaties.csv")
 
 # Descriptive Statistics 
 
 # [2] Overall Commitment across States and United Nations Treaties.
 
-# Step 2.1: Summarise commitment status per country for each United Nations 
-# Treaty
+# Step 2.1: Summarise commitment status per country for each United Nations Treaty
 summarised_data <- complete_data %>%
   group_by(country) %>%
   summarize(un1961 = max(un1961), 
@@ -78,8 +70,7 @@ reshaped_data <- summarised_data %>%
                values_to = "Commitment")
 
 # Step 2.3: Create a bar plot for state commitment
-overall_un_plot <- ggplot(reshaped_data, 
-                          aes(x = Treaty, fill = factor(Commitment))) +
+overall_un_plot <- ggplot(reshaped_data, aes(x = Treaty, fill = factor(Commitment))) +
   geom_bar(stat = "count") +
   labs(title = "State Commitment to United Nations Treaties",
        x = "United Nations Treaty", 
@@ -131,8 +122,7 @@ un_stats_table <- stargazer(
 write.table(un_stats_table, file = "un_stats_table.txt", sep = "\t")
 
 # Step 2.10: Clean environment
-rm(summarised_data, reshaped_data, overall_un_plot, country_un_table, un_stats, 
-   un_stats_table) 
+rm(summarised_data, reshaped_data, overall_un_plot, country_un_table, un_stats, un_stats_table) 
 
 # [3] Commitment across states and each United Nations Treaties.
 
@@ -148,8 +138,7 @@ summarised_un1961 <- complete_data %>%
 
 # Step 3.1.3: Create a bar plot for the United Nations 1961 treaty commitment 
 # breakdown by state
-un1961_plot <- ggplot(summarised_un1961, 
-                      aes(x = country, fill = factor(un1961))) +
+un1961_plot <- ggplot(summarised_un1961, aes(x = country, fill = factor(un1961))) +
   geom_bar(stat = "count") +
   labs(title = "State commitment to United Nations Single Convention on Narcotic Drugs, 1961", 
        x = "State", 
@@ -166,27 +155,25 @@ ggsave(filename = "un1961_plot.png", plot = un1961_plot)
 
 # [2.2] United Nations Treaty, 1971.
 
-# Step 3.2.1: Filter data for United Nations 1971 treaty only
+# Step 3.2.1: Filter data for the United Nations 1971 treaty only
 un1971_data <- subset(complete_data, select = c("country", "un1971"))
 
-# Step 3.2.2: Summarise commitment status per country for 1971 Treaty
+# Step 3.2.2: Summarise commitment status per country for the 1971 Treaty
 summarised_un1971 <- complete_data %>%
   group_by(country) %>%
   summarize(un1971 = max(un1971))
 
-# Step 3.2.3: Create bar plot for United Nations 1971 treaty commitment 
-# breakdown by state
-un1971_plot <- ggplot(summarised_un1971, 
-                      aes(x = country, fill = factor(un1971))) +
-  geom_bar(stat = "count") +
-  labs(title = "State commitment to United Nations Convention on Psychotropic Substances, 1971", 
-       x = "State",
-       y = "Commitment (Count)", 
-       caption = "Source: United Nations (UN)") +
-  scale_fill_manual(values = c("0" = "orange", "1" = "navy blue"), 
-                    labels = c("0" = "No Commitment", "1" = "Commitment"),
-                    name = "Commitment") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+# Step 3.2.3: Create a bar plot for the United Nations 1971 treaty commitment breakdown by state
+un1971_plot <- ggplot(summarised_un1971, aes(x = country, fill = factor(un1971))) +
+               geom_bar(stat = "count") +
+               labs(title = "State commitment to United Nations Convention on Psychotropic Substances, 1971", 
+                    x = "State",
+                    y = "Commitment (Count)", 
+                    caption = "Source: United Nations (UN)") +
+               scale_fill_manual(values = c("0" = "orange", "1" = "navy blue"), 
+                                 labels = c("0" = "No Commitment", "1" = "Commitment"),
+                                 name = "Commitment") +
+               theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 # Step 3.2.4: Print and save the combined table and display the bar plot
 print(un1971_plot)
@@ -194,26 +181,24 @@ ggsave(filename = "un1971_plot.png", plot = un1971_plot)
 
 # [3.3] United Nations Treaty, 1988.
 
-# Step 3.3.1: Filter data for United Nations 1988 treaty only
+# Step 3.3.1: Filter data for the United Nations 1988 treaty only
 un1988_data <- subset(complete_data, select = c("country", "un1988"))
 
-# Step 3.3.2: Summarise commitment status per country for 1961 Treaty
+# Step 3.3.2: Summarise commitment status per country for the 1961 Treaty
 summarised_un1988 <- complete_data %>%
   group_by(country) %>%
   summarize(un1988 = max(un1988))
 
-# Step 3.3.3: Create bar plot for United Nations 1988 treaty commitment 
-# breakdown by state
-un1988_plot <- ggplot(summarised_un1988, 
-                      aes(x = country, fill = factor(un1988))) +
-  geom_bar(stat = "count") +
-  labs(title = "State commitment to United Nations Convention against illicit traffic in Narcotic Drugs and Psychotropic Substances, 1988",
-       x = "State", 
-       y = "Commitment (Count)", 
-       caption = "Source: United Nations (UN)") +
-  scale_fill_manual(values = c("0" = "orange", "1" = "navy blue"), 
-                    labels = c("0" = "No Commitment", "1" = "Commitment"), 
-                    name = "Commitment") +
+# Step 3.3.3: Create a bar plot for the United Nations 1988 treaty commitment breakdown by state
+un1988_plot <- ggplot(summarised_un1988, aes(x = country, fill = factor(un1988))) +
+               geom_bar(stat = "count") +
+               labs(title = "State commitment to United Nations Convention against illicit traffic in Narcotic Drugs and Psychotropic Substances, 1988",
+               x = "State", 
+               y = "Commitment (Count)", 
+               caption = "Source: United Nations (UN)") +
+               scale_fill_manual(values = c("0" = "orange", "1" = "navy blue"), 
+                                 labels = c("0" = "No Commitment", "1" = "Commitment"), 
+                                 name = "Commitment") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) # Adjust margin to remove indent
 
 # Step 3.3.4: Print and save the combined table and display the bar plot
@@ -223,18 +208,16 @@ ggsave(filename = "un1988_plot.png", plot = un1988_plot)
 # [4] grid.arrange() all United Nations plots 
 
 # Step 4.1: Display and save all three plots together
-plot_grid_commitment <- grid.arrange(
-  un1961_plot, un1971_plot, un1988_plot, 
-  ncol = 1,
-  top = textGrob("Bar Plot Series: State Commitment Over United Nations Treaties",
-  gp = gpar(fontsize = 16, margin = margin(b = 20))))
+plot_grid_commitment <- grid.arrange(un1961_plot, un1971_plot, un1988_plot, 
+                                     ncol = 1,
+                                     top = textGrob("Bar Plot Series: State Commitment Over United Nations Treaties",
+                                     gp = gpar(fontsize = 16, margin = margin(b = 20))))
 
 # Step 4.2: Save the plot
 ggsave(filename = "plot_grid_commitment.png", plot = plot_grid_commitment)
 
 # Step 4.3: Clean environment
-rm(un1961_data, summarised_un1961, un1961_plot, un1971_data, summarised_un1971,
-   un1971_plot, un1988_data, summarised_un1988, un1988_plot, 
-   plot_grid_commitment)
+rm(un1961_data, summarised_un1961, un1961_plot, un1971_data, summarised_un1971, un1971_plot, un1988_data, summarised_un1988, 
+   un1988_plot, plot_grid_commitment)
 
 # End
