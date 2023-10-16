@@ -1,23 +1,19 @@
 # Start
 
-# Thesis title: The Role of International Commitments in Combating the Illicit 
-# Distribution of Cocaine.
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
 # Author: Raquel Baeta
 
 # Data Source: World Bank (WB)
-# Variables: Gross Domestic Product (GDP), Exports of Goods and Services, 
-# Imports of Goods and Services Gross National Income (GNI) and Military 
-# expenditure
+# Variables: Gross Domestic Product (GDP), Exports of Goods and Services, Imports of Goods and Services Gross National Income (GNI) and 
+# Military expenditure
 
-# Step 3.1: Load the World Bank dataset which is stored in an Excel file named  
-# "wb_indicators.xlsx" using the read_excel function from the "readxl" package 
+# Step 3.1: Load the World Bank dataset which is stored in an Excel file named "wb_indicators.xlsx" using the read_excel function from 
+# the "readxl" package 
 wb <- read_excel("wb_indicators.xlsx")
 head(wb) # preview the first few rows
 
-# Step 3.2: The raw dataset has columns with long, complex names. Make these 
-# column names more informative for ease of manipulation. By renaming the 
-# columns, the stage is set for better clarity and organisation in the 
-# subsequent steps.
+# Step 3.2: The raw dataset has columns with long, complex names. Make these column names more informative for ease of manipulation. By 
+# renaming the columns, the stage is set for better clarity and organisation in the subsequent steps.
 wb <- wb %>% rename("country" = "Country Name", 
                     "code" = "Country Code",
                     "year" = "Time", 
@@ -48,10 +44,9 @@ wb <- na.omit(wb)
 # Exclude specific countries that aren't relevant to the analysis
 wb <- wb %>% filter(country != "United States", country != "United Kingdom")
 
-# Step 3.4: Data Transformation, Handling Missing Values, and Export. GDP and 
-# Economic Indicators: The data set includes various economic indicators related
-# to GDP, such as "GDP (current US$)," "GDP growth (annual %)," and more. To 
-# focus on these indicators, create a subset of the data:
+# Step 3.4: Data Transformation, Handling Missing Values, and Export. GDP and Economic Indicators: The data set includes various 
+# economic indicators related to GDP, such as "GDP (current US$)," "GDP growth (annual %)," and more. To focus on these indicators, 
+# create a subset of the data:
 
 # [3.4.a] Subset the economic-related indicators 
 economic_indicators <- wb %>%
