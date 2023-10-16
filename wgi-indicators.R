@@ -1,13 +1,11 @@
 # Start 
 
-# Thesis title: The Role of International Commitments in Combating the Illicit 
-# Distribution of Cocaine.
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
 # Author: Raquel Baeta
 
 # Data Source: World Governance Indicators (WGI)
-# Variables: "Voice and Accountability", "Political Stability and Absence of 
-# Violence/Terrorism",  "Government Effectiveness", "Regulatory Quality", "Rule 
-# of Law", and "Control of Corruption".
+# Variables: "Voice and Accountability", "Political Stability and Absence of Violence/Terrorism",  "Government Effectiveness", 
+# "Regulatory Quality", "Rule of Law", and "Control of Corruption".
 
 # Step 4.1: Read the data
 wgi <- read_excel("wgi_indicators.xlsx")
@@ -51,8 +49,7 @@ wgi_avg <- wgi %>%
   # Calculate the annual averages 
   summarise(across(all_of(columns_wgi_avg), mean))
 
-# Export the dataset containing the calculated annual averages to a CSV file 
-# named "annual_wgi.csv."
+# Export the dataset containing the calculated annual averages to a CSV file named "annual_wgi.csv."
 fwrite(wgi_avg, "wgi_avg.csv")
 
 # End 
