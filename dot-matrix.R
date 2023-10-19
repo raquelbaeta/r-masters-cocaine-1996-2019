@@ -1,3 +1,5 @@
+# Start
+
 # Set the working directory
 setwd("~/Desktop/working-sessions")
 
