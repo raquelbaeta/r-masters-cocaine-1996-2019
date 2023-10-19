@@ -5,15 +5,11 @@ setwd("~/Desktop/working-sessions")
 library(reshape2)
 
 # Dot matrix plot
-df <- data.frame(ctry = c("AUT", "BEL", "DNK", "FIN", "FRA", "DEU", "GRC", "IRL", 
-                          "ITA", "LUX", "NLD", "NOR", "PRT", "ESP", "SWE", "CHE"),
-                 UN_1961 = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
-                             TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
-                 UN_1971 = c(FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
-                             FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,
-                             FALSE),
-                 UN_1988 = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
-                             TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE))
+df <- data.frame(ctry = c("AUT", "BEL", "DNK", "FIN", "FRA", "DEU", "GRC", "IRL", "ITA", "LUX", "NLD", "NOR", "PRT", "ESP", "SWE", 
+                          "CHE"),
+                 UN_1961 = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+                 UN_1971 = c(FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE),
+                 UN_1988 = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE))
 
 # Reduce the size of plotting symbols for better spacing
 symbol_size <- 3
