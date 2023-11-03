@@ -1,3 +1,8 @@
+# Start
+
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
+# Author: Raquel Baeta
+
 # Set the working directory
 setwd("~/Desktop/working-sessions")
 
