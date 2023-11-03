@@ -19,14 +19,14 @@ write.csv(complete_data, "complete_data.csv")
 # Get the world map
 worldMap <- getMap()
 
-# Member States of the European Union
+# States involved in the study
 europeanUnion <- c("Austria", "Belgium", "Denmark", "Finland", "Germany", "Greece", "Ireland", "Luxembourg", "Netherlands", "Norway",
                    "Portugal", "Spain", "Sweden", "Switzerland")
 
 # Convert the country names to ISO2 codes
 europeanUnionISO3 <- countrycode(europeanUnion, "country.name", "iso3c")
 
-# Select only the index of states member of the E.U.
+# Select only the index of states involved in the study
 indEU <- which(worldMap$ISO3%in%europeanUnionISO3)
 
 # Extract the longitude and latitude border coordinates of member states of E.U. 
@@ -45,7 +45,7 @@ europeCoords$code <- countrycode(europeCoords$region, "country.name", "iso3c")
 # Create a ggplot object with the coordinates
 p <- ggplot(data = europeCoords, aes(x = long, y = lat, group = region))
 
-# Add polygons with a fill color and a black border
+# Add polygons with a fill color and a white border
 p <- p + geom_polygon(fill = "steelblue", color = "white")
 
 # Set the coordinate limits to zoom in on Europe
