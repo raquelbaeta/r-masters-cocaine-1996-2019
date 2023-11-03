@@ -1,9 +1,7 @@
 # Start
 
-# Thesis title: The Role of International Commitments in Combating the Illicit 
-# Distribution of Cocaine.
+# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
 # Author: Raquel Baeta
-
 
 # Set the working directory
 setwd("~/Desktop/working-sessions")
@@ -13,7 +11,9 @@ library(dplyr)
 library(rworldmap)
 library(countrycode)
 library(ggplot2)
+library(wesanderson)
 library(scales)
+
 
 # Remove all rows with "France" or "Italy" in the country column
 complete_data <- complete_data %>%
@@ -26,8 +26,7 @@ write.csv(complete_data, "complete_data.csv")
 worldMap <- getMap()
 
 # Member States of the European Union
-europeanUnion <- c("Austria", "Belgium", "Denmark", "Finland", "Germany", 
-                   "Greece", "Ireland", "Luxembourg", "Netherlands", "Norway",
+europeanUnion <- c("Austria", "Belgium", "Denmark", "Finland", "Germany", "Greece", "Ireland", "Luxembourg", "Netherlands", "Norway",
                    "Portugal", "Spain", "Sweden", "Switzerland")
 
 # Convert the country names to ISO2 codes
@@ -36,7 +35,7 @@ europeanUnionISO3 <- countrycode(europeanUnion, "country.name", "iso3c")
 # Select only the index of states member of the E.U.
 indEU <- which(worldMap$ISO3%in%europeanUnionISO3)
 
-# Extract longitude and latitude border's coordinates of members states of E.U. 
+# Extract the longitude and latitude border coordinates of member states of E.U. 
 europeCoords <- lapply(indEU, function(i){
   df <- data.frame(worldMap@polygons[[i]]@Polygons[[1]]@coords)
   df$country =as.character(worldMap$NAME[i])
@@ -62,21 +61,15 @@ p <- p + coord_cartesian(xlim = c(-25, 40), ylim = c(35, 70))
 p <- p + theme_void()
 
 # Add country codes as labels using geom_text
+
 # Calculate the centroid of each country
-country_centroids <- aggregate(cbind(long, lat) ~ region, data = europeCoords, 
-                               FUN = function(x) mean(range(x)))
+country_centroids <- aggregate(cbind(long, lat) ~ region, data = europeCoords, FUN = function(x) mean(range(x)))
 
 # Use the new data frame in the geom_text command
-p <- p + geom_text(data = country_centroids, 
-                   aes(label = region, x = long, y = lat),
-                   size = 3, fontface = "bold")
+p <- p + geom_text(data = country_centroids, aes(label = region, x = long, y = lat), size = 3, fontface = "bold")
 
 # Display the plot
 p
-
-
-# Load the wesanderson package
-library(wesanderson)
 
 # Get a Wes Anderson palette
 wes_palette <- rev(wesanderson::wes_palette("GrandBudapest2"))
@@ -85,31 +78,27 @@ wes_palette <- rev(wesanderson::wes_palette("GrandBudapest2"))
 wgi_map_data <- complete_data
 
 # Calculate the wgi_score for each country
-wgi_map_data$wgi_score <- rowMeans(wgi_map_data[, c("va_est", "pv_est",
-                                                    "ge_est", "rq_est", 
-                                                    "rl_est", "cc_est")])
+wgi_map_data$wgi_score <- rowMeans(wgi_map_data[, c("va_est", "pv_est", "ge_est", "rq_est", "rl_est", "cc_est")])
 
 # Delete the 'region' column and rename the 'country' column to 'region'
 wgi_map_data <- wgi_map_data %>%
   select(-region) %>%
   rename(region = country)
 
-# Check for missing values in region column in wgi_map_data
-# missing_regions <- sum(is.na(wgi_map_data$region))
+# Check for missing values in region column in wgi_map_data 
+missing_regions <- sum(is.na(wgi_map_data$region))
 
 # If there are missing regions, clean or preprocess your data to address this issue
 # if (missing_regions > 0) {
-  # You can fill in missing regions or apply appropriate data cleaning steps
+  # You can fill in missing regions or apply appropriate data-cleaning steps
   # For example, if your region names are present in other columns, you can use those
 # }
 
 # Omit any na's 
 wgi_map_data <- na.omit(wgi_map_data)
 
-
 # Merge the europeCoords data frame with complete_data
-europeCoords <- left_join(europeCoords, wgi_map_data, 
-                          by = c("region" = "region", "code" = "code"))
+europeCoords <- left_join(europeCoords, wgi_map_data, by = c("region" = "region", "code" = "code"))
 
 # Plot a basic graph
 p <- ggplot(data = europeCoords, aes(x = long, y = lat, group = region))
@@ -119,7 +108,7 @@ p <- p + geom_polygon(aes(fill = wgi_score), color = "white")
 
 # Add a gradient scale for wgi_score
 p <- p + scale_fill_gradientn(colors = wes_palette, 
-                              values = rescale(c(min(europeCoords$wgi_score, na.rm = TRUE), 
+                              values = rescale(c(min(europeCoords$wgi_score, na.rm = TRUE),
                                                  median(europeCoords$wgi_score, na.rm = TRUE), 
                                                  max(europeCoords$wgi_score, na.rm = TRUE))),
                               name = "WGI Avg. Score")  # Rename the legend
@@ -132,14 +121,12 @@ p <- p + coord_cartesian(xlim = c(-25, 40), ylim = c(35, 70))
 p <- p + theme_void()
 
 # Add country codes as labels using geom_text
+                               
 # Calculate the centroid of each country
-country_centroids <- aggregate(cbind(long, lat) ~ region, data = europeCoords, 
-                               FUN = function(x) mean(range(x)))
+country_centroids <- aggregate(cbind(long, lat) ~ region, data = europeCoords, FUN = function(x) mean(range(x)))
 
 # Use the new data frame in the geom_text command
-p <- p + geom_text(data = country_centroids, 
-                   aes(label = region, x = long, y = lat),
-                   size = 2.5, fontface = "bold")
+p <- p + geom_text(data = country_centroids, aes(label = region, x = long, y = lat), size = 2.5, fontface = "bold")
 
 # Add a title
 p <- p + labs(title = "An Overview of Governance, measured using World Governance Indicators (WGI)",
