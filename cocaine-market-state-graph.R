@@ -17,33 +17,51 @@ setwd("~/Desktop/working-sessions")
 complete_data <- read_csv("scripts/complete_data.csv")
 
 # Convert seizure_log to grams
-complete_data$seizure_log <- complete_data$seizure_log * 1000
+complete_data$seizure <- complete_data$seizure / 1000 # convert to grams
+complete_data$seizure_log <- complete_data$seizure_log / 1000 # convert to grams
+complete_data$wholesale <- complete_data$wholesale / 1000 # convert to grams
 
-# Aggregate the data by country and year group, calculating the mean of wholesale, retail, and seizure_log
+# Aggregate the data by country and year group, calculating the mean of 
+# wholesale, retail, and seizure_log
 state_data_agg <- complete_data %>%
   mutate(year_group = cut(year, breaks = seq(min(year), max(year), by = 4.5), include.lowest = TRUE)) %>%
-  group_by(code, year_group) %>%
+  group_by(code, year_group, un1971) %>%
   summarise(across(c(wholesale, retail, seizure_log), mean, na.rm = TRUE))
 
 # Print the aggregated data
 print(state_data_agg)
 
-# Calculate the average of wholesale, retail, and seizure_log for each country and year group
-market_avg <- complete_data %>%
+# Calculate the overall average of wholesale, retail, and seizure_log for 
+# each year group
+overall_avg <- complete_data %>%
   mutate(year_group = cut(year, breaks = seq(min(year), max(year), by = 4.5), include.lowest = TRUE)) %>%
-  group_by(code, year_group) %>%
+  group_by(year_group) %>%
   summarise(avg_wholesale = mean(wholesale, na.rm = TRUE),
             avg_retail = mean(retail, na.rm = TRUE),
             avg_seizure_log = mean(seizure_log, na.rm = TRUE),
             avg_market_prevalence = mean(c(wholesale, retail, seizure_log), na.rm = TRUE)
   )
 
-# Omit all empty rows from the data
-state_data_agg <- na.omit(state_data_agg)
+# Print the aggregated data
+print(overall_avg)
+
+# Calculate the average of wholesale, retail, and seizure_log for each country 
+# and year group
+market_avg <- complete_data %>%
+  mutate(year_group = cut(year, breaks = seq(min(year), max(year), by = 4.5), include.lowest = TRUE)) %>%
+  group_by(code, year_group, un1971) %>%
+  summarise(avg_wholesale = mean(wholesale, na.rm = TRUE), 
+            avg_retail = mean(retail, na.rm = TRUE),
+            avg_seizure_log = mean(seizure_log, na.rm = TRUE),
+            avg_market_prevalence = mean(c(wholesale, retail, seizure_log), na.rm = TRUE)
+  )
+
+# Print the aggregated data
+print(market_avg)
 
 # Define the start and end colors
-start_color <- c("#A2A475", "#C6CDF7")  # Light Green, Pink
-end_color <- c("#E6A0C4", "#7294D4")  # Light Orange, Blue
+start_color <- c("#A2A475", "#C6CDF7")  # Light Green
+end_color <- c("#E6A0C4", "#7294D4")  # Light Orange
 
 # Create a color palette function
 my_palette <- colorRampPalette(c(start_color, end_color))
@@ -61,7 +79,10 @@ print(my_colors)
 market_avg <- na.omit(market_avg)
 
 # Create a bar plot of average market prevalence over time for each country
-state_market <- ggplot(market_avg, aes(x = factor(year_group), y = avg_market_prevalence, fill = code)) +
+state_market <- ggplot(
+  market_avg, aes(x = factor(year_group), 
+                  y = avg_market_prevalence, 
+                  fill = code)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "", 
        y = "Average Market Prevalence (in grams)", 
@@ -78,15 +99,23 @@ print(state_market)
 # Save the plot
 ggsave("state_market.png", plot = state_market)
 
-# Extract the yearly averages
-yearly_averages <- state_data_agg %>%
-  group_by(year_group) %>%
-  summarise(avg_wholesale = mean(wholesale, na.rm = TRUE),
-            avg_retail = mean(retail, na.rm = TRUE),
-            avg_seizure_log = mean(seizure_log, na.rm = TRUE)
-  )
+# Statistical Test 
+subset_data <- market_avg %>%
+  select(code, un1971, avg_wholesale, avg_retail, avg_seizure_log, avg_market_prevalence)
 
-# Print the yearly averages
-print(yearly_averages)
+indicators <- c("avg_wholesale", "avg_retail", "avg_seizure_log", "avg_market_prevalence")
+
+for (indicator in indicators) {
+  cat("T-test for", indicator, "\n")
+  
+  t_test_results <- t.test(subset_data[[indicator]] ~ subset_data$un1971)
+  
+  cat("Group 0 (Not signed):\n")
+  cat("  Mean:", mean(subset_data[subset_data$un1971 == 0, indicator]), "\n")
+  cat("Group 1 (Signed):\n")
+  cat("  Mean:", mean(subset_data[subset_data$un1971 == 1, indicator]), "\n")
+  print(t_test_results)
+  cat("\n")
+}
 
 # End
