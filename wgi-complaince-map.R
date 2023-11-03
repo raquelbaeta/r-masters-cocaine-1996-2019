@@ -48,7 +48,8 @@ europeCoords <- do.call("rbind", europeCoords)
 europeCoords$code <- countrycode(europeCoords$region, "country.name", "iso3c")
 
 # Create a ggplot object with the coordinates
-p <- ggplot(data = europeCoords, aes(x = long, y = lat, group = region))
+p <- ggplot(data = europeCoords, 
+            aes(x = long, y = lat, group = region))
 
 # Add polygons with a fill color and a white border
 p <- p + geom_polygon(fill = "steelblue", color = "white")
@@ -60,8 +61,14 @@ p <- p + coord_cartesian(xlim = c(-25, 40), ylim = c(35, 70))
 p <- p + theme_void()
 
 # Add country codes as labels using geom_text
-country_centroids <- aggregate(cbind(long, lat) ~ region, data = europeCoords, FUN = function(x) mean(range(x)))
-p <- p + geom_text(data = country_centroids, aes(label = region, x = long, y = lat), size = 3, fontface = "bold")
+country_centroids <- aggregate(cbind(long, lat) ~ region, 
+                               data = europeCoords, 
+                               FUN = function(x) mean(range(x)))
+
+p <- p + geom_text(data = country_centroids, 
+                   aes(label = region, x = long, y = lat), 
+                   size = 3, 
+                   fontface = "bold")
 
 # Display the plot
 print(p)
@@ -93,10 +100,13 @@ missing_regions <- sum(is.na(wgi_map_data$region))
 wgi_map_data <- na.omit(wgi_map_data)
 
 # Merge the europeCoords data frame with europeCoords
-europeCoords <- left_join(europeCoords, wgi_map_data, by = c("region" = "region", "code" = "code"))
+europeCoords <- left_join(europeCoords, 
+                          wgi_map_data, 
+                          by = c("region" = "region", "code" = "code"))
 
 # Plot a basic graph
-p <- ggplot(data = europeCoords, aes(x = long, y = lat, group = region))
+p <- ggplot(data = europeCoords, 
+            aes(x = long, y = lat, group = region))
 
 # Add polygons with a fill color based on wgi_score and a white border
 p <- p + geom_polygon(aes(fill = wgi_score), color = "white")
@@ -115,8 +125,12 @@ p <- p + coord_cartesian(xlim = c(-25, 40), ylim = c(35, 70))
 p <- p + theme_void()
 
 # Add country codes as labels using geom_text
-country_centroids <- aggregate(cbind(long, lat) ~ region, data = europeCoords, FUN = function(x) mean(range(x)))
-p <- p + geom_text(data = country_centroids, aes(label = region, x = long, y = lat), size = 2.5, fontface = "bold")
+country_centroids <- aggregate(cbind(long, lat) ~ region, 
+                               data = europeCoords, 
+                               FUN = function(x) mean(range(x)))
+p <- p + geom_text(data = country_centroids, 
+                   aes(label = region, x = long, y = lat), 
+                   size = 2.5, fontface = "bold")
 
 # Add a title
 p <- p + labs(title = "An Overview of Governance, measured using World Governance Indicators (WGI)",
