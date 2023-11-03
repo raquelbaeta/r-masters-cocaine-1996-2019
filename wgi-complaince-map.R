@@ -1,19 +1,13 @@
-# Start
-
-# Thesis title: The Role of International Commitments in Combating the Illicit Distribution of Cocaine.
-# Author: Raquel Baeta
-
 # Set the working directory
 setwd("~/Desktop/working-sessions")
 
-# Libaries
-library(dplyr)
-library(rworldmap)
-library(countrycode)
-library(ggplot2)
-library(wesanderson)
-library(scales)
-
+# Load required libraries
+library(dplyr) # manipulation
+library(rworldmap) # mapping 
+library(countrycode) # iso3 country codes
+library(ggplot2) # plotting
+library(wesanderson) # colour palette
+library(scales) # scales for gradients
 
 # Remove all rows with "France" or "Italy" in the country column
 complete_data <- complete_data %>%
@@ -61,15 +55,11 @@ p <- p + coord_cartesian(xlim = c(-25, 40), ylim = c(35, 70))
 p <- p + theme_void()
 
 # Add country codes as labels using geom_text
-
-# Calculate the centroid of each country
 country_centroids <- aggregate(cbind(long, lat) ~ region, data = europeCoords, FUN = function(x) mean(range(x)))
-
-# Use the new data frame in the geom_text command
 p <- p + geom_text(data = country_centroids, aes(label = region, x = long, y = lat), size = 3, fontface = "bold")
 
 # Display the plot
-p
+print(p)
 
 # Get a Wes Anderson palette
 wes_palette <- rev(wesanderson::wes_palette("GrandBudapest2"))
@@ -97,13 +87,13 @@ missing_regions <- sum(is.na(wgi_map_data$region))
 # Omit any na's 
 wgi_map_data <- na.omit(wgi_map_data)
 
-# Merge the europeCoords data frame with complete_data
+# Merge the europeCoords data frame with europeCoords
 europeCoords <- left_join(europeCoords, wgi_map_data, by = c("region" = "region", "code" = "code"))
 
 # Plot a basic graph
 p <- ggplot(data = europeCoords, aes(x = long, y = lat, group = region))
 
-# Add polygons with a fill color based on wgi_score and a black border
+# Add polygons with a fill color based on wgi_score and a white border
 p <- p + geom_polygon(aes(fill = wgi_score), color = "white")
 
 # Add a gradient scale for wgi_score
@@ -113,7 +103,6 @@ p <- p + scale_fill_gradientn(colors = wes_palette,
                                                  max(europeCoords$wgi_score, na.rm = TRUE))),
                               name = "WGI Avg. Score")  # Rename the legend
 
- 
 # Set the coordinate limits to zoom in on Europe
 p <- p + coord_cartesian(xlim = c(-25, 40), ylim = c(35, 70))
 
@@ -121,11 +110,7 @@ p <- p + coord_cartesian(xlim = c(-25, 40), ylim = c(35, 70))
 p <- p + theme_void()
 
 # Add country codes as labels using geom_text
-                               
-# Calculate the centroid of each country
 country_centroids <- aggregate(cbind(long, lat) ~ region, data = europeCoords, FUN = function(x) mean(range(x)))
-
-# Use the new data frame in the geom_text command
 p <- p + geom_text(data = country_centroids, aes(label = region, x = long, y = lat), size = 2.5, fontface = "bold")
 
 # Add a title
@@ -133,33 +118,27 @@ p <- p + labs(title = "An Overview of Governance, measured using World Governanc
               subtitle = "The average World Governance Indicator (WGI) score of each European state from 1996 and 2018")
 
 # View graph
-p
+print(p)
 
 # Save the plots to a file
 ggsave("governance_avg.png", plot = p, width = 7, height = 6, dpi = 600)
 
-
 # Statistical Testing 
-
-# Subset your data to include only the relevant columns
 subset_data <- europeCoords %>%
   select(region, un1971, seizure_log, va_est, pv_est, ge_est, rq_est, rl_est, cc_est, wgi_score)
 
-# Perform t-tests for each WGI indicator
 indicators <- c("seizure_log", "va_est", "pv_est", "ge_est", "rq_est", "rl_est", "cc_est", "wgi_score")
 
 for (indicator in indicators) {
   cat("T-test for", indicator, "\n")
   
-  # Perform t-test
   t_test_results <- t.test(subset_data[[indicator]] ~ subset_data$un1971)
   
-  # Print the results
   cat("Group 0 (Not signed):\n")
   cat("  Mean:", mean(subset_data[subset_data$un1971 == 0, indicator]), "\n")
   cat("Group 1 (Signed):\n")
   cat("  Mean:", mean(subset_data[subset_data$un1971 == 1, indicator]), "\n")
-  print(t_test_result)
+  print(t_test_results)
   cat("\n")
 }
 
