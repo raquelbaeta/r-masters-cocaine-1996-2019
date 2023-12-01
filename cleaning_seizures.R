@@ -1,6 +1,6 @@
 # Start
 
-# Install necessary libraries if not already installed
+# Install libraries
 install.packages("readxl")
 install.packages("tidyverse")
 
@@ -22,8 +22,7 @@ columns_to_fill <- c("region",
 
 # Fill missing values using a top-down approach
 filled_data <- cocaine_data %>%
-  fill(!!columns_to_fill, 
-       .direction = "down")
+  fill(!!columns_to_fill, .direction = "down")
 
 # Show the filled data
 print(filled_data)
@@ -41,16 +40,15 @@ cocaine_data_long <- cocaine_data_filtered %>%
                names_to = "year", 
                values_to = "seizures")
 
-# Viewing the result
-print(cocaine_data_long)
+print(cocaine_data_long) # Viewing the result
 summary(cocaine_data_long) # check seizure observations
 
 # Remove data
 rm(cocaine_data, filled_data, cocaine_data_filtered)
 
-# Assuming your data frame is named cocaine_data_long
+# Re
 cocaine_data_long <- cocaine_data_long %>%
-  mutate(merged_drug = ifelse(!is.na(drug_type), drug_type, drug))
+  mutate(merged_drug = ifelse(!is.na(drug_group), drug_group, drug))
 
 # Now you can remove the original drug-type and drug columns if needed
 cocaine_data_long <- cocaine_data_long %>%
