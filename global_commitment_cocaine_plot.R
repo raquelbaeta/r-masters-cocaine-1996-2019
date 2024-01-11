@@ -1,8 +1,7 @@
 # Start 
 
 # Install packages
-install.packages(c("readr", "countrycode", "tidyverse", "dplyr", "ggplot2", 
-                   "sf", "ggspatial"))
+install.packages(c("readr", "countrycode", "tidyverse", "dplyr", "ggplot2", "sf", "ggspatial"))
 
 # Load packages
 library(readr) # reading CSV
@@ -27,8 +26,7 @@ head(WorldMap)
 # Rename 
 colnames(WorldMap)[colnames(WorldMap) == "region"] <- "country"
 
-WorldMap$code <- countrycode(
-  sourcevar = WorldMap$country, origin = "country.name", destination = "iso3c")
+WorldMap$code <- countrycode(sourcevar = WorldMap$country, origin = "country.name", destination = "iso3c")
 
 # Load data
 data <- read_csv("~/Desktop/working-sessions/cleaning_data/cleaned_data.csv")
@@ -47,8 +45,7 @@ WorldData <- left_join(WorldMap, commitment_mapping, by = c("code" = "code"))
 head(WorldData)
 
 # Remove unwanted columns
-WorldData <- subset(
-  WorldData, select = -c(country.x, subregion))
+WorldData <- subset(WorldData, select = -c(country.x, subregion))
 
 # Rename 
 colnames(WorldData)[colnames(WorldData) == "country.y"] <- "country"
@@ -57,17 +54,17 @@ head(WorldData)
 
 # Plot the map with fill based on "any_UN"
 convention_commitment_map <- ggplot(WorldData, aes(x = long, y = lat, group = group)) +
-  geom_polygon(aes(fill = factor(any_UN)), color = "gray90", size = 0.3) +
-  labs(fill = "") + 
-  xlab("Longitude") + 
-  ylab("Latitude") +
-  scale_fill_manual(values = c("0" = "#C7B8E6", "1" = "#B3446C"),
-                    labels = c("Committed to None", "Committed to One")) +
+  geom_polygon(aes(
+    fill = factor(any_UN)), color = "gray90", size = 0.3) +
+    labs(fill = "") + 
+    xlab("Longitude") + 
+    ylab("Latitude") +
+  scale_fill_manual(
+    values = c("0" = "#C7B8E6", "1" = "#B3446C"), labels = c("Committed to None", "Committed to One")) +
   theme_minimal() +
-  theme(legend.position = "top",
-        panel.grid.major = element_line(color = "gray90", linetype = "dashed"),
-        legend.title = element_text(size = 12, margin = margin(t = 5)),
-        legend.text = element_text(size = 10)) +
+  theme(
+    legend.position = "top", panel.grid.major = element_line(color = "gray90", linetype = "dashed"),
+        legend.title = element_text(size = 12, margin = margin(t = 5)), legend.text = element_text(size = 10)) +
   ggtitle("Global Distribution of United Nations Drug Control Convention Commitments",
           subtitle = "Nations shaded by their commitment to the 1961, 1971, and 1988 Conventions.") 
 
@@ -75,10 +72,8 @@ convention_commitment_map <- ggplot(WorldData, aes(x = long, y = lat, group = gr
 convention_commitment_map
 
 # Save the plot as a PDF
-ggsave("convention_commitment_map.pdf", 
-       plot = convention_commitment_map, width = 10, height = 6)
-ggsave("convention_commitment_map.png", 
-       plot = convention_commitment_map, width = 10, height = 6)
+ggsave("convention_commitment_map.pdf", plot = convention_commitment_map, width = 10, height = 6)
+ggsave("convention_commitment_map.png", plot = convention_commitment_map, width = 10, height = 6)
 
 # End of Commitment 
 
@@ -87,9 +82,7 @@ ggsave("convention_commitment_map.png",
 #
 
 # Create a categorical variable for mean_seizures
-print(WorldData$mean_seizures_cat <- cut(
-  WorldData$mean_seizures, 5, 
-  labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High")))
+print(WorldData$mean_seizures_cat <- cut(WorldData$mean_seizures, 5, labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High")))
 
 # then uses summarize to calculate the mean of "mean_seizures" within each group
 print(WorldData %>%
@@ -113,45 +106,32 @@ centroids_df <- st_as_sf(data.frame(centroid = centroids))
 combined_data <- cbind(WorldData_sf, st_coordinates(centroids_df))
 
 # Impute missing values with the mean
-combined_data$mean_seizures_cat[is.na(
-  combined_data$mean_seizures_cat)] <- mean(
-    combined_data$mean_seizures_cat, na.rm = TRUE)
+combined_data$mean_seizures_cat[is.na(combined_data$mean_seizures_cat)] <- mean(combined_data$mean_seizures_cat, na.rm = TRUE)
 
 # Plot again
 ggplot() +
   geom_sf(data = combined_data, aes(fill = factor(any_UN)), color = "white", size = 0.2) +
   geom_sf(data = combined_data, aes(color = factor(any_UN)), size = 0.2) +
   geom_sf(data = combined_data, aes(size = mean_seizures_cat), color = "#972D15", alpha = 0.5) +
-  scale_fill_manual(values = c("0" = "#c4d1cb", "1" = "#79ae97"),
-                    labels = c("Committed to None", "Committed to One")) +
+  scale_fill_manual(values = c("0" = "#c4d1cb", "1" = "#79ae97"), labels = c("Committed to None", "Committed to One")) +
   labs(fill = "Status of Commitment") + 
   theme_minimal() +
-  theme(
-    legend.title = element_text(size = 10),
-    legend.text = element_text(size = 8),
-    legend.position = "top"
-  ) +
+  theme(legend.title = element_text(size = 10), legend.text = element_text(size = 8), legend.position = "top") +
   ggtitle("United Nations Convention Commitment and Seizure Map", 
           subtitle = "Shading based on annual average cocaine seizures (in kgs) from 1996 to 2019") +
   xlab("Longitude") + 
   ylab("Latitude") +
   guides(size = guide_legend(title = "Average Cocaine Seizures")) +
-  scale_size_manual(values = c("Low" = 1, "Low-Medium" = 2, "Medium" = 4,  
-                               "Medium-High" = 6, "High" = 8),
-                    breaks = c("Low", "Low-Medium", "Medium", 
-                               "Medium-High", "High"),
-                    labels = c("Low (0 kgs)", 
-                               "Low-Medium (93,125 kgs)", 
-                               "Medium (186,250 kgs)", 
-                               "Medium-High (279,375 kgs)",
-                               "High (373,001 kgs)"),
-                    guide = "legend") +
+  scale_size_manual(
+    values = c("Low" = 1, "Low-Medium" = 2, "Medium" = 4, "Medium-High" = 6, "High" = 8),
+    breaks = c("Low", "Low-Medium", "Medium", "Medium-High", "High"),
+    labels = c("Low (0 kgs)", "Low-Medium (93,125 kgs)", "Medium (186,250 kgs)", "Medium-High (279,375 kgs)", "High (373,001 kgs)"),
+    guide = "legend") +
   theme(legend.position = "right")
 
 seizure_convention_commitment_map
 
 # Save the plot as a PDF
-ggsave("seizure_convention_commitment_map.pdf", 
-       plot = seizure_convention_commitment_map, width = 10, height = 6)
+ggsave("seizure_convention_commitment_map.pdf", plot = seizure_convention_commitment_map, width = 10, height = 6)
 
 # End
