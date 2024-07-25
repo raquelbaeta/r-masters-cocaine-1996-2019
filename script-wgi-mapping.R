@@ -39,14 +39,12 @@ grouped_data_3yr_country <- data %>%
 
 # Fill missing values in "year_interval_3yr"
 grouped_data_3yr_country$year_interval_3yr <- ifelse(
-  is.na(grouped_data_3yr_country$year_interval_3yr), "2017-2019",
-  grouped_data_3yr_country$year_interval_3yr
+  is.na(grouped_data_3yr_country$year_interval_3yr), "2017-2019", grouped_data_3yr_country$year_interval_3yr
 )
 
 # Calculate the average of the six columns and create a new column called "wgi"
 grouped_data_3yr_country$mean_wgi <- rowMeans(
-  grouped_data_3yr_country[, c("mean_CC_EST", "mean_GE_EST", "mean_RQ_EST", "mean_RL_EST", "mean_VA_EST", "mean_PV_EST")],
-  na.rm = TRUE
+  grouped_data_3yr_country[, c("mean_CC_EST", "mean_GE_EST", "mean_RQ_EST", "mean_RL_EST", "mean_VA_EST", "mean_PV_EST")], na.rm = TRUE
 )
 
 # Identify and count duplicate rows within each group
@@ -78,11 +76,7 @@ wgi_world_mapping$mean_wgi <- cut(
 )
 
 # Define individual colors for each category
-colors <- c("Very Low" = "#B3446C",
-            "Low" = "#DC3545",
-            "Medium" = "#F08030",
-            "High" = "#FFC107",
-            "Very High" = "#C7B8E6")
+colors <- c("Very Low" = "#B3446C", "Low" = "#DC3545", "Medium" = "#F08030", "High" = "#FFC107", "Very High" = "#C7B8E6")
 
 # Create the plot with dots
 wgi_plot <- ggplot() +
@@ -106,7 +100,9 @@ print(wgi_plot)
 ggsave("avg_wgi_plot_region_plot.pdf", plot = wgi_plot, width = 12, height = 8)
 ggsave("avg_wgi_plot_region_plot.png", plot = wgi_plot, width = 12, height = 8)
 
+#
 # Plot Indicators by Region
+#
 
 # Define custom labels for year intervals
 custom_labels <- c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", "2011-2013", "2014-2016", "2017-2019")
@@ -128,8 +124,7 @@ last_points <- grouped_data_3yr_country_mean_CC_EST %>%
 mean_cc_est_plot <- ggplot(
   grouped_data_3yr_country_mean_CC_EST,
   aes(x = year_interval_3yr, y = mean_CC_EST, fill = region, group = region)) +
-  geom_ribbon(
-    aes(ymin = 0, ymax = mean_CC_EST), alpha = 0.2) +
+  geom_ribbon(aes(ymin = 0, ymax = mean_CC_EST), alpha = 0.2) +
   geom_hline(yintercept = 0, color = "#FF0000", alpha = 0.5) +
   geom_text(
     data = last_points, 
@@ -199,25 +194,21 @@ mean_GE_est_plot <- ggplot(
     legend.position = "top",
     plot.title = element_text(size = 16),
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
-    panel.border = element_blank()
-  ) +
+    panel.border = element_blank()) +
   scale_fill_manual(values = colors, name = "") +
   scale_x_discrete(labels = custom_labels) +
   scale_y_continuous(
     breaks = seq(
       min(grouped_data_3yr_country_mean_GE_EST$mean_GE_EST, na.rm = TRUE),
       max(grouped_data_3yr_country_mean_GE_EST$mean_GE_EST, na.rm = TRUE),
-      by = 0.2
-    ),
+      by = 0.2),
     labels = scales::number_format(accuracy = 0.1)
   )
 
 # Print and save the plot
 print(mean_GE_est_plot)
-ggsave("avg_mean_GE_est_region_plot.pdf", 
-       plot = mean_GE_est_plot, width = 12, height = 8)
-ggsave("avg_mean_GE_est_region_plot.png", 
-       plot = mean_GE_est_plot, width = 12, height = 8)
+ggsave("avg_mean_GE_est_region_plot.pdf", plot = mean_GE_est_plot, width = 12, height = 8)
+ggsave("avg_mean_GE_est_region_plot.png", plot = mean_GE_est_plot, width = 12, height = 8)
 
 # [3] RQ Est
 grouped_data_3yr_country_mean_RQ_EST <- grouped_data_3yr_country %>%
@@ -266,10 +257,8 @@ mean_RQ_est_plot <- ggplot(
 
 # Print and save the plot
 print(mean_RQ_est_plot)
-ggsave("avg_mean_RQ_est_region_plot.pdf", 
-       plot = mean_RQ_est_plot, width = 12, height = 8)
-ggsave("avg_mean_RQ_est_region_plot.png", 
-       plot = mean_RQ_est_plot, width = 12, height = 8)
+ggsave("avg_mean_RQ_est_region_plot.pdf", plot = mean_RQ_est_plot, width = 12, height = 8)
+ggsave("avg_mean_RQ_est_region_plot.png", plot = mean_RQ_est_plot, width = 12, height = 8)
 
 # [4] RL Est
 grouped_data_3yr_country_mean_RL_EST <- grouped_data_3yr_country %>%
@@ -355,16 +344,14 @@ mean_VA_est_plot <- ggplot(
     legend.position = "top",
     plot.title = element_text(size = 16),
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
-    panel.border = element_blank()
-  ) +
+    panel.border = element_blank()) +
   scale_fill_manual(values = colors, name = "") +
   scale_x_discrete(labels = custom_labels) +
   scale_y_continuous(
     breaks = seq(
       min(grouped_data_3yr_country_mean_VA_EST$mean_VA_EST, na.rm = TRUE),
       max(grouped_data_3yr_country_mean_VA_EST$mean_VA_EST, na.rm = TRUE),
-      by = 0.2
-    ),
+      by = 0.2),
     labels = scales::number_format(accuracy = 0.1)
   )
 
