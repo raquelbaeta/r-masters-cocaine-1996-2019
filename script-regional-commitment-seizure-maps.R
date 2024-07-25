@@ -5,8 +5,9 @@
 # date: "2024-07-25"
 
 # Install packages
-install.packages(c("readr", "countrycode", "tidyverse", "dplyr", "ggplot2", "sf", "ggspatial", "rworldmap", "rworldxtra",
-                   "RColorBrewer", "maptools", "classInt", "ggtext"))
+install.packages(
+  c("readr", "countrycode", "tidyverse", "dplyr", "ggplot2", "sf", "ggspatial", "rworldmap", "rworldxtra", "RColorBrewer", "maptools", 
+    "classInt", "ggtext"))
 install.packages("https://cran.rstudio.com/bin/macosx/big-sur-x86_64/contrib/4.3/rworldmap_1.3-8.tgz", 
                  repos = NULL, type = "source")
 
