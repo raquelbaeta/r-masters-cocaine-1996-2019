@@ -9,8 +9,7 @@
 setwd("~/Desktop/working-sessions/maps_thesis")
 
 
-# Groups the dataset by region, 3-year intervals, and code, calculating means 
-# for seizures, GDP, military expenditures, and trade ratio.
+# Groups the dataset by region, 3-year intervals, and code, calculating means for seizures, GDP, military expenditures, and trade ratio.
 print(grouped_data_3yr_region <- data %>%
         group_by(region, year_interval_3yr, code) %>%
         dplyr::summarise(
@@ -21,19 +20,15 @@ print(grouped_data_3yr_region <- data %>%
 )
 
 # Handle Missing Data
-grouped_data_3yr_region$year_interval_3yr <- factor(
-  grouped_data_3yr_region$year_interval_3yr)
-missing_rows <- anti_join(
-  grouped_data_3yr_region, na.omit(grouped_data_3yr_region))
+grouped_data_3yr_region$year_interval_3yr <- factor(grouped_data_3yr_region$year_interval_3yr)
+missing_rows <- anti_join(grouped_data_3yr_region, na.omit(grouped_data_3yr_region))
 print(missing_rows)
 
 grouped_data_3yr_region$year_interval_3yr <- ifelse(
-  is.na(grouped_data_3yr_region$year_interval_3yr), "8",
-  grouped_data_3yr_region$year_interval_3yr)
+        is.na(grouped_data_3yr_region$year_interval_3yr), "8", grouped_data_3yr_region$year_interval_3yr)
 
 # Converts year_interval_3yr to a factor for proper x-axis ordering, identifies, 
 # and handles missing values.
-
 
 # Set custom color palettes
 trade_ratio_palette <- c("#007BFF", "#38A3A5", "#DC3545", "#B3446C", "#F08030", "#FFC107", "#C7B8E6")
@@ -74,19 +69,15 @@ trade_ratio_gdp <- ggplot(
   theme(legend.position = "top",
         plot.title = element_text(size = 16),
         axis.text.x = element_text(hjust = 0.5), 
-        panel.grid.major = element_line(
-          color = "lightgray", linetype = "dashed"),
-        strip.background = element_rect(
-          color = "lightgray", fill = "white", size = 1)) +
+        panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
+        strip.background = element_rect(color = "lightgray", fill = "white", size = 1)) +
   facet_wrap(~any_UN, scales = "free_y", ncol = 2)
 
 # Print
 print(trade_ratio_gdp)
 
 # Save Plot as a PDF/PNG
-ggsave("region_trade_ratio_gdp_region_plot.pdf", 
-       plot = trade_ratio_gdp, width = 12, height = 11)
-ggsave("region_trade_ratio_gdp_region_plot.png", 
-       plot = trade_ratio_gdp, width = 14, height = 11)
+ggsave("region_trade_ratio_gdp_region_plot.pdf", plot = trade_ratio_gdp, width = 12, height = 11)
+ggsave("region_trade_ratio_gdp_region_plot.png", plot = trade_ratio_gdp, width = 14, height = 11)
 
 # End
