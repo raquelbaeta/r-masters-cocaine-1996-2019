@@ -4,10 +4,8 @@
 # author: "Raquel Baeta"
 # date: "2024-07-25"
 
-
 # Set the working directory
 setwd("~/Desktop/working-sessions/maps_thesis")
-
 
 # Groups the dataset by region, 3-year intervals, and code, calculating means for seizures, GDP, military expenditures, and trade ratio.
 print(grouped_data_3yr_region <- data %>%
