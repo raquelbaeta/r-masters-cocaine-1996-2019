@@ -45,8 +45,7 @@ print(missing_rows)
 
 # Fill missing values in "year_interval_3yr" with a placeholder text
 grouped_data_3yr_country$year_interval_3yr <- ifelse(
-  is.na(grouped_data_3yr_country$year_interval_3yr), "2017-2019",
-  as.character(grouped_data_3yr_country$year_interval_3yr))
+  is.na(grouped_data_3yr_country$year_interval_3yr), "2017-2019", as.character(grouped_data_3yr_country$year_interval_3yr))
 
 head(grouped_data_3yr_country, n = 10)
 
@@ -66,54 +65,61 @@ filtered_east_asia_pacific_averages <- filtered_east_asia_pacific_data %>%
 
 # Plot
 east_asia_pacific_wgi_estimates_plot <- ggplot(
-  filtered_east_asia_pacific_averages, aes(x = year_interval_3yr)) +
-  
-  geom_point(aes(y = mean_CC_EST, color = "mean_CC_EST"), size = 3) +
-  
+  filtered_east_asia_pacific_averages, 
+  aes(x = year_interval_3yr)) +
+
+  geom_point(
+    aes(y = mean_CC_EST, color = "mean_CC_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_CC_EST, color = "mean_CC_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
-  
-  geom_point(aes(y = mean_GE_EST, color = "mean_GE_EST"), size = 3) +
-  
+    
+  geom_point(
+    aes(y = mean_GE_EST, color = "mean_GE_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_GE_EST, color = "mean_GE_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
-  
-  geom_point(aes(y = mean_RQ_EST, color = "mean_RQ_EST"), size = 3) +
-  
+    
+  geom_point(
+    aes(y = mean_RQ_EST, color = "mean_RQ_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RQ_EST, color = "mean_RQ_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
-  
-  geom_point(aes(y = mean_RL_EST, color = "mean_RL_EST"), size = 3) +
-  
+    
+  geom_point(
+    aes(y = mean_RL_EST, color = "mean_RL_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RL_EST, color = "mean_RL_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
-  
-  geom_point(aes(y = mean_VA_EST, color = "mean_VA_EST"), size = 3) +
-  
+    
+  geom_point(
+    aes(y = mean_VA_EST, color = "mean_VA_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_VA_EST, color = "mean_VA_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
-  
-  geom_point(aes(y = mean_PV_EST, color = "mean_PV_EST"), size = 3) +
-  
+    
+  geom_point(
+    aes(y = mean_PV_EST, color = "mean_PV_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_PV_EST, color = "mean_PV_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
-  
-  geom_hline(
-    yintercept = 0, 
-    color = "#DC3545", 
-    alpha = 0.8) +
+    
+geom_hline(
+  yintercept = 0, 
+  color = "#DC3545", 
+  alpha = 0.8) +
   
   labs(
     title = stringr::str_wrap("Dynamics of Governance in East Asia & Pacific: Comparing Indicator Trends and Commitment to United Nations Conventions", width = 70),
@@ -121,7 +127,7 @@ east_asia_pacific_wgi_estimates_plot <- ggplot(
     y = "Mean WGI Indicator Estimates",
     x = "",
     caption = "Source: Baeta, using data from World Bank, World Development Indicators, and United Nations (2024)"
-    ) +
+  ) +
   
   scale_color_manual(
     name = "",
@@ -140,23 +146,26 @@ east_asia_pacific_wgi_estimates_plot <- ggplot(
     ) +
   
   theme_minimal() +
-  theme(
-    panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
-    plot.title = element_text(size = 16),
-    legend.position = "top",
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(
-      fill = "#ffffff", 
-      color = "lightgrey", 
-      size = 1, 
-      linetype = "solid")) +
-  scale_x_discrete(
+ 
+theme(
+  panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
+  plot.title = element_text(size = 16),
+  legend.position = "top",
+  strip.text = element_text(face = "bold"),
+  strip.background = element_rect(
+    fill = "#ffffff", 
+    color = "lightgrey", 
+    size = 1, 
+    linetype = "solid")) +
+  
+scale_x_discrete(
     breaks = unique(filtered_east_asia_pacific_averages$year_interval_3yr),
-    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", 
-               "2011-2013", "2014-2016", "2017-2019")
+    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", "2011-2013", "2014-2016", "2017-2019")
     ) +
   
-  facet_wrap(~any_UN, scales = "free_y", ncol = 1)
+  facet_wrap(~any_UN, 
+             scales = "free_y", 
+             ncol = 1)
 
 print(east_asia_pacific_wgi_estimates_plot)
 
@@ -179,37 +188,49 @@ filtered_europe_central_asia_averages <- filtered_europe_central_asia_data %>%
 europe_central_asia_wgi_estimates_plot <- ggplot(
   filtered_europe_central_asia_averages, aes(x = year_interval_3yr)) +
   
-  geom_point(aes(y = mean_CC_EST, color = "mean_CC_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_CC_EST, color = "mean_CC_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_CC_EST, color = "mean_CC_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_GE_EST, color = "mean_GE_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_GE_EST, color = "mean_GE_EST"),
+    size = 3) +
   geom_line(
     aes(y = mean_GE_EST, color = "mean_GE_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RQ_EST, color = "mean_RQ_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RQ_EST, color = "mean_RQ_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RQ_EST, color = "mean_RQ_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RL_EST, color = "mean_RL_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RL_EST, color = "mean_RL_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RL_EST, color = "mean_RL_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_VA_EST, color = "mean_VA_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_VA_EST, color = "mean_VA_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_VA_EST, color = "mean_VA_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_PV_EST, color = "mean_PV_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_PV_EST, color = "mean_PV_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_PV_EST, color = "mean_PV_EST", group = any_UN), 
     size = 2.5, 
@@ -223,7 +244,7 @@ europe_central_asia_wgi_estimates_plot <- ggplot(
     y = "Mean WGI Indicator Estimates",
     x = "",
     caption = "Source: Baeta, using data from World Bank, World Development Indicators, and United Nations (2024)"
-    ) +
+  ) +
   
   scale_color_manual(
     name = "",
@@ -242,23 +263,25 @@ europe_central_asia_wgi_estimates_plot <- ggplot(
     ) +
   
   theme_minimal() +
+  
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
     plot.title = element_text(size = 16),
     legend.position = "top",
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(
-      fill = "#ffffff", 
-      color = "lightgrey", 
-      size = 1, 
-      linetype = "solid")) +
-  scale_x_discrete(
-    breaks = unique(filtered_europe_central_asia_averages$year_interval_3yr),
-    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010",
-               "2011-2013", "2014-2016", "2017-2019")
+        fill = "#ffffff", 
+        color = "lightgrey", 
+        size = 1, 
+        linetype = "solid")) +
+    scale_x_discrete(
+      breaks = unique(filtered_europe_central_asia_averages$year_interval_3yr),
+      labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", "2011-2013", "2014-2016", "2017-2019")
     ) +
   
-  facet_wrap(~any_UN, scales = "free_y", ncol = 1)
+  facet_wrap(~any_UN, 
+             scales = "free_y", 
+             ncol = 1)
 
 print(europe_central_asia_wgi_estimates_plot)
 
@@ -281,37 +304,49 @@ filtered_sub_saharan_africa_averages <- filtered_sub_saharan_africa_data %>%
 sub_saharan_africa_wgi_estimates_plot <- ggplot(
   filtered_sub_saharan_africa_averages, aes(x = year_interval_3yr)) +
   
-  geom_point(aes(y = mean_CC_EST, color = "mean_CC_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_CC_EST, color = "mean_CC_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_CC_EST, color = "mean_CC_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_GE_EST, color = "mean_GE_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_GE_EST, color = "mean_GE_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_GE_EST, color = "mean_GE_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RQ_EST, color = "mean_RQ_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RQ_EST, color = "mean_RQ_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RQ_EST, color = "mean_RQ_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RL_EST, color = "mean_RL_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RL_EST, color = "mean_RL_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RL_EST, color = "mean_RL_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_VA_EST, color = "mean_VA_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_VA_EST, color = "mean_VA_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_VA_EST, color = "mean_VA_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_PV_EST, color = "mean_PV_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_PV_EST, color = "mean_PV_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_PV_EST, color = "mean_PV_EST", group = any_UN), 
     size = 2.5, 
@@ -325,7 +360,7 @@ sub_saharan_africa_wgi_estimates_plot <- ggplot(
     y = "Mean WGI Indicator Estimates",
     x = "",
     caption = "Source: Baeta, using data from World Bank, World Development Indicators, and United Nations (2024)"
-    ) +
+  ) +
   
   scale_color_manual(
     name = "",
@@ -335,6 +370,7 @@ sub_saharan_africa_wgi_estimates_plot <- ggplot(
                "mean_RL_EST" = "#C7B8E6",
                "mean_VA_EST" = "#F08030",
                "mean_PV_EST" = "#FFC107"),
+   
     labels = c("mean_CC_EST" = "Control of Corruption",
                "mean_GE_EST" = "Government Effectiveness",
                "mean_RQ_EST" = "Regulatory Quality",
@@ -344,19 +380,22 @@ sub_saharan_africa_wgi_estimates_plot <- ggplot(
     ) +
   
   theme_minimal() +
+  
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
     plot.title = element_text(size = 16),
     legend.position = "top",
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "#ffffff", color = "lightgrey", size = 1, linetype = "solid")) +
+  
   scale_x_discrete(
     breaks = unique(filtered_sub_saharan_africa_averages$year_interval_3yr),
-    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010",
-               "2011-2013", "2014-2016", "2017-2019")
+    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", "2011-2013", "2014-2016", "2017-2019")
     ) +
   
-  facet_wrap(~any_UN, scales = "free_y", ncol = 1)
+  facet_wrap(~any_UN, 
+             scales = "free_y", 
+             ncol = 1)
 
 print(sub_saharan_africa_wgi_estimates_plot)
 
@@ -389,37 +428,49 @@ filtered_middle_east_north_africa_averages <- filtered_middle_east_north_africa_
 middle_east_north_africa_wgi_esitmates_plot <- ggplot(
   filtered_middle_east_north_africa_averages, aes(x = year_interval_3yr)) +
   
-  geom_point(aes(y = mean_CC_EST, color = "mean_CC_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_CC_EST, color = "mean_CC_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_CC_EST, color = "mean_CC_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_GE_EST, color = "mean_GE_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_GE_EST, color = "mean_GE_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_GE_EST, color = "mean_GE_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RQ_EST, color = "mean_RQ_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RQ_EST, color = "mean_RQ_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RQ_EST, color = "mean_RQ_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RL_EST, color = "mean_RL_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RL_EST, color = "mean_RL_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RL_EST, color = "mean_RL_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_VA_EST, color = "mean_VA_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_VA_EST, color = "mean_VA_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_VA_EST, color = "mean_VA_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_PV_EST, color = "mean_PV_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_PV_EST, color = "mean_PV_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_PV_EST, color = "mean_PV_EST", group = any_UN), 
     size = 2.5, 
@@ -443,6 +494,7 @@ middle_east_north_africa_wgi_esitmates_plot <- ggplot(
                "mean_RL_EST" = "#C7B8E6",
                "mean_VA_EST" = "#F08030",
                "mean_PV_EST" = "#FFC107"),
+    
     labels = c("mean_CC_EST" = "Control of Corruption",
                "mean_GE_EST" = "Government Effectiveness",
                "mean_RQ_EST" = "Regulatory Quality",
@@ -452,6 +504,7 @@ middle_east_north_africa_wgi_esitmates_plot <- ggplot(
    ) +
   
   theme_minimal() +
+  
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
     plot.title = element_text(size = 16),
@@ -466,11 +519,12 @@ middle_east_north_africa_wgi_esitmates_plot <- ggplot(
   
   scale_x_discrete(
     breaks = unique(filtered_middle_east_north_africa_averages$year_interval_3yr),
-    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", 
-               "2011-2013", "2014-2016", "2017-2019")
-    ) +
+    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", "2011-2013", "2014-2016", "2017-2019")
+  ) +
   
-  facet_wrap(~any_UN, scales = "free_y", ncol = 1)
+  facet_wrap(~any_UN, 
+             scales = "free_y", 
+             ncol = 1)
 
 print(middle_east_north_africa_wgi_esitmates_plot)
 
@@ -501,37 +555,49 @@ filtered_north_america_averages <- filtered_north_america_data %>%
 north_america_wgi_esitmates_plot <- ggplot(
   filtered_north_america_averages, aes(x = year_interval_3yr)) +
   
-  geom_point(aes(y = mean_CC_EST, color = "mean_CC_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_CC_EST, color = "mean_CC_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_CC_EST, color = "mean_CC_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_GE_EST, color = "mean_GE_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_GE_EST, color = "mean_GE_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_GE_EST, color = "mean_GE_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RQ_EST, color = "mean_RQ_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RQ_EST, color = "mean_RQ_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RQ_EST, color = "mean_RQ_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RL_EST, color = "mean_RL_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RL_EST, color = "mean_RL_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RL_EST, color = "mean_RL_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_VA_EST, color = "mean_VA_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_VA_EST, color = "mean_VA_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_VA_EST, color = "mean_VA_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_PV_EST, color = "mean_PV_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_PV_EST, color = "mean_PV_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_PV_EST, color = "mean_PV_EST", group = any_UN), 
     size = 2.5, 
@@ -565,6 +631,7 @@ north_america_wgi_esitmates_plot <- ggplot(
   ) +
   
   theme_minimal() +
+  
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
     plot.title = element_text(size = 16),
@@ -579,11 +646,12 @@ north_america_wgi_esitmates_plot <- ggplot(
   
   scale_x_discrete(
     breaks = unique(filtered_north_america_averages$year_interval_3yr),
-    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", 
-               "2011-2013", "2014-2016", "2017-2019")
+    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", "2011-2013", "2014-2016", "2017-2019")
     ) +
   
-  facet_wrap(~any_UN, scales = "free_y", ncol = 1)
+  facet_wrap(~any_UN, 
+             scales = "free_y", 
+             ncol = 1)
 
 print(north_america_wgi_esitmates_plot)
 
@@ -614,37 +682,49 @@ filtered_south_asia_averages <- filtered_south_asia_data %>%
 south_asia_wgi_estimates_plot <- ggplot(
   filtered_south_asia_averages, aes(x = year_interval_3yr)) +
   
-  geom_point(aes(y = mean_CC_EST, color = "mean_CC_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_CC_EST, color = "mean_CC_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_CC_EST, color = "mean_CC_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_GE_EST, color = "mean_GE_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_GE_EST, color = "mean_GE_EST"),
+    size = 3) +
   geom_line(
     aes(y = mean_GE_EST, color = "mean_GE_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RQ_EST, color = "mean_RQ_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RQ_EST, color = "mean_RQ_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RQ_EST, color = "mean_RQ_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RL_EST, color = "mean_RL_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RL_EST, color = "mean_RL_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RL_EST, color = "mean_RL_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_VA_EST, color = "mean_VA_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_VA_EST, color = "mean_VA_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_VA_EST, color = "mean_VA_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_PV_EST, color = "mean_PV_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_PV_EST, color = "mean_PV_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_PV_EST, color = "mean_PV_EST", group = any_UN), 
     size = 2.5, 
@@ -657,7 +737,8 @@ south_asia_wgi_estimates_plot <- ggplot(
     subtitle = stringr::str_wrap("Mean estimates for WGI highlight potential differences between nations adhering to United Nations 1961, 1971 and 1988 Conventions and those not", width = 100),
     y = "Mean WGI Indicator Estimates",
     x = "",
-    caption = "Source: Baeta, using data from World Bank, World Development Indicators and United Nations (2024)") +
+    caption = "Source: Baeta, using data from World Bank, World Development Indicators and United Nations (2024)"
+  ) +
   
   scale_color_manual(
     name = "",
@@ -677,6 +758,7 @@ south_asia_wgi_estimates_plot <- ggplot(
     ) +
   
   theme_minimal() +
+  
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
     plot.title = element_text(size = 16),
@@ -691,11 +773,12 @@ south_asia_wgi_estimates_plot <- ggplot(
   
   scale_x_discrete(
     breaks = unique(filtered_south_asia_averages$year_interval_3yr),
-    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010",
-               "2011-2013", "2014-2016", "2017-2019")
+    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", "2011-2013", "2014-2016", "2017-2019")
     ) +
   
-  facet_wrap(~any_UN, scales = "free_y", ncol = 1)
+  facet_wrap(~any_UN, 
+             scales = "free_y", 
+             ncol = 1)
 
 print(south_asia_wgi_estimates_plot)
 
@@ -726,37 +809,49 @@ filtered_sub_saharan_africa_averages <- filtered_sub_saharan_africa_data %>%
 sub_saharan_africa_wgi_estimates_plot <- ggplot(
   filtered_sub_saharan_africa_averages, aes(x = year_interval_3yr)) +
   
-  geom_point(aes(y = mean_CC_EST, color = "mean_CC_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_CC_EST, color = "mean_CC_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_CC_EST, color = "mean_CC_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_GE_EST, color = "mean_GE_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_GE_EST, color = "mean_GE_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_GE_EST, color = "mean_GE_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RQ_EST, color = "mean_RQ_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RQ_EST, color = "mean_RQ_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RQ_EST, color = "mean_RQ_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_RL_EST, color = "mean_RL_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_RL_EST, color = "mean_RL_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_RL_EST, color = "mean_RL_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_VA_EST, color = "mean_VA_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_VA_EST, color = "mean_VA_EST"),
+    size = 3) +
   geom_line(
     aes(y = mean_VA_EST, color = "mean_VA_EST", group = any_UN), 
     size = 2.5, 
     alpha = 0.475) +
   
-  geom_point(aes(y = mean_PV_EST, color = "mean_PV_EST"), size = 3) +
+  geom_point(
+    aes(y = mean_PV_EST, color = "mean_PV_EST"), 
+    size = 3) +
   geom_line(
     aes(y = mean_PV_EST, color = "mean_PV_EST", group = any_UN), 
     size = 2.5, 
@@ -769,7 +864,8 @@ sub_saharan_africa_wgi_estimates_plot <- ggplot(
     subtitle = stringr::str_wrap("Mean estimates for WGI highlight potential differences between nations adhering to United Nations 1961, 1971 and 1988 Conventions and those not", width = 100),
     y = "Mean WGI Indicator Estimates",
     x = "",
-    caption = "Source: Baeta, using data from World Bank, World Development Indicators and United Nations (2024)") +
+    caption = "Source: Baeta, using data from World Bank, World Development Indicators and United Nations (2024)"
+  ) +
   
   scale_color_manual(
     name = "",
@@ -789,6 +885,7 @@ sub_saharan_africa_wgi_estimates_plot <- ggplot(
   ) +
   
   theme_minimal() +
+  
   theme(
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
     plot.title = element_text(size = 16),
@@ -803,11 +900,12 @@ sub_saharan_africa_wgi_estimates_plot <- ggplot(
   
   scale_x_discrete(
     breaks = unique(filtered_sub_saharan_africa_averages$year_interval_3yr),
-    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010",
-               "2011-2013", "2014-2016", "2017-2019")
+    labels = c("1996-1998", "1999-2001", "2002-2004", "2005-2007", "2008-2010", "2011-2013", "2014-2016", "2017-2019")
     ) +
   
-  facet_wrap(~any_UN, scales = "free_y", ncol = 1)
+  facet_wrap(~any_UN, 
+             scales = "free_y", 
+             ncol = 1)
 
 print(sub_saharan_africa_wgi_estimates_plot)
 
