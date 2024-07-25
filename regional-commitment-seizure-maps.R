@@ -1,20 +1,17 @@
 # Start 
 
-# title: "Commitment to United Nations Conventions 1961, 1971, 1988 and Cociane Seizures"
+# title: "Commitment to United Nations Conventions 1961, 1971, 1988 and Cocaine Seizures"
 # author: "Raquel Baeta"
 # date: "2024-07-25"
 
 # Install packages
-install.packages(c("readr", "countrycode", "tidyverse", "dplyr", "ggplot2", 
-                   "sf", "ggspatial", "rworldmap", "rworldxtra", "RColorBrewer",
-                   "maptools", "classInt", "ggtext"))
-install.packages(
-  "https://cran.rstudio.com/bin/macosx/big-sur-x86_64/contrib/4.3/rworldmap_1.3-8.tgz", 
-  repos = NULL, type = "source")
+install.packages(c("readr", "countrycode", "tidyverse", "dplyr", "ggplot2", "sf", "ggspatial", "rworldmap", "rworldxtra",
+                   "RColorBrewer", "maptools", "classInt", "ggtext"))
+install.packages("https://cran.rstudio.com/bin/macosx/big-sur-x86_64/contrib/4.3/rworldmap_1.3-8.tgz", 
+                 repos = NULL, type = "source")
 
 ## Load packages
-library(c(sf, rnaturalearth, ggrepel, stringr, readr, countrycode, tidyverse,
-          dplyr, ggplot2, sf, ggspatial))
+library(c(sf, rnaturalearth, ggrepel, stringr, readr, countrycode, tidyverse, dplyr, ggplot2, sf, ggspatial))
 
 # Define colors for each region
 colors <- c("#FFC107", "#38A3A5", "#B3446C", "#DC3545", "#007BFF", "#F08030", "#C7B8E6")
@@ -32,7 +29,6 @@ grouped_data <- data %>%
 east_asia_data <- grouped_data[grouped_data$region == "East Asia & Pacific", ]
 world <- ne_countries(scale = "large", returnclass = "sf")
 
-
 #
 #
 # [1] East Asia & the Pacific
@@ -41,7 +37,11 @@ world <- ne_countries(scale = "large", returnclass = "sf")
 
 # Merge data with world map
 east_asia_mapping <- merge(
-  world, east_asia_data, by.x = "iso_a3", by.y = "code", all.x = FALSE)
+  world, 
+  east_asia_data, 
+  by.x = "iso_a3", 
+  by.y = "code", 
+  all.x = FALSE)
 
 st_crs(east_asia_mapping) # Check CRS
 east_asia_mapping <- st_set_crs(east_asia_mapping, 4326)
@@ -51,29 +51,31 @@ east_asia_bbox <- c(xmin = 10, xmax = 180, ymin = -45, ymax = 50)
 
 # Plot map
 ggplot() +
-  geom_sf(data = east_asia_mapping, 
-          aes(fill = factor(any_UN)), 
-          color = "white", 
-          size = 0.2) +
+  geom_sf(
+    data = east_asia_mapping, 
+    aes(fill = factor(any_UN)), 
+    color = "white", 
+    size = 0.2) +
   geom_sf_label(
     data = st_centroid(east_asia_mapping), 
     aes(label = iso_a3), 
     size = 2, 
     color = "black", 
     fill = NA) +
-  scale_fill_manual(values = c("0" = "#c4d1cb", "1" = "#79ae97"),
-                    labels = c("Committed to None", "Committed to One"),
-                    name = "Status of Commitment") +
-  labs(title = "United Nations Convention Commitment and Seizures in East Asia & the Pacific",
-       subtitle = "Shading based on commitment to United Nations 1961, 1971 and 1988 Conventions") +
+  scale_fill_manual(
+    values = c("0" = "#c4d1cb", "1" = "#79ae97"),
+    labels = c("Committed to None", "Committed to One"),
+    name = "Status of Commitment") +
+  labs(
+    title = "United Nations Convention Commitment and Seizures in East Asia & the Pacific",
+    subtitle = "Shading based on commitment to United Nations 1961, 1971 and 1988 Conventions") +
   theme_minimal() +
-  coord_sf(xlim = c(east_asia_bbox["xmin"], east_asia_bbox["xmax"]),
-           ylim = c(east_asia_bbox["ymin"], east_asia_bbox["ymax"]))
+  coord_sf(
+    xlim = c(east_asia_bbox["xmin"], east_asia_bbox["xmax"]),
+    ylim = c(east_asia_bbox["ymin"], east_asia_bbox["ymax"]))
 
 # Create categorical variable for seizures and plot
-east_asia_mapping$category <- cut(
-  east_asia_mapping$mean_seizures, 5, 
-  labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
+east_asia_mapping$category <- cut(east_asia_mapping$mean_seizures, 5, labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
 
 eap_un_cocaine_plot <- ggplot() +
   geom_sf(
@@ -89,9 +91,10 @@ eap_un_cocaine_plot <- ggplot() +
     box.padding = 0.3, 
     point.padding = 0.5, 
     parse = TRUE) +
-  scale_fill_manual(values = c("0" = "#C5E1A5", "1" = "#79ae97"),
-                    labels = c("Committed to None", "Committed to One"),
-                    name = "Status of Commitment") +
+  scale_fill_manual(
+    values = c("0" = "#C5E1A5", "1" = "#79ae97"),
+    labels = c("Committed to None", "Committed to One"), 
+    name = "Status of Commitment") +
   geom_point(
     data = east_asia_mapping, 
     aes(x = label_x, y = label_y, size = mean_seizures),
@@ -101,25 +104,26 @@ eap_un_cocaine_plot <- ggplot() +
     alpha = 0.6, 
     stroke = 0.4) +
   scale_size_continuous(
-    range = c(2, 12), name = "Cocaine Seizures",
+    range = c(2, 12), 
+    name = "Cocaine Seizures",
     breaks = c(0, 175, 350, 525, 700),
     labels = stringr::str_wrap(
       c("Low (0 kg)", "Low-Medium (175 kg)", "Medium (350 kg)", "Medium-High (525 kg)", "High (700 kg)"), width = 50)) +
   theme_minimal() +
   theme(plot.title = element_text(size = 16), 
         axis.text = element_text(size = 8), 
-        panel.grid.major = element_line(
-          color = "lightgray", linetype = "dashed"),
-        legend.title = element_text(
-          size = 10), legend.text = element_text(size = 8),
+        panel.grid.major = element_line(color = "lightgray", linetype = "dashed"),
+        legend.title = element_text(size = 10), legend.text = element_text(size = 8),
         legend.position = c(0.195, 0.48), 
         legend.background = element_rect(color = "gray", linetype = "dashed")) +
-  labs(title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of East Asia & the Pacific (1996-2019)", width = 70), 
+  labs(
+    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of East Asia & the Pacific (1996-2019)", width = 70), 
        subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions", width = 90)) +
   xlab("Longitude") + 
   ylab("Latitude") +
-  coord_sf(xlim = c(east_asia_bbox["xmin"], east_asia_bbox["xmax"]),
-           ylim = c(east_asia_bbox["ymin"], east_asia_bbox["ymax"])) +
+  coord_sf(
+    xlim = c(east_asia_bbox["xmin"], east_asia_bbox["xmax"]),
+    ylim = c(east_asia_bbox["ymin"], east_asia_bbox["ymax"])) +
   guides(size = guide_legend(title = "Mean Cocaine Seizures")) +
   labs(caption = "Source: Baeta, using data from United Nations Office on Drugs and Crime (2024)")
 
@@ -139,7 +143,11 @@ unique(europe_asia_data$country)
 
 # Merge data for Europe & Central Asia
 europe_central_asia_mapping <- merge(
-  world, europe_asia_data, by.x = "iso_a3", by.y = "code", all.x = FALSE)
+  world, 
+  europe_asia_data, 
+  by.x = "iso_a3", 
+  by.y = "code", 
+  all.x = FALSE)
 str(europe_central_asia_mapping)
 
 # Set the coordinate reference system (CRS) to WGS 84
@@ -175,8 +183,7 @@ ggplot() +
 
 # Create a categorical variable for average seizures
 europe_central_asia_mapping$category <- cut(
-  europe_central_asia_mapping$mean_seizures, 5, 
-  labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
+  europe_central_asia_mapping$mean_seizures, 5, labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
 
 # Define breaks for size scale
 breaks <- seq(0, 13000, length.out = 5)
@@ -223,10 +230,8 @@ eca_un_cocaine_plot <- ggplot() +
     legend.position = c(0.195, 0.48),
     legend.background = element_rect(color = "gray", linetype = "dashed")) +
   labs(
-    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of Europe & Central Asia (1996-2019)", 
-                              width = 70), 
-    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions", 
-                                 width = 90)) +
+    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of Europe & Central Asia (1996-2019)", width = 70), 
+    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions", width = 90)) +
   xlab("Longitude") + 
   ylab("Latitude") +
   coord_sf(
@@ -236,10 +241,8 @@ eca_un_cocaine_plot <- ggplot() +
   labs(caption = "Source: Baeta, using data from United Nations Office on Drugs and Crime (2024)")
 
 # Save the plot as a PDF/PNG
-ggsave("eca_un_cocaine_plot.pdf", plot = eca_un_cocaine_plot, 
-       width = 14, height = 8.5)
-ggsave("eca_un_cocaine_plot.png", plot = eca_un_cocaine_plot, 
-       width = 14, height = 8.5)
+ggsave("eca_un_cocaine_plot.pdf", plot = eca_un_cocaine_plot, width = 14, height = 8.5)
+ggsave("eca_un_cocaine_plot.png", plot = eca_un_cocaine_plot, width = 14, height = 8.5)
 
 #
 #
@@ -253,7 +256,11 @@ unique(latam_caribbean_data$country)
 
 # Merge data for Latin America & Caribbean
 latam_caribbean_mapping <- merge(
-  world, latam_caribbean_data, by.x = "iso_a3", by.y = "code", all.x = FALSE)
+  world, 
+  latam_caribbean_data, 
+  by.x = "iso_a3", 
+  by.y = "code", 
+  all.x = FALSE)
 str(latam_caribbean_mapping)
 
 # Set the coordinate reference system (CRS) to WGS 84
@@ -290,8 +297,7 @@ ggplot() +
 
 # Create a categorical variable for average seizures
 latam_caribbean_mapping$category <- cut(
-  latam_caribbean_mapping$mean_seizures, 5, 
-  labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
+  latam_caribbean_mapping$mean_seizures, 5, labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
 
 # Define breaks for size scale
 breaks <- seq(0, 80000, length.out = 5)
@@ -339,24 +345,19 @@ latam_un_cocaine_plot <- ggplot() +
     legend.position = c(0.195, 0.48),
     legend.background = element_rect(color = "gray", linetype = "dashed")) +
   labs(
-    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of Latin America & the Caribbean (1996-2019)", 
-                              width = 70), 
-    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions", 
-                                 width = 90)) +
+    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of Latin America & the Caribbean (1996-2019)", width = 70), 
+    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions", width = 90)) +
   xlab("Longitude") + 
   ylab("Latitude") +
   coord_sf(
     xlim = c(latam_caribbean_bbox["xmin"], latam_caribbean_bbox["xmax"]),
     ylim = c(latam_caribbean_bbox["ymin"], latam_caribbean_bbox["ymax"])) +
   guides(size = guide_legend(title = "Mean Cocaine Seizures")) +
-  labs(
-    caption = "Source: Baeta, using data from United Nations Office on Drugs and Crime (2024)")
+  labs(caption = "Source: Baeta, using data from United Nations Office on Drugs and Crime (2024)")
 
 # Save the plot as a PDF/PNG
-ggsave("latam_un_cocaine_plot.pdf", plot = latam_un_cocaine_plot,
-       width = 14, height = 8.5)
-ggsave("latam_un_cocaine_plot.png", plot = latam_un_cocaine_plot, 
-       width = 14, height = 8.5)
+ggsave("latam_un_cocaine_plot.pdf", plot = latam_un_cocaine_plot, width = 14, height = 8.5)
+ggsave("latam_un_cocaine_plot.png", plot = latam_un_cocaine_plot, width = 14, height = 8.5)
 
 #
 #
@@ -415,8 +416,7 @@ ggplot() +
 
 # Create a categorical variable for average seizures
 middle_east_north_africa_mapping$category <- cut(
-  middle_east_north_africa_mapping$mean_seizures, 5, 
-  labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
+  middle_east_north_africa_mapping$mean_seizures, 5, labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
 
 # group_by() to group the data by the levels of "mean_seizures_cat" and 
 # then uses summarize to calculate the mean of "mean_seizures" within each group
@@ -459,8 +459,7 @@ mena_un_cocaine_plot <- ggplot() +
     name = "Mean Cocaine Seizures",
     breaks = breaks,
     labels = stringr::str_wrap(
-      c("Low (0 kg)", "Low-Medium (25 kg)", "Medium (50 kg)", 
-        "Medium-High (75 kg)", "High (100 kg)"), width = 30)) +
+      c("Low (0 kg)", "Low-Medium (25 kg)", "Medium (50 kg)", "Medium-High (75 kg)", "High (100 kg)"), width = 30)) +
   theme_minimal() + 
   theme(
     plot.title = element_text(size = 16),
@@ -471,10 +470,8 @@ mena_un_cocaine_plot <- ggplot() +
     legend.background = element_rect(color = "lightgray", linetype = "dashed"),
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed")) +
   labs(
-    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of Middle East & North Africa (1996-2019)", 
-                              width = 60),
-    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions",
-                                 width = 80)) +
+    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of Middle East & North Africa (1996-2019)", width = 60),
+    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions", width = 80)) +
   xlab("Longitude") + 
   ylab("Latitude") +
   coord_sf(
@@ -546,8 +543,7 @@ ggplot() +
 
 # Create a categorical variable for average seizures
 north_america_mapping$category <- cut(
-  north_america_mapping$mean_seizures, 5, 
-  labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
+  north_america_mapping$mean_seizures, 5, labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
 
 # Breaks
 print(breaks <- seq(0, 50000, length.out = 5))
@@ -596,10 +592,8 @@ na_un_cocaine_plot <- ggplot() +
     legend.background = element_rect(color = "lightgray", linetype = "dashed"),
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed")) +
   labs(
-    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of North America (1996-2019)", 
-                              width = 60),
-    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions",
-                                 width = 80)) +
+    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of North America (1996-2019)", width = 60),
+    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions", width = 80)) +
   xlab("Longitude") + 
   ylab("Latitude") +
   coord_sf(
@@ -671,8 +665,7 @@ ggplot() +
 
 # Create a categorical variable for average seizures
 south_america_mapping$category <- cut(
-  south_america_mapping$mean_seizures, 5, 
-  labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
+  south_america_mapping$mean_seizures, 5, labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
 
 # Breaks
 print(breaks <- seq(0, 20000, length.out = 5))
@@ -720,10 +713,8 @@ sa_un_cocaine_plot <- ggplot() +
     legend.background = element_rect(color = "lightgray", linetype = "dashed"),
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed")) +
   labs(
-    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of South America (1996-2019)", 
-                              width = 60),
-    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions",
-                                 width = 80)) +
+    title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of South America (1996-2019)", width = 60),
+    subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions", width = 80)) +
   xlab("Longitude") + 
   ylab("Latitude") +
   coord_sf(
@@ -794,8 +785,7 @@ ggplot() +
 
 # Create a categorical variable for average seizures
 sub_saharan_africa_mapping$category <- cut(
-  sub_saharan_africa_mapping$mean_seizures, 5, 
-  labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
+  sub_saharan_africa_mapping$mean_seizures, 5, labels = c("Low", "Low-Medium", "Medium", "Medium-High", "High"))
 
 # Breaks
 print(breaks <- seq(0, 15000, length.out = 5))
@@ -843,10 +833,8 @@ ssa_un_cocaine_plot <- ggplot() +
     legend.position = c(0.10, 0.4),
     legend.background = element_rect(color = "lightgray", linetype = "dashed"),
     panel.grid.major = element_line(color = "lightgray", linetype = "dashed")) +
-  labs(title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of Sub-Saharan Africa (1996-2019)", 
-                                 width = 60),
-       subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions",
-                                    width = 80)) +
+  labs(title = stringr::str_wrap("Mean Annual Cocaine Seizures and United Nations Convention Commitments: A Map of Sub-Saharan Africa (1996-2019)", width = 60),
+       subtitle = stringr::str_wrap("Exploring the spatial patterns of cocaine seizures and commitment to United Nations 1961, 1971 and 1988 Conventions", width = 80)) +
   xlab("Longitude") + 
   ylab("Latitude") +
   coord_sf(
